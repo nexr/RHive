@@ -1,0 +1,10 @@
+2011-10-25  16:08  jun.cho
+
+	* DESCRIPTION, NAMESPACE, R/rhive.R, R/rhiveInit.R, R/test.R,
+	  inst/doc/RHive.dvi, inst/doc/RHive.pdf, inst/java/rhive_udf.jar,
+	  inst/unitTests/runit-hiveConnect.R,inst/unitTests/runit-hiveExport.R,
+	  inst/unitTests/runit-hiveExportAll.R,inst/unitTests/runit-hiveQuery.R,
+	  man/rhive-connect.Rd,man/rhive-export.Rd,man/rhive-query.Rd,man/rhive.Rd,
+	  src/build.xml, src/build.num, src/Makevars, src/lib/REngine.jar, src/lib/RserveEngine.jar
+	  src/lib/hadoop-core-0.20.3-CDH3-SNAPSHOT.jar : initial import for preparation for public CRAN
+	  package, will take on most of Hive Query functionality

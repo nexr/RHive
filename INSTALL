@@ -1,0 +1,37 @@
+1. Install Hadoop
+	1-1. Single Node (http://hadoop.apache.org/common/docs/r0.20.203.0/single_node_setup.html)
+	1-2. Cluster Node (http://hadoop.apache.org/common/docs/r0.20.203.0/cluster_setup.html)
+	
+2. Install Hive
+	2-1. install local machine and remote machine on which NameNode runs or Hive-Server runs.
+	2-2. Installation Guide 
+	     (https://cwiki.apache.org/confluence/display/Hive/GettingStarted#GettingStarted-InstallationandConfiguration)
+	2-3. set HIVE_HOME at local machine on which R runs.
+	2-4. launch Hive Server with following command on remote machine.
+		 e.q. >$HIVE_HOME/bin/hive --service hiveserver
+		
+3. Install R and Packages
+	3-1. install R
+		3-1-1. need to install R on all tasktracker nodes
+	3-2. install rJava
+		3-2-1. only install rJava on local machine.
+	3-3. install Rserve
+		3-3-1. need to install Rserve on all tasktracker nodes
+		3-3-2. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
+			   e.q. >export RHIVE_DATA=/rhive/data
+	    3-3-3. make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
+	           edit this file to add 'remote enable' to allow remote connection.
+	    3-3-4. launch all Rserve on all tasktracker nodes.
+	    	   e.q. >R CMD Rserve
+	3-4. install RUnit
+	
+4. Install RHive
+	4-1. requirement software : ANT.
+	4-2. R CMD INSTALL RHive_0.1-0.tar.gz
+	4-2. copy RUDF/RUDAF library to hive-server. this library is 'rhive_udf.jar'
+		 this jar file exists under $HIVE_HOME/lib. 
+
+5. Launch RHive
+	5-1. launch R
+	5-2. >library(RHive)
+	

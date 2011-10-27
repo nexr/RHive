@@ -1,0 +1,7 @@
+.PHONY: all 
+
+all: clean 
+	ant main	
+
+clean:
+	ant main-clean

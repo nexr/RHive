@@ -1,0 +1,6 @@
+importFrom("utils", "packageDescription")
+importFrom("tools","file_path_as_absolute")
+import("rJava")
+exportPattern("^rhive")
+exportPattern("hive")
+export("runAllTest")
