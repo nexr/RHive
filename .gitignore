@@ -1,0 +1,10 @@
+.DS_Store
+*~
+build
+classes
+*.tar.gz
+pkg.Rcheck/*
++.#*
+.Rhistory
+
+RHive/pkg.Rcheck/*
