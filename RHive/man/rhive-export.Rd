@@ -53,7 +53,10 @@ rhive.rm('coff')
 ## define R aggregation function
 ## define iterate operator
 hsum <- function(prev,sal) {
-	c(prev[1] + sal[1])
+     if(is.null(prev)
+	 sal
+     else
+	prev + sal
 }
 ## define partial aggregation operator
 hsum.partial <- function(agg_sal) {
@@ -61,7 +64,10 @@ hsum.partial <- function(agg_sal) {
 }
 ## define merge operator
 hsum.merge <- function(prev, agg_sal) {
-	c(prev[1] + agg_sal[1])
+     if(is.null(prev))
+        agg_sal
+     else
+	prev + agg_sal
 }
 ## define final aggregation operator
 hsum.terminate <- function(agg_sal) {
