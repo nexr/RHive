@@ -75,7 +75,7 @@ rhive.assign('hsum.terminate',hsum.terminate)
 rhive.exportAll('hsum')
 
 ## name of UDAF is 'RA'
-rhive.query(hivecon,"select RA('hsum',sal) from emp group by empno")
+rhive.query("select RA('hsum',sal) from emp group by empno")
 
 ## close connection
 rhive.close()
