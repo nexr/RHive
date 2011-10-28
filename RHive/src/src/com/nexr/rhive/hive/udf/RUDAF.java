@@ -256,8 +256,10 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 try {
                     rdata = getConnection().eval(function_name + "(" + argument.toString() + "))");
                 } catch (Exception e) {
-                    throw new HiveException("fail to eval : " + function_name + "("
-                            + argument.toString() + "))");
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    e.printStackTrace(new PrintStream(output));
+                    throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "(" + argument.toString()
+                            + ")");
                 }
                 
                 if (rdata != null) {
@@ -286,8 +288,10 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                                 .eval(function_name + "(" + myagg.values + ")");
                     }
                 } catch (Exception e) {
-                    throw new HiveException("fail to eval : " + function_name + "("
-                            + myagg.values + ")");
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    e.printStackTrace(new PrintStream(output));
+                    throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "(" + myagg.values
+                            + ")");
                 }
                 
                 if (rdata != null) {
@@ -341,7 +345,9 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                                             + ")");
                         }
                     } catch (Exception e) {
-                        throw new HiveException("fail to eval : " + function_name + "("
+                        ByteArrayOutputStream output = new ByteArrayOutputStream();
+                        e.printStackTrace(new PrintStream(output));
+                        throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "("
                                 + myagg.values + "," + partial_value + ")");
                     }
                     
@@ -379,7 +385,9 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                                 .eval(function_name + "(" + myagg.values + ")");
                     }
                 } catch (Exception e) {
-                    throw new HiveException("fail to eval : " + function_name + "("
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    e.printStackTrace(new PrintStream(output));
+                    throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "("
                             + myagg.values + ")");
                 }
                 
@@ -425,7 +433,9 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                             "load(file=paste(Sys.getenv('RHIVE_DATA'),'/" + export_name
                                     + ".Rdata',sep=''))");
                 } catch (Exception e) {
-                    throw new HiveException(e.toString());
+                    ByteArrayOutputStream output = new ByteArrayOutputStream();
+                    e.printStackTrace(new PrintStream(output));
+                    throw new HiveException(new String(output.toByteArray()));
                 }
                 
                 funclist.put(export_name, NULL);

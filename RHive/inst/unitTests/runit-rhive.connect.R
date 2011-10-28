@@ -19,9 +19,10 @@ stopifnot(require(RUnit, quietly=TRUE))
 test.hiveConnect <- function()
 {
     ## connect hive
-    hivecon <- hiveConnect("127.0.0.1")
+    #hivecon <- hiveConnect("127.0.0.1")
+    hivecon <- rhive.connect("143.248.160.244")
 	checkTrue(!is.null(hivecon))
 
 	## close connection
-	checkTrue(hiveClose(hivecon))
+	checkTrue(rhive.close())
 }

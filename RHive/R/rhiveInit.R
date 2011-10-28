@@ -15,6 +15,7 @@
 
 library(utils)
 .rhiveEnv <- new.env()
+.rhiveExportEnv <- new.env()
 
 .onLoad <- function(libname, pkgname) {
 #   .jpackage(pkgname, lib.loc = libname)

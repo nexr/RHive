@@ -22,20 +22,22 @@ test.hiveExportAll <- function()
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
 
     ## connect hive
-    hivecon <- hiveConnect("127.0.0.1")
+    #hivecon <- hiveConnect("127.0.0.1")
+    hivecon <- rhive.connect("143.248.160.244")
 	checkTrue(!is.null(hivecon))
 	
-	userconf <<- 5
-	
-	usercal <<- function(sal) {
+	userconf <- 5
+	usercal2 <- function(sal) {
 		sal * userconf
 	}
 	
-	hiveExportAll(hivecon, 'usercal', c("127.0.0.1"))
+	checkTrue(rhive.assign('usercal2',usercal2))
+	checkTrue(rhive.assign('userconf',userconf))
+	checkTrue(rhive.exportAll('usercal2', c("143.248.160.220","143.248.160.225","143.248.160.190")))
 	
-	queryResult <- hiveQuery(hivecon,"select R('usercal',sal,0.0) from emp")
+	queryResult <- rhive.query("select R('usercal2',sal,0.0) from emp")
 	checkTrue(!is.null(queryResult))
 
 	## close connection
-	checkTrue(hiveClose(hivecon))
+	checkTrue(rhive.close())
 }

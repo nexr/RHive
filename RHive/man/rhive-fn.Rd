@@ -4,10 +4,10 @@
 \alias{hiveExport}
 \alias{hiveExportAll}
 \alias{hiveClose}
-\alias{hiveListTable}
+\alias{hiveListTables}
 \alias{hiveDescTable}
 \alias{hiveLoadTable}
-\title{Function style API}
+\title{Methods for the class }
 \description{
 
 }
@@ -17,7 +17,7 @@ hiveClose(hiveclient=rhive.defaults('hiveclient'))
 hiveQuery(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 hiveExport(fn_name, hosts = "localhost", port = 6311, limit = 104857600)
 hiveExportAll(name, hosts = "localhost", port = 6311, limit = 104857600)
-hiveListTable(hiveclient=rhive.defaults('hiveclient'))
+hiveListTables(hiveclient=rhive.defaults('hiveclient'))
 hiveDescTable(tablename,detail=FALSE,hiveclient=rhive.defaults('hiveclient'))
 hiveLoadTable(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 }

@@ -3,14 +3,20 @@
 \alias{rhive.exportAll}
 \title{Export R function to Hive using functions in Package `RHive'}
 \usage{
-rhive.export(exportname,hosts="127.0.0.1",port=6311,limit = 104857600)
-rhive.exportAll(exportname,hosts="127.0.0.1",port=6311,limit = 104857600)
+rhive.export(exportname,hosts = "127.0.0.1", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
+rhive.exportAll(exportname, hosts = "127.0.0.1", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
+rhive.assign(name,value)
+rhive.rm(name)
 }
 \arguments{
 \item{hosts}{list of Rserve's address}
 \item{query}{hive query.}
 \item{exportname}{function name to be exported.}
 \item{limit}{total exported object size. default is 100MB}
+\item{name}{a variable name, given as a character string.  No coercion is done, 
+			and the first element of a character vector of length
+            greater than one will be used, with a warning.}
+\item{value}{a value to be assigned to ¡®x¡¯.}
 } 
 \author{
 \email{rhive@nexr.com}
@@ -29,12 +35,20 @@ scoring <- function(sal) {
 	coff * sal
 }
 
+## assign R object to Hive
+rhive.assign('scoring',scoring)
+rhive.assign('coff',coff)
+
 ## export R objects (scoring and coff) to Hive 
-rhive.export('scoring')
+rhive.exportAll('scoring')
 
 ## execute HQL using exported R objects
 ## name of UDF is 'R'
-rhive.query(hivecon,"select R('scoring',sal,0.0) from emp")
+rhive.query("select R('scoring',sal,0.0) from emp")
+
+## delete R object in .rhiveExportEnv
+rhive.rm('scoring')
+rhive.rm('coff')
 
 ## define R aggregation function
 ## define iterate operator
@@ -54,6 +68,10 @@ hsum.terminate <- function(agg_sal) {
 	agg_sal
 }
 
+rhive.assign('hsum',hsum)
+rhive.assign('hsum.partial',hsum.partial)
+rhive.assign('hsum.merge',hsum.merge)
+rhive.assign('hsum.terminate',hsum.terminate)
 rhive.exportAll('hsum')
 
 ## name of UDAF is 'RA'

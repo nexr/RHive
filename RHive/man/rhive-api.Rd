@@ -4,7 +4,7 @@
 \alias{rhive.load.table}
 \title{R function to handle data and meta info from HIVE}
 \usage{
-rhive.list.table(hiveclient=rhive.defaults('hiveclient'))
+rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 }
@@ -22,7 +22,7 @@ rhive.load.table(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 rhive.connect("127.0.0.1")
 
 ## get list of tables from hive
-rhive.list.table()
+rhive.list.tables()
 
 ## get table info from hive
 rhive.desc.table('emp')

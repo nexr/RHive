@@ -85,7 +85,9 @@ public class RUDF extends GenericUDF {
         try {
             rdata = getConnection().eval(function_name + "(" + argument.toString() + ")");
         } catch (Exception e) {
-            throw new HiveException("fail to eval : " + function_name + "(" + argument.toString()
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            e.printStackTrace(new PrintStream(output));
+            throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "(" + argument.toString()
                     + ")");
         }
         

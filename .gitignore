@@ -8,3 +8,6 @@ pkg.Rcheck/*
 .Rhistory
 
 RHive/pkg.Rcheck/*
+.project
+.classpath
+.settings

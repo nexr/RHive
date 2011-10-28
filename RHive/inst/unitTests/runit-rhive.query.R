@@ -22,12 +22,13 @@ test.hiveQuery <- function()
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
 
     ## connect hive
-    hivecon <- hiveConnect("127.0.0.1")
+    #hivecon <- hiveConnect("127.0.0.1")
+    hivecon <- rhive.connect("143.248.160.244")
 	checkTrue(!is.null(hivecon))
 	
-	queryResult <- hiveQuery(hivecon,"select * from emp")
+	queryResult <- rhive.query("select * from emp")
 	checkTrue(!is.null(queryResult))
 
 	## close connection
-	checkTrue(hiveClose(hivecon))
+	checkTrue(rhive.close())
 }
