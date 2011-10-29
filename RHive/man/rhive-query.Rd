@@ -13,17 +13,14 @@ hiveQuery(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclie
 \author{
 \email{rhive@nexr.com}
 }
-\details{
-
-}
 \examples{
 ## try to connect hive server
-rhive.connect("127.0.0.1")
+\dontrun{rhive.connect("127.0.0.1")}
 
 ## execute hive query
-rhive.query("select enam from emp")
+\dontrun{rhive.query("select ename from emp")}
 
 ## close connection
-rhive.close()
+\dontrun{rhive.close()}
 }
 \keyword{programming}

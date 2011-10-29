@@ -16,9 +16,9 @@ rhive.close(hiveclient=rhive.defaults('hiveclient'))
 }
 \examples{
 ## try to connect hive server
-rhive.connect("127.0.0.1")
+\dontrun{rhive.connect("127.0.0.1")}
 
 ## close connection
-rhive.close()
+\dontrun{rhive.close()}
 }
 \keyword{programming}

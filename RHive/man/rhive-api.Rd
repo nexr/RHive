@@ -1,8 +1,8 @@
 \name{rhive-api}
-\alias{rhive.list.table}
+\alias{rhive.list.tables}
 \alias{rhive.desc.table}
 \alias{rhive.load.table}
-\title{R function to handle data and meta info from HIVE}
+\title{R functions to get informations of table from HIVE}
 \usage{
 rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
@@ -19,27 +19,27 @@ rhive.load.table(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 }
 \examples{
 ## try to connect hive server
-rhive.connect("127.0.0.1")
+\dontrun{rhive.connect("127.0.0.1")}
 
 ## get list of tables from hive
-rhive.list.tables()
+\dontrun{rhive.list.tables()}
 
 ## get table info from hive
-rhive.desc.table('emp')
+\dontrun{rhive.desc.table('emp')}
 
 ## get table detail info from hive
-rhive.desc.table('emp',TRUE)
+\dontrun{rhive.desc.table('emp',TRUE)}
 
 ## retrieve data from hive
-emp <- rhive.load.table('emp')
+\dontrun{emp <- rhive.load.table('emp')}
 
 ## display column names
-colnames(emp)
+\dontrun{colnames(emp)}
 
 ## display row count
-length(rownames(emp))
+\dontrun{length(rownames(emp))}
 
 ## close connection
-rhive.close()
+\dontrun{rhive.close()}
 }
 \keyword{programming}

@@ -188,19 +188,19 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 
 }
 
-rhive.export <- function(fn_name, hosts = "127.0.0.1", port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
+rhive.export <- function(exportname, hosts = "127.0.0.1", port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
 
 	for(rhost in hosts) {
 	    rcon <- RSconnect(rhost, port)
 	    
-	    if(object.size(get(fn_name,pos,envir)) < limit) {
-	    	result <- try(RSassign(rcon,get(fn_name,pos,envir),fn_name), silent = FALSE)
+	    if(object.size(get(exportname,pos,envir)) < limit) {
+	    	result <- try(RSassign(rcon,get(exportname,pos,envir),exportname), silent = FALSE)
 	    	if(class(result) == "try-error") return(FALSE)
 		}else {
 			print("exceed limit object size")
 		}
 		
-		command <- paste("save(",fn_name,",file=paste(Sys.getenv('RHIVE_DATA')",",'/",fn_name,".Rdata',sep=''))",sep="")
+		command <- paste("save(",exportname,",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")
 		RSeval(rcon,command)
 		
 		RSclose(rcon)
@@ -210,13 +210,11 @@ rhive.export <- function(fn_name, hosts = "127.0.0.1", port = 6311, pos = -1, en
 
 }
 
-rhive.exportAll <- function(name, hosts = "127.0.0.1", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
-
-    #list <- ls(pos=1,pattern="[^{hiveclient}]")
+rhive.exportAll <- function(exportname, hosts = "127.0.0.1", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
     
     if(attr(envir,"name") <- 'no attribute' == "package:RHive") {
     	print("can not export 'package:RHive'")
-    	return(FLASE)
+    	return(FALSE)
     }
     
     list <- ls(NULL,pos,envir)
@@ -237,7 +235,7 @@ rhive.exportAll <- function(name, hosts = "127.0.0.1", port = 6311, pos = 1, env
 			}
 	    }
 		
-		command <- paste("save(list=ls(pattern=\"[^name]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",name,".Rdata',sep=''))",sep="")	
+		command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")	
 		RSeval(rcon,command)
 	
 		RSclose(rcon)
@@ -245,7 +243,6 @@ rhive.exportAll <- function(name, hosts = "127.0.0.1", port = 6311, pos = 1, env
 	}
 	
 	return(TRUE)
-
 }
 
 
@@ -288,16 +285,16 @@ hiveQuery <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaul
 	rhive.query(query,fetchsize,limit,hiveclient)
 }
 
-hiveExport <- function(fn_name, hosts = "localhost", port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
-	rhive.export(fn_name, hosts, port, pos, envir, limit)
+hiveExport <- function(exportname, hosts = "localhost", port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
+	rhive.export(exportname, hosts, port, pos, envir, limit)
 }
 
-hiveExportAll <- function(name, hosts = "localhost", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
-	rhive.exportAll(name, hosts, port, pos, envir, limit)
+hiveExportAll <- function(exportname, hosts = "localhost", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+	rhive.exportAll(exportname, hosts, port, pos, envir, limit)
 }
 
 hiveListTables <- function(hiveclient=rhive.defaults('hiveclient')) {
-	rhive.list.table(hiveclient)
+	rhive.list.tables(hiveclient)
 }
 
 hiveDescTable <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('hiveclient')) {
@@ -306,4 +303,12 @@ hiveDescTable <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('hive
 
 hiveLoadTable <- function(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
 	rhive.load.table(tablename, limit, hiveclient)
+}
+
+hiveAssign <- function(name, value) {
+        rhive.assign(name,value)
+}
+
+hiveRm <- function(name) {
+        rhive.rm(name)
 }
