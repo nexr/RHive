@@ -3,11 +3,11 @@
 build
 classes
 *.tar.gz
-pkg.Rcheck/*
+RHive.Rcheck/*
+RHive/inst/java/rhive_udf.jar
 +.#*
 .Rhistory
 
-RHive/pkg.Rcheck/*
 .project
 .classpath
 .settings
