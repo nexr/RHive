@@ -16,7 +16,15 @@ Export R function to Hive using functions in Package `RHive'
 \details{
 RHive supports the following additional Hive functions. One is RUDF and
 its syntax is \code{R(export-R-function-name,arguments,...,return-type)}.
+
 Another is RUDAF and its syntax is \code{RA(export-R-function-name,arguments,...)}.
+R function which runs via RUDAF should be made with the following rule.
+This rule is a function naming rule. An R aggregation function is composed of 4 sub-functions and
+each sub-function has a naming rule. First sub-function uses user-defined name, which is export-R-function-name. 
+Second is made from combining first sub-function name and '.partial'.
+Third is made from combining first function name and '.merge'. 
+Final function is made from combining first name and '.terminate'.
+
 UDTF is a built-in table-generating function in Hive. 
 RHive supports two kinds of UDTF, unfold and expand. 
 'unfold' syntax is \code{unfold(value,col1-v,col2-v,...,delim) as (col1,col2,...)}.
