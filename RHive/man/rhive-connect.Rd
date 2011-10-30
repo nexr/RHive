@@ -12,7 +12,7 @@ rhive.close(hiveclient=rhive.defaults('hiveclient'))
 Manage connection to Hive using functions in Package `RHive'
 }
 \arguments{
-\item{hive}{path of hive's installation or if HIVE_HOME is set, it is possible to use NULL.}
+\item{hive}{path of hive's installation or if HIVE_HOME is set, it is possible to use as NULL.}
 \item{libs}{library path to be added to classpath.}
 \item{host}{hive-server address for connecting to hive.}
 \item{port}{hive-server listen port.}
