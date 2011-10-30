@@ -14,6 +14,7 @@
 
 
 rhive.init <- function(hive=NULL,libs=NULL,verbose=FALSE){
+
   if(is.null(hive)) hive <- Sys.getenv("HIVE_HOME")
   if(hive=="")
     stop(sprintf("One or both of HIVE_HOME(%s) is missing. Please set them and rerun",
