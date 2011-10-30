@@ -67,7 +67,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000) {
      
      hivecon$open()
      
-     client$execute(.jnew("java/lang/String","add jar ../lib/rhive_udf.jar"))
+     client$execute(.jnew("java/lang/String","add jar hdfs:///rhive/lib/rhive_udf.jar"))
      client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
      client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF'"))
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
