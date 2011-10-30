@@ -13,6 +13,16 @@ Execute HQL(Hive Query) in R using functions in Package `RHive'
 \item{limit}{total result size.}
 \item{hiveclient}{a client for hive.}
 } 
+\details{
+The query argument is Hive Query Language. 
+}
+\value{
+\code{rhive.query} returns data.frame.
+}
+\references{
+Apache Hive Query Language Manual
+(\url{https://cwiki.apache.org/confluence/display/Hive/LanguageManual}).
+}
 \author{
 \email{rhive@nexr.com}
 }

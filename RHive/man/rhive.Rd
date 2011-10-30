@@ -1,6 +1,5 @@
 \name{rhive}
 \alias{RHive}
-\alias{RHIVE}
 \alias{rhive}
 \docType{package}
 \title{rhive: R and Hive}
@@ -18,20 +17,25 @@
   as well as querying hive.
 } 
 \seealso{
+rhive.init
 rhive.connect
 rhive.query
+rhive.assign
+rhive.rm
 rhive.export
 rhive.exportAll
 rhive.close
-rhive.list.table
+rhive.list.tables
 rhive.desc.table
 rhive.load.table
 hiveConnect
 hiveQuery
+hiveAssign
+hiveRm
 hiveExport
 hiveExportAll
 hiveClose
-hiveListTable
+hiveListTables
 hiveDescTable
 hiveLoadTable
 }
