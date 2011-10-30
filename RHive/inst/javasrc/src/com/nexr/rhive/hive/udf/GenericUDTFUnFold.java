@@ -41,7 +41,7 @@ import org.apache.hadoop.io.Writable;
  * UnFoldUDTF
  * 
  */
-@Description(name = "unfold", value = "_FUNC_(x) - Returns the extended result of one column")
+@Description(name = "unfold", value = "_FUNC_(value,arg1,arg2,...,delim) - Returns the extended result of one column")
 public class GenericUDTFUnFold extends GenericUDTF {
     
     enum DATA_TYPE {

@@ -41,7 +41,7 @@ import org.apache.hadoop.io.Writable;
  * GenericUDTFExpand
  * 
  */
-@Description(name = "expand", value = "_FUNC_(x) - Returns the extended result of one column")
+@Description(name = "expand", value = "_FUNC_(value,arg1,arg2,...,delim) - Returns the extended result of one column")
 public class GenericUDTFExpand extends GenericUDTF {
     
     enum DATA_TYPE {

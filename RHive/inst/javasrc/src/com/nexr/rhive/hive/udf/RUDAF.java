@@ -59,7 +59,7 @@ import org.rosuda.REngine.Rserve.RConnection;
  * RUDAF
  *
  */
-@Description(name = "RA", value = "_FUNC_(x) - Returns the result of R aggregation function")
+@Description(name = "RA", value = "_FUNC_(export-name,arg1,arg2,...) - Returns the result of R aggregation function")
 public class RUDAF extends AbstractGenericUDAFResolver {
     
     @Override
