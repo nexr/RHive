@@ -10,7 +10,7 @@
 \alias{hiveAssign}
 \alias{hiveRm}
 \title{Methods for the class }
-\description{ This functions are wrapper for rhive functions to provide method style.}
+\description{ These functions are wrappers to provide function style api for rhive functions.}
 \author{
 \email{rhive@nexr.com}
 }

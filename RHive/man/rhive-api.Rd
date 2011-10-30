@@ -14,7 +14,7 @@ R functions to get informations of table from HIVE
 \arguments{
 \item{hiveclient}{a client for hive.}
 \item{tablename}{hive table name.}
-\item{detail}{flag is whether to show detail of table info or not}
+\item{detail}{a flag on whether to show detail of table info.}
 \item{limit}{total fetch size}
 } 
 \author{

@@ -15,14 +15,14 @@ Export R function to Hive using functions in Package `RHive'
 }
 \details{
 RHive supports the following additional Hive functions. One is RUDF and
-this syntax is \code{R(export-R-function-name,arguments,...,return-type)}.
-Another is RUDAF and this syntax is \code{RA(export-R-function-name,arguments,...)}.
-UDTF is built-in table-generating function in Hive. 
+its syntax is \code{R(export-R-function-name,arguments,...,return-type)}.
+Another is RUDAF and its syntax is \code{RA(export-R-function-name,arguments,...)}.
+UDTF is a built-in table-generating function in Hive. 
 RHive supports two kinds of UDTF, unfold and expand. 
-unfold syntax is \code{unfold(value,col1-v,col2-v,...,delim) as (col1,col2,...)}.
-this unfold function allows user to change one column to many columns.
-expand syntax is \code{expand(value,col-v,delim) as(col)}.
-this expand function allows user to change one column to many rows.
+'unfold' syntax is \code{unfold(value,col1-v,col2-v,...,delim) as (col1,col2,...)}.
+this 'unfold' function allows user to change one column into many columns.
+'expand' syntax is \code{expand(value,col-v,delim) as(col)}.
+this 'expand' function allows user to change one column into many rows.
 }
 \arguments{
 \item{hosts}{list of Rserve's address}
