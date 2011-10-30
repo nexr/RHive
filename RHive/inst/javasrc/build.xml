@@ -4,7 +4,7 @@
   <property name="build.dir"   value="build"/>
   <property name="classes.dir" value="${build.dir}/classes"/>
   <property name="jar.dir"     value="${build.dir}/jar"/>
-  <property name="R.dir"     value="../"/>
+  <property name="R.dir"     value="../../"/>
   <property name="javac.debug" value="on"/>
   <property name="javac.optimize" value="on"/>
   <property name="javac.deprecation" value="on"/>
@@ -31,7 +31,8 @@
 	   source="${javac.version}"
 	   deprecation="${javac.deprecation}"
 	   debug="${javac.debug}"
-	   debuglevel="lines,vars,source">
+	   debuglevel="lines,vars,source"
+       includeantruntime="false">
       <compilerarg line="${javac.args.warnings}"/>
     </javac>
     <unjar dest="${classes.dir}">
@@ -58,6 +59,7 @@
     <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
     <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/> 
     <copy file="${ant.project.name}.jar" todir="${env.HIVE_HOME}/lib/"/>
+  	<delete file="${ant.project.name}.jar"/>
   </target>
 
   <target name="main-clean" depends="clean"/>

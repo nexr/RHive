@@ -8,6 +8,9 @@ rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 }
+\description{
+R functions to get informations of table from HIVE
+}
 \arguments{
 \item{hiveclient}{a client for hive.}
 \item{tablename}{hive table name.}

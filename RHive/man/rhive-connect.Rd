@@ -6,6 +6,9 @@
 rhive.connect(host,port=10000)
 rhive.close(hiveclient=rhive.defaults('hiveclient'))
 }
+\description{
+Manage connection to Hive using functions in Package `RHive'
+}
 \arguments{
 \item{host}{hive-server address to connect hive.}
 \item{port}{hive-server listen port.}

@@ -10,6 +10,9 @@ rhive.exportAll(exportname, hosts = "127.0.0.1", port = 6311, pos = 1, envir = .
 rhive.assign(name,value)
 rhive.rm(name)
 }
+\description{
+Export R function to Hive using functions in Package `RHive'
+}
 \arguments{
 \item{hosts}{list of Rserve's address}
 \item{exportname}{function name to be exported.}

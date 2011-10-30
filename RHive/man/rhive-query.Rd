@@ -1,8 +1,11 @@
 \name{rhive-query}
-\alias{hiveQuery}
+\alias{rhive.query}
 \title{Execute HQL(Hive Query) in R using functions in Package `RHive'}
 \usage{
-hiveQuery(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
+rhive.query(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
+}
+\description{
+Execute HQL(Hive Query) in R using functions in Package `RHive'
 }
 \arguments{
 \item{query}{hive query.}
