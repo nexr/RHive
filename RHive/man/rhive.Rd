@@ -28,6 +28,9 @@ rhive.close
 rhive.list.tables
 rhive.desc.table
 rhive.load.table
+rhive.napply
+rhive.sapply
+rhive.aggregate
 hiveConnect
 hiveQuery
 hiveAssign

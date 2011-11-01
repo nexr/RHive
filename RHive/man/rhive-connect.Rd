@@ -5,7 +5,7 @@
 \title{Manage connection to Hive using functions in Package `RHive'}
 \usage{
 rhive.init(hive=NULL,libs=NULL,verbose=FALSE)
-rhive.connect(host,port=10000)
+rhive.connect(host = "127.0.0.1" ,hosts = "127.0.0.1", port=10000)
 rhive.close(hiveclient=rhive.defaults('hiveclient'))
 }
 \description{
@@ -15,6 +15,7 @@ Manage connection to Hive using functions in Package `RHive'
 \item{hive}{path of hive's installation or if HIVE_HOME is set, it is possible to use as NULL.}
 \item{libs}{library path to be added to classpath.}
 \item{host}{hive-server address for connecting to hive.}
+\item{hosts}{list of Rserve's address}
 \item{port}{hive-server listen port.}
 \item{hiveclient}{a client for hive.}
 \item{verbose}{an option on whether to print detail message.}

@@ -5,8 +5,8 @@
 \alias{rhive.rm}
 \title{Export R function to Hive using functions in Package `RHive'}
 \usage{
-rhive.export(exportname,hosts = "127.0.0.1", port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600)
-rhive.exportAll(exportname, hosts = "127.0.0.1", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
+rhive.export(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600)
+rhive.exportAll(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
 rhive.assign(name,value)
 rhive.rm(name)
 }
@@ -33,7 +33,6 @@ this 'unfold' function allows user to change one column into many columns.
 this 'expand' function allows user to change one column into many rows.
 }
 \arguments{
-\item{hosts}{list of Rserve's address}
 \item{exportname}{function name to be exported.}
 \item{limit}{total exported object size. default is 100MB}
 \item{name}{a variable name, given as a character string.} 
@@ -41,6 +40,7 @@ this 'expand' function allows user to change one column into many rows.
 \item{pos}{where to do the assignment.}
 \item{envir}{the 'environment' to use.}
 \item{port}{port of Rserve.}
+\item{hiveclient}{a client for hive.}
 } 
 \author{
 \email{rhive@nexr.com}

@@ -57,7 +57,7 @@ rhive.rm <- function(name) {
 }
 
 
-rhive.connect <- function(host="127.0.0.1",port=10000) {
+rhive.connect <- function(host="127.0.0.1",hosts = "127.0.0.1", port=10000) {
 
 	 TSocket <- J("org.apache.thrift.transport.TSocket")
      TProtocol <- J("org.apache.thrift.protocol.TProtocol")
@@ -74,7 +74,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000) {
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
 
-     hiveclient <- c(client,hivecon,host)
+     hiveclient <- c(client,hivecon,host,hosts)
      
      class(hiveclient) <- "rhive.client.connection"
      #reg.finalizer(hiveclient,function(r) {
@@ -189,7 +189,9 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 
 }
 
-rhive.export <- function(exportname, hosts = "127.0.0.1", port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
+rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
+
+	hosts <- hiveclient[[4]]
 
 	for(rhost in hosts) {
 	    rcon <- RSconnect(rhost, port)
@@ -211,7 +213,9 @@ rhive.export <- function(exportname, hosts = "127.0.0.1", port = 6311, pos = -1,
 
 }
 
-rhive.exportAll <- function(exportname, hosts = "127.0.0.1", port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+    
+    hosts <- hiveclient[[4]]
     
     if(attr(envir,"name") <- 'no attribute' == "package:RHive") {
     	print("can not export 'package:RHive'")
@@ -263,9 +267,110 @@ rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('h
 	}
 }
 
-rhive.load.table <- function(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
+rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
 
-	rhive.query(paste("select * from",tablename),limit = limit,hiveclient=hiveclient)
+	rhive.query(paste("select * from",tablename),fetchsize = fetchsize, limit = limit,hiveclient=hiveclient)
+
+}
+
+rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient')) {
+
+    colindex <- 0
+    cols <- ""
+
+    for(element in c(...)) {
+         cols <- paste(cols,element,sep="")    
+         if(colindex < length(c(...)) - 1)
+         	cols <- paste(cols,",",sep="")
+         colindex <- colindex + 1
+    }
+    
+    if(length(c(...)) > 0)
+    	cols <- paste(",",cols,sep="")
+    
+    exportname <- paste(tablename,"_napply",as.integer(Sys.time()),sep="")
+
+	rhive.assign(exportname,FUN)
+	rhive.exportAll(exportname,hiveclient)
+	
+	tmptable <- paste(exportname,"_table",sep="")
+	
+	query <- paste("CREATE TABLE ",tmptable," AS SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
+	
+	rhive.query(query,hiveclient=hiveclient)
+	
+	tmptable
+
+}
+
+rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hiveclient')) {
+
+
+    colindex <- 0
+    cols <- ""
+
+    for(element in c(...)) {
+         cols <- paste(cols,element,sep="")    
+         if(colindex < length(c(...)) - 1)
+         	cols <- paste(cols,",",sep="")
+         colindex <- colindex + 1
+    }
+    
+    if(length(c(...)) > 0)
+    	cols <- paste(",",cols,sep="")
+    
+    exportname <- paste(tablename,"_sapply",as.integer(Sys.time()),sep="")
+
+	rhive.assign(exportname,FUN)
+	rhive.exportAll(exportname,hiveclient)
+	
+	tmptable <- paste(exportname,"_table",sep="")
+	
+	query <- paste("CREATE TABLE ",tmptable," AS SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
+	
+	rhive.query(query,hiveclient=hiveclient)
+
+	tmptable
+}
+
+rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient =rhive.defaults('hiveclient')) {
+    
+
+    colindex <- 0
+    cols <- ""
+
+    for(element in c(...)) {
+         cols <- paste(cols,element,sep="")    
+         if(colindex < length(c(...)) - 1)
+         	cols <- paste(cols,",",sep="")
+         colindex <- colindex + 1
+    }
+    
+    tmptable <- paste(tablename,"_aggregate",as.integer(Sys.time()),sep="")
+    
+    if(is.null(groups))
+		rhive.query(paste("CREATE TABLE ",tmptable," AS SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),hiveclient=hiveclient)
+	else {
+		
+		index <- 0
+		gs <- ""
+	
+		for(element in groups) {
+			gs <- paste(gs,element,sep="")
+			
+			if(index < length(groups) -1)
+				gs <- paste(gs,",",sep="")
+				
+			index <- index + 1
+		}
+		
+		query <- paste("CREATE TABLE ",tmptable," AS SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
+
+	    rhive.query(query,hiveclient=hiveclient)
+	}
+	
+	
+	tmptable
 
 }
 
