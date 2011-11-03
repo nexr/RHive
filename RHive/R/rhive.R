@@ -74,7 +74,7 @@ rhive.connect <- function(host="127.0.0.1",hosts = "127.0.0.1", port=10000) {
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
 
-     hiveclient <- c(client,hivecon,host,hosts)
+     hiveclient <- list(client,hivecon,host,hosts)
      
      class(hiveclient) <- "rhive.client.connection"
      #reg.finalizer(hiveclient,function(r) {
