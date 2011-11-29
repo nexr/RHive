@@ -521,6 +521,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 sb.append("c(");
             
             if (vector.isNumeric()) {
+             
                 // convert all numeric data to double.
                 double[] values = vector.asDoubles();
                 for (int j = 0; j < values.length; j++) {

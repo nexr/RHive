@@ -13,19 +13,32 @@
 # limitations under the License.
 
 
-rhive.init <- function(hive=NULL,libs=NULL,verbose=FALSE){
+rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE){
 
   if(is.null(hive)) hive <- Sys.getenv("HIVE_HOME")
   if(hive=="")
-    stop(sprintf("One or both of HIVE_HOME(%s) is missing. Please set them and rerun",
-                 Sys.getenv("HIVE_HOME")))
+    stop(sprintf("HIVE_HOME(%s) is missing. Please set it and rerun", Sys.getenv("HIVE_HOME")))
   if(is.null(libs)) libs <- sprintf("%s/lib",hive)
+  
+  if(is.null(hadoop)) hadoop <- Sys.getenv("HADOOP_HOME")
+  if(hadoop=="")
+    print("HADOOP_HOME is missing. HDFS functions doesn't work")
+  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop)
+  
   if(verbose) cat(sprintf("Detected hive=%s and libs=%s\n",hive,libs))
-  hive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
+  
+  
+  if(hadoop=="")
+    rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
+               ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T))
+  else {
+  	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-               )
-  assign("classpath",hive.CP,envir=.rhiveEnv)
-  .jinit(classpath= hive.CP)
+               ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
+               ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE))
+  }
+  assign("classpath",rhive.CP,envir=.rhiveEnv)
+  .jinit(classpath= rhive.CP)
   
   options(show.error.messages = TRUE)
 }

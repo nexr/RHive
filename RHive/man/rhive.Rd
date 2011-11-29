@@ -31,6 +31,15 @@ rhive.load.table
 rhive.napply
 rhive.sapply
 rhive.aggregate
+rhive.hdfs.connect
+rhive.hdfs.ls
+rhive.hdfs.get
+rhive.hdfs.put
+rhive.hdfs.rm
+rhive.hdfs.rename
+rhive.hdfs.exists
+rhive.hdfs.mkdirs
+rhive.hdfs.close
 hiveConnect
 hiveQuery
 hiveAssign
