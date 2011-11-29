@@ -1,4 +1,34 @@
-2011-10-25  16:08  jun.cho
+2011-11-29
+
+	* develop hdfs functions (ls, put, get, rm, mkdir , rename and exists)
+    
+2011-11-01
+
+    * develop napply, sapply and aggreate functions
+
+2011-10-30
+
+    * rhive-0.3 release
+      
+      - execute hive query in R
+      - export R Ojbects to use in Hive Query as UDF
+      - create unitTests
+      - R package
+      - documentation
+
+2011-10-30
+
+    * re-factoring rhive code
+
+2011-10-28
+
+    * create unit-tests 
+
+2011-10-27  
+
+    * create git repository for rhive
+
+2011-10-25
 
 	* DESCRIPTION, NAMESPACE, R/rhive.R, R/rhiveInit.R, R/test.R,
 	  inst/doc/RHive.dvi, inst/doc/RHive.pdf, inst/java/rhive_udf.jar,
