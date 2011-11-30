@@ -23,7 +23,7 @@
   </target>
 
   <target name="compile">
-  <delete file="${ant.project.name}.jar"/>
+  	<delete file="${ant.project.name}.jar"/>
     <mkdir dir="${classes.dir}"/>
     <javac srcdir="${src.dir}" includes="**/*.java" destdir="${classes.dir}" classpathref="classpath"
 	   optimize="${javac.optimize}"
@@ -36,9 +36,9 @@
       <compilerarg line="${javac.args.warnings}"/>
     </javac>
     <unjar dest="${classes.dir}">
-       <fileset dir=".">
-          <include name="lib/REngine.jar"/>
-          <include name="lib/RserveEngine.jar"/>
+       <fileset dir="${lib.dir}">
+          <include name="REngine.jar"/>
+          <include name="RserveEngine.jar"/>
        </fileset>
     </unjar>
   </target>
