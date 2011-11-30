@@ -1,4 +1,6 @@
 \name{rhive-hdfs}
+\alias{rhive.save}
+\alias{rhive.load}
 \alias{rhive.hdfs.connect}
 \alias{rhive.hdfs.ls}
 \alias{rhive.hdfs.get}
@@ -14,11 +16,13 @@ rhive.hdfs.connect(host="127.0.0.1", port=5003)
 rhive.hdfs.ls(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.put(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.get(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.rm(target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.hdfs.rm(..., fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.rename(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.exists(path, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.mkdirs(path, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.close(fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.save(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.load(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
 }
 \description{
 R functions to communicate with HDFS
@@ -44,14 +48,20 @@ rhive.hdfs.exists : Check whether the file or directory specified by path is or 
 rhive.hdfs.mkdirs : Creates a directory named path in HDFS.
 
 rhive.hdfs.close : Close hdfs connection
+
+rhive.save : save R Objects to HDFS 
+
+rhive.load : load R Objects from HDFS
 }
 \arguments{
 \item{host}{namenode address for connecting to hdfs.}
 \item{source}{full path of source data.}
 \item{target}{full path of target data.}
+\item{file}{the full-name of the file where the data will be saved or loaded}
 \item{path}{hdfs's full path.}
 \item{port}{namenode listen port.}
 \item{fileSystem}{a client for hdfs.}
+\item{envir}{environment to search for objects to be saved or loaded.}
 } 
 \author{
 \email{rhive@nexr.com}

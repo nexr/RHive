@@ -2,11 +2,13 @@
 \alias{rhive.list.tables}
 \alias{rhive.desc.table}
 \alias{rhive.load.table}
+\alias{rhive.exist.table}
 \title{R functions to get informations of table from HIVE}
 \usage{
 rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
+rhive.exist.table(tablename, hiveclient=rhive.defaults('hiveclient')) 
 }
 \description{
 R functions to get informations of table from HIVE

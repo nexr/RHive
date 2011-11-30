@@ -92,6 +92,28 @@ rhive.hdfs.ls <- function(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient
 	return(df)
 }
 
+
+rhive.save <- function(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+	tmpfile <- paste("_rhive_save_",as.integer(Sys.time()),sep="")
+	
+	save(...,file=tmpfile, envir = envir)
+
+	rhive.hdfs.put(tmpfile, file, fileSystem);
+
+}
+
+rhive.load <- function(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+    tmpfile <- paste("_rhive_load_",as.integer(Sys.time()),sep="")
+
+    rhive.hdfs.get(file, tmpfile, fileSystem);
+	
+	load(file=tmpfile, envir = envir)
+}
+
+
+
 rhive.hdfs.put <- function(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",source))
@@ -112,12 +134,17 @@ rhive.hdfs.get <- function(source, target, fileSystem = rhive.hdfs.defaults('hdf
 	TRUE
 }
 
-rhive.hdfs.rm <- function(target, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+rhive.hdfs.rm <- function(..., fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
-	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",target))
+	for(target in c(...)) {
+
+		tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",target))
 	
-	fileSystem$delete(tPath)
-	#fileSystem$deleteOnExit(tPath)
+		result <- try(fileSystem$delete(tPath), silent = FALSE)
+		if(class(result) == "try-error") return(FALSE)
+		
+		#fileSystem$deleteOnExit(tPath)
+	}
 	
 	TRUE
 }

@@ -286,6 +286,14 @@ rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=r
 
 }
 
+rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')) {
+
+    result <- try(rhive.desc.table(name), silent = TRUE)
+    if(class(result) == "try-error") return(FALSE)
+    
+    return(TRUE)
+}
+
 rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient')) {
 
     colindex <- 0
