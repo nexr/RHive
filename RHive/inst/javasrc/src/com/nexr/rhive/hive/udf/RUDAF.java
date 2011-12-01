@@ -240,12 +240,22 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 for (int i = 1; i < parameters.length; i++) {
                     
                     if (types[i] == STRING_TYPE) {
-                        argument.append("\""
-                                + PrimitiveObjectInspectorUtils.getString(parameters[i],
-                                        inputOIs[i]) + "\"");
+                        
+                        String value = PrimitiveObjectInspectorUtils.getString(parameters[i],inputOIs[i]);
+                        
+                        if(value == null) {
+                            argument.append("NULL");
+                        }else {
+                            argument.append("\"" + value + "\"");
+                        }
                     } else {
-                        argument.append(PrimitiveObjectInspectorUtils.getDouble(parameters[i],
-                                inputOIs[i]));
+                        
+                        if(parameters[i] == null) {
+                            argument.append("NULL");
+                        } else {
+                            double value = PrimitiveObjectInspectorUtils.getDouble(parameters[i],inputOIs[i]);
+                            argument.append(value);
+                        }
                     }
                     
                     if (i < (parameters.length - 1))

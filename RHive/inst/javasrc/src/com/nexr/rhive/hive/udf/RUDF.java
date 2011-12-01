@@ -71,10 +71,16 @@ public class RUDF extends GenericUDF {
         
         for (int i = 1; i < (arguments.length - 1); i++) {
             
-            if (types[i] == STRING_TYPE) {
-                argument.append("\"" + converters[i].convert(arguments[i].get()) + "\"");
-            } else {
-                argument.append(converters[i].convert(arguments[i].get()));
+            Object value = converters[i].convert(arguments[i].get());
+            
+            if(value == null) {
+                argument.append("NULL");
+            }else {
+                if (types[i] == STRING_TYPE) {
+                    argument.append("\"" + converters[i].convert(arguments[i].get()) + "\"");
+                } else {
+                    argument.append(converters[i].convert(arguments[i].get()));
+                }
             }
             
             if (i < (arguments.length - 2))
