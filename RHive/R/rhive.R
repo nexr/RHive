@@ -20,13 +20,20 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
     stop(sprintf("HIVE_HOME(%s) is missing. Please set it and rerun", Sys.getenv("HIVE_HOME")))
   if(is.null(libs)) libs <- sprintf("%s/lib",hive)
   
-  if(is.null(hadoop)) hadoop <- Sys.getenv("HADOOP_HOME")
-  if(hadoop=="")
-    print("HADOOP_HOME is missing. HDFS functions doesn't work")
-  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop)
-  
   if(verbose) cat(sprintf("Detected hive=%s and libs=%s\n",hive,libs))
   
+  if(is.null(hadoop)) hadoop <- Sys.getenv("HADOOP_HOME")
+  if(hadoop=="") {
+    print("HADOOP_HOME is missing. HDFS functions doesn't work")
+    assign("slaves",c("127.0.0.1"),envir=.rhiveEnv)
+  } else {  
+	  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop)
+	  
+	  slaves <- try(read.csv(sprintf("%s/conf/slaves",hadoop),header=FALSE)$V1,silent=TRUE)
+	  if(class(slaves) != "try-error")
+	  	assign("slaves",as.character(slaves),envir=.rhiveEnv)
+  
+  }
   
   if(hadoop=="")
     rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
@@ -34,8 +41,8 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
   else {
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-               ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE))
+               ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE))
+               #,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE))
   }
   assign("classpath",rhive.CP,envir=.rhiveEnv)
   .jinit(classpath= rhive.CP)
@@ -70,7 +77,7 @@ rhive.rm <- function(name) {
 }
 
 
-rhive.connect <- function(host="127.0.0.1",hosts = "127.0.0.1", port=10000) {
+rhive.connect <- function(host="127.0.0.1",hosts = rhive.defaults('slaves'), port=10000) {
 
 	 TSocket <- J("org.apache.thrift.transport.TSocket")
      TProtocol <- J("org.apache.thrift.protocol.TProtocol")
