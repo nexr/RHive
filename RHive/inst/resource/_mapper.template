@@ -1,0 +1,24 @@
+
+put <- function(k,v) {
+
+     writeLines(paste(k,v,sep="\t"))
+
+}
+
+con = file("stdin", open="r")
+lines <- readLines(con=con,n=buffersize)
+
+while(length(lines) > 0) {
+   lapply(lines,function(line) {
+                x <- strsplit(line,"\t")[[1]]
+                if(length(x) >= 2)
+                        map(x[1],x[2:length(x)])
+                else
+                        map(x[1],NULL)
+
+        })
+    lines <- readLines(con=con,n=buffersize)
+}
+
+close(con)
+

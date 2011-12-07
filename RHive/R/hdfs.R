@@ -26,7 +26,11 @@ rhive.hdfs.connect <- function(host="127.0.0.1", port=5003) {
    
    	 if(rhive.hdfs.exists('/rhive/lib/rhive_udf.jar'))
    	 	rhive.hdfs.rm('/rhive/lib/rhive_udf.jar')
-   	 rhive.hdfs.put(paste(system.file(package="RHive"),"java","rhive_udf.jar",sep=.Platform$file.sep),'/rhive/lib/rhive_udf.jar')
+   	 	
+   	 result <- try(rhive.hdfs.put(paste(system.file(package="RHive"),"java","rhive_udf.jar",sep=.Platform$file.sep),'/rhive/lib/rhive_udf.jar'), silent = FALSE)
+	 if(class(result) == "try-error") return(FALSE)
+	 
+	 return(TRUE)
 }
 
 rhive.hdfs.defaults <- function(arg){
@@ -99,37 +103,48 @@ rhive.save <- function(..., file, envir = parent.frame(), fileSystem = rhive.hdf
 	
 	save(...,file=tmpfile, envir = envir)
 
-	rhive.hdfs.put(tmpfile, file, fileSystem);
-
+	rhive.hdfs.put(tmpfile, file, fileSystem = fileSystem);
+	
+	unlink(tmpfile)
+	
+	TRUE
 }
 
 rhive.load <- function(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
     tmpfile <- paste("_rhive_load_",as.integer(Sys.time()),sep="")
 
-    rhive.hdfs.get(file, tmpfile, fileSystem);
+    rhive.hdfs.get(file, tmpfile, fileSystem = fileSystem);
 	
 	load(file=tmpfile, envir = envir)
-}
-
-
-
-rhive.hdfs.put <- function(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
-
-	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",source))
-	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",paste('hdfs://',target,sep='')))
-
-	fileSystem$copyFromLocalFile(sPath,tPath)
+	
+	unlink(tmpfile)
 	
 	TRUE
 }
 
-rhive.hdfs.get <- function(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+
+rhive.hdfs.put <- function(source, target, sourcedelete = FALSE, overwrite = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",source))
+	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",paste('hdfs://',target,sep='')))
+
+	result <- try(fileSystem$copyFromLocalFile(sourcedelete, overwrite, sPath,tPath), silent = FALSE)
+	
+	if(class(result) == "try-error") return(FALSE)
+	
+	TRUE
+}
+
+rhive.hdfs.get <- function(source, target, sourcedelete = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",target))
 	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",paste('hdfs://',source,sep='')))
 
-	fileSystem$copyToLocalFile(sPath,tPath)
+	result <- try(fileSystem$copyToLocalFile(sourcedelete, sPath,tPath), silent = FALSE)
+	
+	if(class(result) == "try-error") return(FALSE)
 
 	TRUE
 }
@@ -181,4 +196,80 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 	fileSystem$close()
 	
 	TRUE
+}
+
+rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+	
+
+	if(!is.null(mapper)) {
+		mapScript <- paste(system.file(package="RHive"),"resource","_mapper.template",sep=.Platform$file.sep)
+		mtmpfile <- paste("_rhive_mapper_",as.integer(Sys.time()),sep="")
+		
+		.generateScript(mapper, mtmpfile, mapScript, "map", buffersize)
+		
+		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportName,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+	
+	   #unlink(rtmpfile)
+	}
+	
+	if(!is.null(reducer)) {
+	
+		reduceScript <- paste(system.file(package="RHive"),"resource","_reducer.template",sep=.Platform$file.sep)
+		rtmpfile <- paste("_rhive_mapper_",as.integer(Sys.time()),sep="")
+		
+		.generateScript(reducer, rtmpfile, reduceScript,"reduce", buffersize)
+		
+		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportName,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+		
+		#unlink(rtmpfile)
+		
+	}
+	
+}
+
+rhive.script.unexport <- function(exportName,fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+	mapScript <- paste("/rhive/script/",exportName,".mapper",sep="")
+	reduceScript <- paste("/rhive/script/",exportName,".reducer",sep="")
+	
+	if(rhive.hdfs.exists(mapScript,fileSystem=fileSystem)) {
+		rhive.hdfs.rm(mapScript)
+	}
+	
+	if(rhive.hdfs.exists(reduceScript,fileSystem=fileSystem)) {
+		rhive.hdfs.rm(reduceScript)
+	}
+	
+	return(TRUE)
+}
+
+.generateScript <- function(x, output, script, name, buffersize) {
+	#custom_function <- paste(deparse(functionBody(x)),collapse="\n")
+	custom_function <- paste(deparse(x),collapse="\n")
+	
+	prefix <- "#!/usr/bin/env Rscript\n"
+	buffer <- paste("buffersize <- ",buffersize,"\n",sep="")
+	fname <- paste(name," <- ",sep="")
+	
+	cat(sprintf("%s%s%s%s", prefix, buffer,fname, custom_function), file = output, sep="\n", append = FALSE)
+	
+	lines <- readLines(script)
+	
+	for(line in lines) {
+		cat(sprintf("%s", line), file = output, sep="\n", append = TRUE)
+	}
+	
+	status <- system(sprintf("chmod 775 %s", script), ignore.stderr = TRUE)
+	
+	if(status) {
+		warning("no executable found")
+		invisible(FALSE)
+	}
+	invisible(script)
+}
+
+.local_cleanup <- function(files){
+  if(all(file.exists(files)))
+    unlink(files)
 }

@@ -77,7 +77,10 @@ rhive.rm <- function(name) {
 }
 
 
-rhive.connect <- function(host="127.0.0.1",hosts = rhive.defaults('slaves'), port=10000) {
+rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=5003 ,hosts = rhive.defaults('slaves')) {
+
+	 if(!is.null(hdfs))
+     	rhive.hdfs.connect(hdfs, hport)
 
 	 TSocket <- J("org.apache.thrift.transport.TSocket")
      TProtocol <- J("org.apache.thrift.protocol.TProtocol")
@@ -400,6 +403,138 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
 	
 	tmptable
 
+}
+
+rhive.mapapply <- function(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+
+	rhive.mrapply(tablename,mapperFUN=mapperFUN,mapinput=mapinput,mapoutput=mapoutput,by=by,buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
+
+}
+
+rhive.reduceapply <- function(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+
+	rhive.mrapply(tablename,reducerFUN=reducerFUN,reduceinput=reduceinput,reduceoutput=reduceoutput,buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
+
+}
+
+rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+
+	hql <- ""
+
+	exportname <- paste("rhive",as.integer(Sys.time()),sep="")
+	rhive.script.export(exportname, mapperFUN,reducerFUN,buffersize=buffersize)
+
+	client <- .jcast(hiveclient[[1]], new.class="org/apache/hadoop/hive/service/HiveClient",check = FALSE, convert.array = FALSE)
+
+	mapScript <- paste(exportname,".mapper",sep="")
+	reduceScript <- paste(exportname,".reducer",sep="")
+
+	micols <- "*"
+	mocols <- NULL
+	if(!is.null(mapinput)) {
+	    micols <- rhive.as.string(mapinput)
+	    mocols <- micols
+    }
+ 	if(!is.null(mapoutput)) {
+ 	    mocols <- rhive.as.string(mapoutput)
+    }
+    
+	ricols <- "*"
+	if(!is.null(reduceinput)) {
+		if(is.null(mapperFUN)) {
+			ricols <- rhive.as.string(reduceinput)
+		} else {
+	    	ricols <- rhive.as.string(reduceinput,prefix="map_output.")
+	    }
+    }
+    rocols <- NULL
+    
+ 	if(!is.null(reduceoutput)) {
+ 	    rocols <- rhive.as.string(reduceoutput)
+    }
+  
+    if(is.null(mapperFUN)) {
+    
+    	hql <- paste("FROM",tablename,sep=" ")
+    
+    }else {
+    
+        client$execute(.jnew("java/lang/String",paste("add file hdfs:///rhive/script/",mapScript,sep="")))
+    
+        if(is.function(mapperFUN)) {
+    
+	        hql <- paste("FROM (FROM",tablename,"MAP",micols,"USING",paste("'",mapScript,"'",sep=""),sep=" ")
+	    
+	    	if(!is.null(mocols)) {
+	    		hql <- paste(hql,"as",mocols,sep=" ")
+	    	}
+	    	
+	    	if(is.null(by)) {
+	    		hql <- paste(hql,") map_output",sep=" ")
+	    	} else {
+	    		hql <- paste(hql,"cluster by",by,") map_output",sep=" ")
+	    	}
+    	
+    	}else {
+    		hql <- paste("FROM (",mapperFUN,") map_output",sep=" ")
+    	}
+    
+    }
+    
+    if(!is.null(reducerFUN)) {
+        
+	    client$execute(.jnew("java/lang/String",paste("add file hdfs:///rhive/script/",reduceScript,sep="")))
+        
+        hql <- paste(hql,"REDUCE",ricols,"USING",paste("'",reduceScript,"'",sep=""),sep=" ")
+
+    	if(!is.null(rocols)) {
+    		hql <- paste(hql,"as",rocols,sep=" ")
+    	}
+    
+    }else {
+    
+    	if(is.null(mocols)) {
+    		hql <- paste("SELECT *",hql,sep=" ")
+    	}else{
+        	hql <- paste("SELECT",mocols,hql,sep=" ")
+        }
+    
+    }
+
+    if(is.null(mapperFUN) && is.null(reducerFUN))
+    	hql <- paste("SELECT * FROM ", tablename,sep="")
+
+	if(verbose) 
+		print(paste("HIVE-QUERY : ", hql,sep=""))
+
+	resultSet <- rhive.query(hql,hiveclient=hiveclient)
+
+	rhive.script.unexport(exportname)
+
+	return(resultSet)
+}
+
+rhive.as.string <- function(columns,prefix=NULL) {
+
+    colindex <- 0
+    if(is.null(prefix)) {
+    	cols <- ""
+    }else {
+    	cols <- prefix
+    }
+    for(element in columns) {
+         cols <- paste(cols,element,sep="")    
+         if(colindex < length(columns) - 1) {
+         	if(is.null(prefix)) {
+         		cols <- paste(cols,",",sep="")
+         	}else {
+         		cols <- paste(cols,",",prefix,sep="")
+         	}
+         }
+         colindex <- colindex + 1
+    }
+
+    return(cols)
 }
 
 

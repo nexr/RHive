@@ -1,0 +1,49 @@
+
+put <- function(k,v) {
+
+     writeLines(paste(k,v,sep="\t"))
+
+}
+
+con = file("stdin", open="r")
+lines <- readLines(con=con,n=buffersize)
+
+currentKey <- NULL
+values <- NULL
+
+while(length(lines) > 0) {
+
+    for(line in lines) {
+                x <- strsplit(line,"\t")[[1]]
+
+                if(is.null(currentKey)) {
+                     if(length(x) >= 2)
+                        values <- c(paste(x[2:length(x)],collapse="\t"))
+                     else
+                        values <- c(NULL)
+
+                     currentKey <- x[1]
+                }else {
+                    if(isTRUE(all.equal(currentKey,x[1]))) {
+                        if(length(x) >= 2)
+                             values <- c(values,paste(x[2:length(x)],collapse="\t"))
+                        else
+                             values <- c(values,NULL)
+
+                    }else {
+                        reduce(currentKey,values)
+                        if(length(x) >= 2)
+                            values <- c(paste(x[2:length(x)],collapse="\t"))
+                        else
+                            values <- c(NULL)
+
+                        currentKey <- x[1]
+                    }
+                }
+    }
+    lines <- readLines(con=con,n=buffersize)
+}
+reduce(currentKey,values)
+
+close(con)
+
