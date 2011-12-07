@@ -3,12 +3,16 @@
 \alias{rhive.exportAll}
 \alias{rhive.assign}
 \alias{rhive.rm}
+\alias{rhive.script.export}
+\alias{rhive.script.unexport}
 \title{Export R function to Hive using functions in Package `RHive'}
 \usage{
 rhive.export(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600)
 rhive.exportAll(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
 rhive.assign(name,value)
 rhive.rm(name)
+rhive.script.export(exportName, mapper = NULL, reducer = NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.script.unexport(exportName,fileSystem = rhive.hdfs.defaults('hdfsclient'))
 }
 \description{
 Export R function to Hive using functions in Package `RHive'

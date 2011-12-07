@@ -1,9 +1,17 @@
 \name{rhive-aggregate}
 \alias{rhive.aggregate}
+\alias{rhive.napply}
+\alias{rhive.sapply}
+\alias{rhive.mrapply}
+\alias{rhive.mapapply}
+\alias[rhive.reduceapply}
 \title{R Distributed apply function using HQL}
 \usage{
 rhive.napply(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient'))
 rhive.sapply(tablename, FUN, ..., hiveclient =rhive.defaults('hiveclient'))
+rhive.mrapply(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient'))
+rhive.mapapply(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient'))
+rhive.reduceapply(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient'))
 }
 \description{
 R Distributed apply function using HQL

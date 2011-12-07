@@ -24,6 +24,8 @@ rhive.assign
 rhive.rm
 rhive.export
 rhive.exportAll
+rhive.script.export
+rhive.script.unexport
 rhive.close
 rhive.list.tables
 rhive.desc.table
@@ -31,6 +33,9 @@ rhive.load.table
 rhive.napply
 rhive.sapply
 rhive.aggregate
+rhive.mrapply
+rhive.mapapply
+rhive.reduceapply
 rhive.hdfs.connect
 rhive.hdfs.ls
 rhive.hdfs.get
