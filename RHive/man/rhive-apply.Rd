@@ -4,7 +4,7 @@
 \alias{rhive.sapply}
 \alias{rhive.mrapply}
 \alias{rhive.mapapply}
-\alias[rhive.reduceapply}
+\alias{rhive.reduceapply}
 \title{R Distributed apply function using HQL}
 \usage{
 rhive.napply(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient'))
@@ -21,6 +21,8 @@ R Distributed apply function using HQL
 \item{tablename}{hive table name.}
 \item{FUN}{the function to be applied.}
 \item{...}{optional arguments to 'FUN'.}
+\item{mapperFUN}{optional arguments to 'FUN'.}
+\item{reducerFUN}{optional arguments to 'FUN'.}
 } 
 \author{
 \email{rhive@nexr.com}
