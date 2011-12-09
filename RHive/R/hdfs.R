@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rhive.hdfs.connect <- function(host="127.0.0.1", port=8020) {
+rhive.hdfs.connect <- function(hdfs="127.0.0.1", hport=8020) {
 
      config <- .jnew("org/apache/hadoop/conf/Configuration")
-     hdfsurl <- paste('hdfs://',host,':',port,sep='')
+     hdfsurl <- paste('hdfs://',hdfs,':',hport,sep='')
      config$set(.jnew("java/lang/String","fs.default.name"),.jnew("java/lang/String",hdfsurl))
      
      fileSystem <- J("org.apache.hadoop.fs.FileSystem")
@@ -28,9 +28,12 @@ rhive.hdfs.connect <- function(host="127.0.0.1", port=8020) {
    	 	rhive.hdfs.rm('/rhive/lib/rhive_udf.jar')
    	 	
    	 result <- try(rhive.hdfs.put(paste(system.file(package="RHive"),"java","rhive_udf.jar",sep=.Platform$file.sep),'/rhive/lib/rhive_udf.jar'), silent = FALSE)
-	 if(class(result) == "try-error") return(FALSE)
+	 if(class(result) == "try-error") {
+	 	sprintf("fail to connect HDFS with %s:%s - %s",hdfs,hport,result)
+	 	return(NULL)
+	 }
 	 
-	 return(TRUE)
+	 return(fs)
 }
 
 rhive.hdfs.defaults <- function(arg){

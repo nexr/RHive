@@ -12,7 +12,7 @@
 \alias{rhive.hdfs.close}
 \title{R functions to communicate with HDFS}
 \usage{
-rhive.hdfs.connect(host="127.0.0.1", port=8020)
+rhive.hdfs.connect(hdfs="127.0.0.1", hport=8020)
 rhive.hdfs.ls(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.put(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.get(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
@@ -54,12 +54,12 @@ rhive.save : save R Objects to HDFS
 rhive.load : load R Objects from HDFS
 }
 \arguments{
-\item{host}{namenode address for connecting to hdfs.}
+\item{hdfs}{namenode address for connecting to hdfs.}
 \item{source}{full path of source data.}
 \item{target}{full path of target data.}
 \item{file}{the full-name of the file where the data will be saved or loaded}
 \item{path}{hdfs's full path.}
-\item{port}{namenode listen port.}
+\item{hport}{namenode listen port.}
 \item{fileSystem}{a client for hdfs.}
 \item{envir}{environment to search for objects to be saved or loaded.}
 } 

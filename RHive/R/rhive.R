@@ -79,8 +79,11 @@ rhive.rm <- function(name) {
 
 rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,hosts = rhive.defaults('slaves')) {
 
-	 if(!is.null(hdfs))
-     	rhive.hdfs.connect(hdfs, hport)
+	 filesystem <- NULL
+
+	 if(!is.null(hdfs)) {
+     	filesystem <- rhive.hdfs.connect(hdfs, hport)
+     }
 
 	 TSocket <- J("org.apache.thrift.transport.TSocket")
      TProtocol <- J("org.apache.thrift.protocol.TProtocol")
@@ -89,7 +92,13 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,ho
      tpt <- .jnew("org/apache/thrift/protocol/TBinaryProtocol",.jcast(hivecon, new.class="org/apache/thrift/transport/TTransport",check = FALSE, convert.array = FALSE))
      client <- .jnew("org/apache/hadoop/hive/service/HiveClient",.jcast(tpt, new.class="org/apache/thrift/protocol/TProtocol",check = FALSE, convert.array = FALSE))
      
-     hivecon$open()
+     result <- try(hivecon$open(), silent = FALSE)
+     if(class(result) == "try-error") {
+     	if(!is.null(filesystem))
+     		filesystem$close()
+     		sprintf("fail to connect RHive [hiveserver = %s:%s, hdfs = %s:%s], host,port,hdfs,hport)
+     		return(NULL)
+     }
      
      client$execute(.jnew("java/lang/String","add jar hdfs:///rhive/lib/rhive_udf.jar"))
      client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
@@ -97,7 +106,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,ho
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
 
-     hiveclient <- list(client,hivecon,host,hosts)
+     hiveclient <- list(client,hivecon,host,hosts,filesystem)
      
      class(hiveclient) <- "rhive.client.connection"
      #reg.finalizer(hiveclient,function(r) {
@@ -113,6 +122,11 @@ rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 
 	hivecon <- .jcast(hiveclient[[2]], new.class="org/apache/thrift/transport/TSocket",check = FALSE, convert.array = FALSE)
 	hivecon$close()
+
+	if(!is.null(hiveclient[[5]])) {
+		filesystem <- .jcast(hiveclient[[5]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
+		filesystem$close()
+	}
 	
 	return(TRUE)
 	
