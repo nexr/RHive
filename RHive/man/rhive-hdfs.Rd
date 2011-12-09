@@ -12,7 +12,7 @@
 \alias{rhive.hdfs.close}
 \title{R functions to communicate with HDFS}
 \usage{
-rhive.hdfs.connect(host="127.0.0.1", port=5003)
+rhive.hdfs.connect(host="127.0.0.1", port=8020)
 rhive.hdfs.ls(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.put(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.get(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))

@@ -41,8 +41,8 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
   else {
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
-               ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE))
-               #,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE))
+               ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
+               ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE))
   }
   assign("classpath",rhive.CP,envir=.rhiveEnv)
   .jinit(classpath= rhive.CP)
@@ -77,7 +77,7 @@ rhive.rm <- function(name) {
 }
 
 
-rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=5003 ,hosts = rhive.defaults('slaves')) {
+rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,hosts = rhive.defaults('slaves')) {
 
 	 if(!is.null(hdfs))
      	rhive.hdfs.connect(hdfs, hport)
@@ -405,24 +405,24 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
 
 }
 
-rhive.mapapply <- function(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+rhive.mapapply <- function(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
 
-	rhive.mrapply(tablename,mapperFUN=mapperFUN,mapinput=mapinput,mapoutput=mapoutput,by=by,buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
-
-}
-
-rhive.reduceapply <- function(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
-
-	rhive.mrapply(tablename,reducerFUN=reducerFUN,reduceinput=reduceinput,reduceoutput=reduceoutput,buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
+	rhive.mrapply(tablename,mapperFUN=mapperFUN,mapinput=mapinput,mapoutput=mapoutput,by=by,mapper_args=args, reducer_args=NULL, buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
 
 }
 
-rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+rhive.reduceapply <- function(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+
+	rhive.mrapply(tablename,reducerFUN=reducerFUN,reduceinput=reduceinput,reduceoutput=reduceoutput,mapper_args=NULL, reducer_args=args, buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
+
+}
+
+rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
 
 	hql <- ""
 
 	exportname <- paste("rhive",as.integer(Sys.time()),sep="")
-	rhive.script.export(exportname, mapperFUN,reducerFUN,buffersize=buffersize)
+	rhive.script.export(exportname, mapperFUN,reducerFUN, mapper_args, reducer_args, buffersize=buffersize)
 
 	client <- .jcast(hiveclient[[1]], new.class="org/apache/hadoop/hive/service/HiveClient",check = FALSE, convert.array = FALSE)
 

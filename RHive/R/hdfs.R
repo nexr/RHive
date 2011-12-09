@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rhive.hdfs.connect <- function(host="127.0.0.1", port=5003) {
+rhive.hdfs.connect <- function(host="127.0.0.1", port=8020) {
 
      config <- .jnew("org/apache/hadoop/conf/Configuration")
      hdfsurl <- paste('hdfs://',host,':',port,sep='')
@@ -198,15 +198,14 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 	TRUE
 }
 
-rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 	
-
 	if(!is.null(mapper)) {
 		mapScript <- paste(system.file(package="RHive"),"resource","_mapper.template",sep=.Platform$file.sep)
 		mtmpfile <- paste("_rhive_mapper_",as.integer(Sys.time()),sep="")
 		
-		.generateScript(mapper, mtmpfile, mapScript, "map", buffersize)
+		.generateScript(mapper, mtmpfile, mapScript, "map", mapper_args, buffersize)
 		
 		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportName,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
 	
@@ -218,7 +217,7 @@ rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, buffe
 		reduceScript <- paste(system.file(package="RHive"),"resource","_reducer.template",sep=.Platform$file.sep)
 		rtmpfile <- paste("_rhive_mapper_",as.integer(Sys.time()),sep="")
 		
-		.generateScript(reducer, rtmpfile, reduceScript,"reduce", buffersize)
+		.generateScript(reducer, rtmpfile, reduceScript,"reduce", reducer_args, buffersize)
 		
 		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportName,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
 		
@@ -244,15 +243,19 @@ rhive.script.unexport <- function(exportName,fileSystem = rhive.hdfs.defaults('h
 	return(TRUE)
 }
 
-.generateScript <- function(x, output, script, name, buffersize) {
+.generateScript <- function(x, output, script, name, args, buffersize) {
 	#custom_function <- paste(deparse(functionBody(x)),collapse="\n")
 	custom_function <- paste(deparse(x),collapse="\n")
 	
 	prefix <- "#!/usr/bin/env Rscript\n"
-	buffer <- paste("buffersize <- ",buffersize,"\n",sep="")
-	fname <- paste(name," <- ",sep="")
+	buffer <- sprintf("buffersize <- %s\n",buffersize)
 	
-	cat(sprintf("%s%s%s%s", prefix, buffer,fname, custom_function), file = output, sep="\n", append = FALSE)
+	if(is.null(args)) 
+		args <- ""
+	user_args <- sprintf("args <- '%s'\n",as.character(args))
+	fname <- sprintf("%s <- ",name)
+	
+	cat(sprintf("%s%s%s%s%s", prefix, buffer, user_args, fname, custom_function), file = output, sep="\n", append = FALSE)
 	
 	lines <- readLines(script)
 	

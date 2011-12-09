@@ -5,7 +5,7 @@
 \title{Manage connection to Hive using functions in Package `RHive'}
 \usage{
 rhive.init(hive=NULL,libs=NULL,hadoop=NULL, hlibs=NULL, verbose=FALSE)
-rhive.connect(host="127.0.0.1",port=10000, hdfs=host, hport=5003 ,hosts = rhive.defaults('slaves'))
+rhive.connect(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,hosts = rhive.defaults('slaves'))
 rhive.close(hiveclient=rhive.defaults('hiveclient'))
 }
 \description{
