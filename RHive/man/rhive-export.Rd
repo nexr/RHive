@@ -11,8 +11,8 @@ rhive.export(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, p
 rhive.exportAll(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
 rhive.assign(name,value)
 rhive.rm(name)
-rhive.script.export(exportName, mapper = NULL, reducer = NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.script.unexport(exportName,fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.script.export(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.script.unexport(exportname,fileSystem = rhive.hdfs.defaults('hdfsclient'))
 }
 \description{
 Export R function to Hive using functions in Package `RHive'
@@ -45,6 +45,12 @@ this 'expand' function allows user to change one column into many rows.
 \item{envir}{the 'environment' to use.}
 \item{port}{port of Rserve.}
 \item{hiveclient}{a client for hive.}
+\item{mapper}{R object as map function or Hive query.}
+\item{reducer}{R object as reducer function.}
+\item{buffersize}{streaming buffer size.}
+\item{fileSystem}{a client for hdfs.}
+\item{mapper_args}{mapper custom environment.}
+\item{reducer_args}{reducer custom environment.}
 } 
 \author{
 \email{rhive@nexr.com}

@@ -7,7 +7,7 @@
 \usage{
 rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
-rhive.load.table(tablename, limit = -1, hiveclient=rhive.defaults('hiveclient'))
+rhive.load.table(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 rhive.exist.table(tablename, hiveclient=rhive.defaults('hiveclient')) 
 }
 \description{
@@ -17,7 +17,8 @@ R functions to get informations of table from HIVE
 \item{hiveclient}{a client for hive.}
 \item{tablename}{hive table name.}
 \item{detail}{a flag on whether to show detail of table info.}
-\item{limit}{total fetch size}
+\item{limit}{total fetch size. -1 means full fetch}
+\item{fetchsize}{the count of record to load at one time}
 } 
 \author{
 \email{rhive@nexr.com}

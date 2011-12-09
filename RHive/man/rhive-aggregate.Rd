@@ -1,6 +1,5 @@
-\name{rhive-apply}
-\alias{rhive.napply}
-\alias{rhive.sapply}
+\name{rhive.aggregate}
+\alias{rhive.aggregate}
 \title{R Distributed aggregate function using HQL}
 \usage{
 rhive.aggregate(tablename, hiveFUN, ..., groups = NULL , hiveclient =rhive.defaults('hiveclient'))

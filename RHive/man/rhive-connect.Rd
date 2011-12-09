@@ -1,10 +1,12 @@
 \name{rhive-connect}
 \alias{rhive.init}
+\alias{rhive.env}
 \alias{rhive.connect}
 \alias{rhive.close}
 \title{Manage connection to Hive using functions in Package `RHive'}
 \usage{
 rhive.init(hive=NULL,libs=NULL,hadoop=NULL, hlibs=NULL, verbose=FALSE)
+rhive.env(ALL=FALSE)
 rhive.connect(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,hosts = rhive.defaults('slaves'))
 rhive.close(hiveclient=rhive.defaults('hiveclient'))
 }
@@ -20,7 +22,10 @@ Manage connection to Hive using functions in Package `RHive'
 \item{hosts}{list of Rserve's address}
 \item{port}{hive-server listen port.}
 \item{hiveclient}{a client for hive.}
+\item{hdfs}{the address of hdfs namenode.}
+\item{hport}{the port of hdfs namenode.}
 \item{verbose}{an option on whether to print detail message.}
+\item{ALL}{show all rhive enviroment, such as classpath.}
 } 
 \author{
 \email{rhive@nexr.com}

@@ -201,7 +201,7 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 	TRUE
 }
 
-rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 	
 	if(!is.null(mapper)) {
@@ -210,7 +210,7 @@ rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, mappe
 		
 		.generateScript(mapper, mtmpfile, mapScript, "map", mapper_args, buffersize)
 		
-		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportName,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportname,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
 	
 	   #unlink(rtmpfile)
 	}
@@ -222,7 +222,7 @@ rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, mappe
 		
 		.generateScript(reducer, rtmpfile, reduceScript,"reduce", reducer_args, buffersize)
 		
-		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportName,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportname,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
 		
 		#unlink(rtmpfile)
 		
@@ -230,10 +230,10 @@ rhive.script.export <- function(exportName, mapper = NULL, reducer = NULL, mappe
 	
 }
 
-rhive.script.unexport <- function(exportName,fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+rhive.script.unexport <- function(exportname,fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
-	mapScript <- paste("/rhive/script/",exportName,".mapper",sep="")
-	reduceScript <- paste("/rhive/script/",exportName,".reducer",sep="")
+	mapScript <- paste("/rhive/script/",exportname,".mapper",sep="")
+	reduceScript <- paste("/rhive/script/",exportname,".reducer",sep="")
 	
 	if(rhive.hdfs.exists(mapScript,fileSystem=fileSystem)) {
 		rhive.hdfs.rm(mapScript)
