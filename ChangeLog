@@ -1,3 +1,18 @@
+2011-12-08
+
+    * support custom map/reduce script of hive
+    * change default hdfs's port (5003 -> 8020)
+
+2011-12-02
+
+	* fix bug to handle NULL data
+	* initialize Rserve list from hadoop's slave file automatically
+
+2011-11-30
+
+    * develop rhive.load/rhive.save functions
+    * develop rhive.exist.table function
+
 2011-11-29
 
 	* develop hdfs functions (ls, put, get, rm, mkdir , rename and exists)
