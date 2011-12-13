@@ -14,7 +14,7 @@
 \usage{
 rhive.save(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.load(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.connect(hdfs="127.0.0.1", hport=8020)
+rhive.hdfs.connect(hdfsurl="hdfs://127.0.0.1:8020")
 rhive.hdfs.ls(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.get(source, target, sourcedelete = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient'))
@@ -54,12 +54,11 @@ rhive.save : save R Objects to HDFS
 rhive.load : load R Objects from HDFS
 }
 \arguments{
-\item{hdfs}{namenode address for connecting to hdfs.}
+\item{hdfsurl}{namenode url for connecting to hdfs.}
 \item{source}{full path of source data.}
 \item{target}{full path of target data.}
 \item{file}{the full-name of the file where the data will be saved or loaded}
 \item{path}{hdfs's full path.}
-\item{hport}{namenode listen port.}
 \item{fileSystem}{a client for hdfs.}
 \item{envir}{environment to search for objects to be saved or loaded.}
 \item{sourcedelete}{indicates if the source should be removed.}

@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rhive.hdfs.connect <- function(hdfs="127.0.0.1", hport=8020) {
+rhive.hdfs.connect <- function(hdfsurl="hdfs://127.0.0.1:8020") {
 
      config <- .jnew("org/apache/hadoop/conf/Configuration")
-     hdfsurl <- paste('hdfs://',hdfs,':',hport,sep='')
      config$set(.jnew("java/lang/String","fs.default.name"),.jnew("java/lang/String",hdfsurl))
      
      fileSystem <- J("org.apache.hadoop.fs.FileSystem")

@@ -42,10 +42,18 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
                ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE))
+               ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE)
+               ,sprintf("%s/conf",hadoop))
   }
   assign("classpath",rhive.CP,envir=.rhiveEnv)
   .jinit(classpath= rhive.CP)
+
+  if(hadoop!="") {
+	  config <- .jnew("org/apache/hadoop/conf/Configuration")
+	  classloader <- .jclassLoader()
+	  config$setClassLoader(classloader)
+	  assign("hconfig",config,envir=.rhiveEnv)
+  }
   
   options(show.error.messages = TRUE)
 }
@@ -106,7 +114,7 @@ rhive.env <- function(ALL=FALSE) {
 			cat(sprintf("Disconnected HiveServer\n"))
 		}
 		if(!is.null(rhiveclient[[5]]))
-			cat(sprintf("Connected HDFS : %s:%s\n", rhiveclient[[6]][1],rhiveclient[[6]][2]))
+			cat(sprintf("Connected HDFS : %s\n", rhiveclient[[6]]))
 		else
 			cat(sprintf("Disconnected HDFS\n"))
 	}
@@ -120,12 +128,18 @@ rhive.env <- function(ALL=FALSE) {
 }
 
 
-rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,hosts = rhive.defaults('slaves')) {
+rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhive.defaults('slaves')) {
 
 	 filesystem <- NULL
 
-	 if(!is.null(hdfs)) {
-     	filesystem <- rhive.hdfs.connect(hdfs, hport)
+	 if(!is.null(hdfsurl)) {
+     	filesystem <- rhive.hdfs.connect(hdfsurl)
+     }else {
+     	config <- rhive.defaults('hconfig')
+     	if(!is.null(config)) {
+     		hdfsurl <- config$get("fs.default.name")
+     		filesystem <- rhive.hdfs.connect(hdfsurl)
+     	}
      }
 
 	 TSocket <- J("org.apache.thrift.transport.TSocket")
@@ -150,7 +164,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,ho
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
 
-     hiveclient <- list(client,hivecon,c(host,port),hosts,filesystem,c(hdfs,hport))
+     hiveclient <- list(client,hivecon,c(host,port),hosts,filesystem,hdfsurl)
      
      class(hiveclient) <- "rhive.client.connection"
      #reg.finalizer(hiveclient,function(r) {

@@ -7,7 +7,7 @@
 \usage{
 rhive.init(hive=NULL,libs=NULL,hadoop=NULL, hlibs=NULL, verbose=FALSE)
 rhive.env(ALL=FALSE)
-rhive.connect(host="127.0.0.1",port=10000, hdfs=host, hport=8020 ,hosts = rhive.defaults('slaves'))
+rhive.connect(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhive.defaults('slaves'))
 rhive.close(hiveclient=rhive.defaults('hiveclient'))
 }
 \description{
@@ -22,8 +22,7 @@ Manage connection to Hive using functions in Package `RHive'
 \item{hosts}{list of Rserve's address}
 \item{port}{hive-server listen port.}
 \item{hiveclient}{a client for hive.}
-\item{hdfs}{the address of hdfs namenode.}
-\item{hport}{the port of hdfs namenode.}
+\item{hdfsurl}{the url of hdfs namenode.}
 \item{verbose}{an option on whether to print detail message.}
 \item{ALL}{show all rhive enviroment, such as classpath.}
 } 
