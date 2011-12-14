@@ -10,6 +10,7 @@
 \alias{rhive.hdfs.exists}
 \alias{rhive.hdfs.mkdirs}
 \alias{rhive.hdfs.close}
+\alias{rhive.write.table}
 \title{R functions to communicate with HDFS}
 \usage{
 rhive.save(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
@@ -23,6 +24,7 @@ rhive.hdfs.rename(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient')
 rhive.hdfs.exists(path, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.mkdirs(path, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.close(fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.write.table(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.defaults('hiveclient'))
 }
 \description{
 R functions to communicate with HDFS
@@ -64,6 +66,12 @@ rhive.load : load R Objects from HDFS
 \item{sourcedelete}{indicates if the source should be removed.}
 \item{overwrite}{if path exists,this option indicates whether to overwrite.}
 \item{...}{target path list.}
+\item{dat}{the object to be written, preferably a data frame.}
+\item{tablename}{a character string naming a table}
+\item{sep}{the field separator string.  Values within each row of 'dat'
+          are separated by this string}
+\item{nastring}{default value for NA.}
+\item{hiveclient}{a client for hive.}
 } 
 \author{
 \email{rhive@nexr.com}

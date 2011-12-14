@@ -154,7 +154,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      	if(!is.null(filesystem)) {
      		filesystem$close()
      	}
- 		sprintf("fail to connect RHive [hiveserver = %s:%s, hdfs = %s:%s]\n", host,port,hdfs,hport)
+ 		sprintf("fail to connect RHive [hiveserver = %s:%s, hdfs = %s]\n", host,port,hdfsurl)
  		return(NULL)
      }
      
@@ -344,7 +344,6 @@ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'),
 	
 	return(TRUE)
 }
-
 
 rhive.list.tables <- function(hiveclient=rhive.defaults('hiveclient')) {
 

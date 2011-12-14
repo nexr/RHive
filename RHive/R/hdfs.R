@@ -28,7 +28,7 @@ rhive.hdfs.connect <- function(hdfsurl="hdfs://127.0.0.1:8020") {
    	 	
    	 result <- try(rhive.hdfs.put(paste(system.file(package="RHive"),"java","rhive_udf.jar",sep=.Platform$file.sep),'/rhive/lib/rhive_udf.jar'), silent = FALSE)
 	 if(class(result) == "try-error") {
-	 	sprintf("fail to connect HDFS with %s:%s - %s",hdfs,hport,result)
+	 	sprintf("fail to connect HDFS with %s - %s",hdfsurl,result)
 	 	return(NULL)
 	 }
 	 
@@ -97,7 +97,6 @@ rhive.hdfs.ls <- function(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient
 
 	return(df)
 }
-
 
 rhive.save <- function(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
@@ -200,6 +199,60 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 	TRUE
 }
 
+
+rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.defaults('hiveclient')) {
+
+	if(missing(dat))
+		stop("missing parameter")
+	if(!is.data.frame(dat))
+		stop("should be a data frame")
+	if (is.null(tablename)) {
+        if (length(substitute(dat)) == 1) 
+            tablename <- as.character(substitute(dat))
+        else 
+        	tablename <- as.character(substitute(dat)[[2L]])
+    }
+    if (length(tablename) != 1L) 
+        stop(sQuote(tablename), " should be a name")
+	exportname <- tablename
+	if(is.null(tablename)) {
+		exportname <- paste("rhive_r_table",as.integer(Sys.time()),".rhive",sep="")
+	}
+
+	rowname <- "rowname"
+    dat <- cbind(row.names(dat), dat)
+    names(dat)[1L] <- rowname
+	
+	types <- sapply(dat, typeof)
+	facs <- sapply(dat, is.factor)
+	isreal <- (types == "double")
+	isint <- (types == "integer") & !facs
+	islogi <- (types == "logical")
+	
+	colspecs <- rep("STRING", length(dat))
+	colspecs[isreal] <- "DOUBLE"
+	colspecs[isint] <- "INT"
+	colspecs[islogi] <- "BOOLEAN"
+	
+	names(colspecs) <- names(dat)
+
+	hdfs_root_path <- paste("/rhive/data/",as.integer(Sys.time()),sep="")
+    hdfs_path <- paste(hdfs_root_path,"/",exportname,sep="")
+	
+	hquery <- .generateCreateQuery(tablename, colspecs, hdfs_path = hdfs_root_path, sep = sep)
+	
+	dat[is.na(dat)] <- if(is.null(nastring)) "NULL" else nastring[1L]
+	
+	write.table(dat,file=exportname,quote=FALSE,row.names = FALSE, col.names=FALSE, sep = sep)
+	rhive.hdfs.put(exportname, hdfs_path, sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+	
+	client <- .jcast(hiveclient[[1]], new.class="org/apache/hadoop/hive/service/HiveClient",check = FALSE, convert.array = FALSE)
+    client$execute(.jnew("java/lang/String",hquery))
+	
+	return(tablename)
+}
+
+
 rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 	
@@ -243,6 +296,19 @@ rhive.script.unexport <- function(exportname,fileSystem = rhive.hdfs.defaults('h
 	}
 	
 	return(TRUE)
+}
+
+.generateCreateQuery <- function (tablename, colspecs, hdfs_path, sep = ",")
+{
+    create <- paste("CREATE TABLE ", tablename , " (")
+    
+    colnames <- gsub("[^[:alnum:]_]+", "", names(colspecs))
+    entries <- paste(colnames, colspecs)
+    create <- paste(create, paste(entries, collapse = ", "), sep="")
+    create <- paste(create, ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '", sep , "'",sep="")
+    create <- paste(create, " STORED AS TEXTFILE LOCATION '", hdfs_path ,"'", sep="")
+    
+    create
 }
 
 .generateScript <- function(x, output, script, name, args, buffersize) {
