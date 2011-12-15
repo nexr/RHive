@@ -252,7 +252,7 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 }
 
 
-rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.defaults('hiveclient')) {
+rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.hdfs.defaults('hiveclient')) {
 
     if(missing(hiveclient) || is.null(hiveclient))
 	    stop("disconnected with hiveserver. try to command 'rhive.connect(hive-server-ip)'")
