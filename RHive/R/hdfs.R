@@ -120,15 +120,11 @@ rhive.hdfs.ls <- function(path="/", hdfs = rhive.hdfs.defaults('hdfs')) {
 
 rhive.save <- function(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs')) {
 
-    .checkHDFSConnection(hdfs)
-    
-    fileSystem <- .jcast(hdfs[[1]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
-
 	tmpfile <- paste("_rhive_save_",as.integer(Sys.time()),sep="")
 	
 	save(...,file=tmpfile, envir = envir)
 
-	result <- try(rhive.hdfs.put(tmpfile, file, fileSystem = fileSystem), silent = FALSE)
+	result <- try(rhive.hdfs.put(tmpfile, file, hdfs = hdfs), silent = FALSE)
 	
 	if(class(result) == "try-error") {
 	    unlink(tmpfile)
@@ -136,19 +132,14 @@ rhive.save <- function(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defa
 	}
 	
 	unlink(tmpfile)
-	
 	TRUE
 }
 
 rhive.load <- function(file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs')) {
 
-    .checkHDFSConnection(hdfs)
-    
-    fileSystem <- .jcast(hdfs[[1]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
-
     tmpfile <- paste("_rhive_load_",as.integer(Sys.time()),sep="")
 
-    rhive.hdfs.get(file, tmpfile, fileSystem = fileSystem);
+    rhive.hdfs.get(file, tmpfile, hdfs = hdfs);
 	
 	result <- try(load(file=tmpfile, envir = envir), silent = FALSE)
 	
