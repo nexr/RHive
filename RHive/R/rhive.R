@@ -368,6 +368,9 @@ rhive.list.tables <- function(hiveclient=rhive.defaults('hiveclient')) {
 
 rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('hiveclient')) {
 
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
+
     if(detail) {
     	tableInfo <- rhive.query(paste("describe extended",tablename),hiveclient=hiveclient)
     	return(tableInfo[[2]][length(rownames(tableInfo))])
@@ -378,11 +381,17 @@ rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('h
 
 rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
 
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
+
 	rhive.query(paste("select * from",tablename),fetchsize = fetchsize, limit = limit,hiveclient=hiveclient)
 
 }
 
 rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')) {
+
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
 
     result <- try(rhive.desc.table(tablename), silent = TRUE)
     if(class(result) == "try-error") return(FALSE)
@@ -391,6 +400,9 @@ rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')
 }
 
 rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient')) {
+
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
 
     colindex <- 0
     cols <- ""
@@ -422,6 +434,8 @@ rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hivecli
 
 rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hiveclient')) {
 
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
 
     colindex <- 0
     cols <- ""
@@ -452,6 +466,8 @@ rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hivecl
 
 rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient =rhive.defaults('hiveclient')) {
     
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")    
 
     colindex <- 0
     cols <- ""
@@ -504,6 +520,9 @@ rhive.reduceapply <- function(tablename, reducerFUN, reduceinput=NULL,reduceoutp
 }
 
 rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
 
 	hql <- ""
 
