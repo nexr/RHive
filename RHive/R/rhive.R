@@ -68,7 +68,7 @@ rhive.defaults <- function(arg){
 
 .checkConnection <- function(hiveclient=rhive.defaults('hiveclient')) {
 
-	if(missing(hiveclient) || is.null(hiveclient))
+	if(is.null(hiveclient))
 		stop("disconnected with hiveserver. try to command 'rhive.connect(hive-server-ip)'")
 
 }

@@ -61,7 +61,7 @@ rhive.hdfs.defaults <- function(arg){
 
 .checkHDFSConnection <- function(fileSystem=rhive.hdfs.defaults('hconfig')) {
 
-	if(missing(fileSystem) || is.null(fileSystem))
+	if(is.null(fileSystem))
 		stop("disconnected with HDFS. try to command 'rhive.hdfs.connect()'")
 
 }
@@ -252,9 +252,9 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 }
 
 
-rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.hdfs.defaults('hiveclient')) {
+rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'), hiveclient=rhive.hdfs.defaults('hiveclient')) {
 
-    if(missing(hiveclient) || is.null(hiveclient))
+    if(is.null(hiveclient))
 	    stop("disconnected with hiveserver. try to command 'rhive.connect(hive-server-ip)'")
 
     .checkHDFSConnection(fileSystem)
