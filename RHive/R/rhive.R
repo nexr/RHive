@@ -66,6 +66,13 @@ rhive.defaults <- function(arg){
   }
 }
 
+.checkConnection <- function(hiveclient=rhive.defaults('hiveclient')) {
+
+	if(missing(hiveclient) || is.null(hiveclient))
+		stop("disconnected with hiveserver. try to command 'rhive.connect(hive-server-ip)'")
+
+}
+
 rhive.assign <- function(name, value) {
 
 	result <- try(assign(name,value,envir=.rhiveExportEnv), silent = FALSE)
@@ -178,6 +185,8 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
 
 rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 
+    .checkConnection (hiveclient)
+
 	hivecon <- .jcast(hiveclient[[2]], new.class="org/apache/thrift/transport/TSocket",check = FALSE, convert.array = FALSE)
 	hivecon$close()
 
@@ -191,6 +200,8 @@ rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 }
 
 rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
+
+	.checkConnection(hiveclient)
 
 	rdata <- list()
 
@@ -285,6 +296,8 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 }
 
 rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
+    
+    .checkConnection(hiveclient)
 
 	hosts <- hiveclient[[4]]
 
@@ -309,6 +322,8 @@ rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), po
 }
 
 rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+    
+    .checkConnection(hiveclient)
     
     hosts <- hiveclient[[4]]
     

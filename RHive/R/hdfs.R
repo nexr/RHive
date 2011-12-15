@@ -12,7 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rhive.hdfs.connect <- function(hdfsurl="hdfs://127.0.0.1:8020") {
+rhive.hdfs.connect <- function(hdfsurl=rhive.hdfs.default.name()) {
+
+	 if(missing(hdfsurl) || is.null(hdfsurl))
+	 	stop("missing parameter or null")
 
      config <- .jnew("org/apache/hadoop/conf/Configuration")
      config$set(.jnew("java/lang/String","fs.default.name"),.jnew("java/lang/String",hdfsurl))
@@ -35,12 +38,32 @@ rhive.hdfs.connect <- function(hdfsurl="hdfs://127.0.0.1:8020") {
 	 return(fs)
 }
 
+
+rhive.hdfs.default.name <- function() {
+
+	hdfsurl <- NULL
+	config <- rhive.hdfs.defaults('hconfig')
+    if(!is.null(config)) {
+     	hdfsurl <- config$get("fs.default.name")
+    }
+    
+    return(hdfsurl)
+
+}
+
 rhive.hdfs.defaults <- function(arg){
   if(missing(arg)){
     as.list(.rhiveEnv)
   } else { 
   	RHive:::.rhiveEnv[[arg]]
   }
+}
+
+.checkHDFSConnection <- function(fileSystem=rhive.hdfs.defaults('hconfig')) {
+
+	if(missing(fileSystem) || is.null(fileSystem))
+		stop("disconnected with HDFS. try to command 'rhive.hdfs.connect()'")
+
 }
 
 rhive.hdfs.assign <- function(name, value) {
@@ -53,6 +76,8 @@ rhive.hdfs.assign <- function(name, value) {
 }
 
 rhive.hdfs.ls <- function(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+    .checkHDFSConnection(fileSystem)
 
 	rdata <- list()
 
@@ -100,11 +125,18 @@ rhive.hdfs.ls <- function(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient
 
 rhive.save <- function(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
+
 	tmpfile <- paste("_rhive_save_",as.integer(Sys.time()),sep="")
 	
 	save(...,file=tmpfile, envir = envir)
 
-	rhive.hdfs.put(tmpfile, file, fileSystem = fileSystem);
+	result <- try(rhive.hdfs.put(tmpfile, file, fileSystem = fileSystem), silent = FALSE)
+	
+	if(class(result) == "try-error") {
+	    unlink(tmpfile)
+		return(FALSE)
+	}
 	
 	unlink(tmpfile)
 	
@@ -113,20 +145,28 @@ rhive.save <- function(..., file, envir = parent.frame(), fileSystem = rhive.hdf
 
 rhive.load <- function(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
+
     tmpfile <- paste("_rhive_load_",as.integer(Sys.time()),sep="")
 
     rhive.hdfs.get(file, tmpfile, fileSystem = fileSystem);
 	
-	load(file=tmpfile, envir = envir)
+	result <- try(load(file=tmpfile, envir = envir), silent = FALSE)
+	
+	if(class(result) == "try-error") {
+	    unlink(tmpfile)
+		return(FALSE)
+	}
 	
 	unlink(tmpfile)
-	
 	TRUE
 }
 
 
 
 rhive.hdfs.put <- function(source, target, sourcedelete = FALSE, overwrite = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+    .checkHDFSConnection(fileSystem)
 
 	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",source))
 	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",paste('hdfs://',target,sep='')))
@@ -140,6 +180,8 @@ rhive.hdfs.put <- function(source, target, sourcedelete = FALSE, overwrite = FAL
 
 rhive.hdfs.get <- function(source, target, sourcedelete = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
+
 	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",target))
 	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",paste('hdfs://',source,sep='')))
 
@@ -151,6 +193,8 @@ rhive.hdfs.get <- function(source, target, sourcedelete = FALSE, fileSystem = rh
 }
 
 rhive.hdfs.rm <- function(..., fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+    .checkHDFSConnection(fileSystem)
 
 	for(target in c(...)) {
 
@@ -167,6 +211,8 @@ rhive.hdfs.rm <- function(..., fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 rhive.hdfs.rename <- function(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
+
 	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",target))
 	sPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",paste('hdfs://',source,sep='')))
 	
@@ -177,6 +223,8 @@ rhive.hdfs.rename <- function(source, target, fileSystem = rhive.hdfs.defaults('
 
 rhive.hdfs.exists <- function(path, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
+
 	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",path))
 	
 	return(fileSystem$exists(tPath))
@@ -184,6 +232,8 @@ rhive.hdfs.exists <- function(path, fileSystem = rhive.hdfs.defaults('hdfsclient
 }
 
 rhive.hdfs.mkdirs <- function(path, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+    .checkHDFSConnection(fileSystem)
 
 	tPath <- .jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",path))
 	
@@ -194,6 +244,8 @@ rhive.hdfs.mkdirs <- function(path, fileSystem = rhive.hdfs.defaults('hdfsclient
 
 rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
+
 	fileSystem$close()
 	
 	TRUE
@@ -202,6 +254,11 @@ rhive.hdfs.close <- function(fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
 rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.defaults('hiveclient')) {
 
+    if(missing(hiveclient) || is.null(hiveclient))
+	    stop("disconnected with hiveserver. try to command 'rhive.connect(hive-server-ip)'")
+
+    .checkHDFSConnection(fileSystem)
+        
 	if(missing(dat))
 		stop("missing parameter")
 	if(!is.data.frame(dat))
@@ -243,6 +300,10 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
 	
 	dat[is.na(dat)] <- if(is.null(nastring)) "NULL" else nastring[1L]
 	
+	if(rhive.exist.table(tablename)) {
+		stop(paste(sQuote(tablename)," already exists. command 'rhive.query('DROP TABLE ",tablename,"')'",sep=""))
+	}
+	
 	write.table(dat,file=exportname,quote=FALSE,row.names = FALSE, col.names=FALSE, sep = sep)
 	rhive.hdfs.put(exportname, hdfs_path, sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
 	
@@ -255,6 +316,7 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
 
 rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient')) {
 
+    .checkHDFSConnection(fileSystem)
 	
 	if(!is.null(mapper)) {
 		mapScript <- paste(system.file(package="RHive"),"resource","_mapper.template",sep=.Platform$file.sep)
@@ -283,6 +345,8 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
 }
 
 rhive.script.unexport <- function(exportname,fileSystem = rhive.hdfs.defaults('hdfsclient')) {
+
+    .checkHDFSConnection(fileSystem)
 
 	mapScript <- paste("/rhive/script/",exportname,".mapper",sep="")
 	reduceScript <- paste("/rhive/script/",exportname,".reducer",sep="")

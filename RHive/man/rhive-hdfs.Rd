@@ -15,7 +15,7 @@
 \usage{
 rhive.save(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.load(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.connect(hdfsurl="hdfs://127.0.0.1:8020")
+rhive.hdfs.connect(hdfsurl=rhive.hdfs.default.name())
 rhive.hdfs.ls(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.get(source, target, sourcedelete = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient'))
 rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient'))
@@ -54,6 +54,8 @@ rhive.hdfs.close : Close hdfs connection
 rhive.save : save R Objects to HDFS 
 
 rhive.load : load R Objects from HDFS
+
+rhive.write.table : create Hive table using R data.frame
 }
 \arguments{
 \item{hdfsurl}{namenode url for connecting to hdfs.}
