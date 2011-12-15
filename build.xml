@@ -70,7 +70,7 @@
     </copy>
   	<copy todir="${build.dir}/CRAN/rhive/R">
   		<fileset dir="${R.dir}/R">
-  			<exclude name="test.R"/>
+  			<exclude name="unitTest.R"/>
   		</fileset>
     </copy>
   	<copy file="${R.dir}/DESCRIPTION" todir="${build.dir}/CRAN/rhive"/>
