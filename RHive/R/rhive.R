@@ -145,7 +145,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      	config <- rhive.defaults('hconfig')
      	if(!is.null(config)) {
      		hdfsurl <- config$get("fs.default.name")
-     		filesystem <- rhive.hdfs.connect(hdfsurl)
+     		hdfs <- rhive.hdfs.connect(hdfsurl)
      	}
      }
 
@@ -158,8 +158,8 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      
      result <- try(hivecon$open(), silent = FALSE)
      if(class(result) == "try-error") {
-     	if(!is.null(filesystem)) {
-     		filesystem$close()
+     	if(!is.null(hdfs)) {
+     		rhive.hdfs.close(hdfs)
      	}
  		sprintf("fail to connect RHive [hiveserver = %s:%s, hdfs = %s]\n", host,port,hdfsurl)
  		return(NULL)
@@ -171,7 +171,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
 
-     hiveclient <- list(client,hivecon,c(host,port),hosts,filesystem,hdfsurl)
+     hiveclient <- list(client,hivecon,c(host,port),hosts,hdfs,hdfsurl)
      
      class(hiveclient) <- "rhive.client.connection"
      #reg.finalizer(hiveclient,function(r) {
@@ -191,10 +191,11 @@ rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 	hivecon$close()
 
 	if(!is.null(hiveclient[[5]])) {
-		filesystem <- .jcast(hiveclient[[5]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
-		filesystem$close()
+		rhive.hdfs.close(hiveclient[[5]])
 	}
-	
+
+	rm("hiveclient",envir=.rhiveEnv)
+
 	return(TRUE)
 	
 }

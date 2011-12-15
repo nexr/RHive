@@ -9,22 +9,26 @@
 \alias{rhive.hdfs.rename}
 \alias{rhive.hdfs.exists}
 \alias{rhive.hdfs.mkdirs}
+\alias{rhive.hdfs.cat}
+\alias{rhive.hdfs.tail}
 \alias{rhive.hdfs.close}
 \alias{rhive.write.table}
 \title{R functions to communicate with HDFS}
 \usage{
-rhive.save(..., file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.load(file, envir = parent.frame(), fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.save(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.load(file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.connect(hdfsurl=rhive.hdfs.default.name())
-rhive.hdfs.ls(path="/", fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.get(source, target, sourcedelete = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.rm(..., fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.rename(source, target, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.exists(path, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.mkdirs(path, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.hdfs.close(fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.write.table(dat, tablename = NULL, sep = ",", nastring = NULL, fileSystem = rhive.hdfs.defaults('hdfsclient'),hiveclient=rhive.defaults('hiveclient'))
+rhive.hdfs.ls(path="/", fileSystem = hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.get(source, target, sourcedelete = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.rm(..., hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.rename(source, target, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.exists(path, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.mkdirs(path, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.cat(path, hdfs = rhive.hdfs.defaults('hdfs')) 
+rhive.hdfs.tail(path, hdfs = rhive.hdfs.defaults('hdfs')) 
+rhive.hdfs.close(hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.write.table(dat, tablename = NULL, sep = ",", nastring = NULL, hdfs = rhive.hdfs.defaults('hdfs'), hiveclient=rhive.hdfs.defaults('hiveclient'))
 }
 \description{
 R functions to communicate with HDFS
@@ -51,9 +55,9 @@ rhive.hdfs.mkdirs : Creates a directory named path in HDFS.
 
 rhive.hdfs.close : Close hdfs connection
 
-rhive.save : save R Objects to HDFS 
+rhive.save : save R Objects to HDFS as R data format 
 
-rhive.load : load R Objects from HDFS
+rhive.load : load R data format file stored in HDFS
 
 rhive.write.table : create Hive table using R data.frame
 }
@@ -63,7 +67,7 @@ rhive.write.table : create Hive table using R data.frame
 \item{target}{full path of target data.}
 \item{file}{the full-name of the file where the data will be saved or loaded}
 \item{path}{hdfs's full path.}
-\item{fileSystem}{a client for hdfs.}
+\item{hdfs}{a client for hdfs.}
 \item{envir}{environment to search for objects to be saved or loaded.}
 \item{sourcedelete}{indicates if the source should be removed.}
 \item{overwrite}{if path exists,this option indicates whether to overwrite.}
