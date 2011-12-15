@@ -1,4 +1,4 @@
-# Copyright 2011 Revolution Analytics
+# Copyright 2011 NexR
 #    
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,23 +20,27 @@ test.hiveExportAll <- function()
 {
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
-
-    ## connect hive
-    hivecon <- hiveConnect("127.0.0.1")
-    checkTrue(!is.null(hivecon))
+	empTest <- read.csv2(localData)
+	
+	if(rhive.exists.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	rhive.write.table(empTest)
 	
     userconf <- 5
     usercal2 <- function(sal) {
-	sal * userconf
+		sal * userconf
     }
 	
     checkTrue(rhive.assign('usercal2',usercal2))
     checkTrue(rhive.assign('userconf',userconf))
-    checkTrue(rhive.exportAll('usercal2', c("127.0.0.1")))
+    checkTrue(rhive.exportAll('usercal2'))
 	
-    queryResult <- rhive.query("select R('usercal2',sal,0.0) from emp")
+    queryResult <- rhive.query("select R('usercal2',sal,0.0) from empTest")
     checkTrue(!is.null(queryResult))
 
-    ## close connection
-    checkTrue(rhive.close())
+    if(rhive.exists.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
 }
