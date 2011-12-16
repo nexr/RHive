@@ -16,7 +16,7 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-test.rhiveQuery <- function()
+test.rhiveScript <- function()
 {
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
@@ -28,8 +28,27 @@ test.rhiveQuery <- function()
 	
 	rhive.write.table(empTest)
 	
-    queryResult <- rhive.query("select * from empTest")
+	map <- function(k,v) {
+	
+	  if(is.null(v)) {
+         put(NA,1)
+      }
+      lapply(v, function(vv) {
+         lapply(strsplit(x=vv,split ="\t")[[1]], function(w) put(paste(args,w,sep=""),1))
+      })
+	
+	}
+	
+	reduce <- function(k,vv) {
+  
+      put(k,sum(as.numeric(vv)))
+  
+	}
+	
+	queryResult <- rhive.mrapply("empTest",map,reduce,c("ename","position"),c("position","one"),by="position",c("position","one"),c("word","count"))
+	
     checkTrue(!is.null(queryResult))
+    checkTrue(length(row.names(queryResult)) == 5)
 
     if(rhive.exist.table("empTest")) {
 		rhive.query("DROP TABLE empTest")

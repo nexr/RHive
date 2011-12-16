@@ -394,10 +394,15 @@ rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
 
-    result <- try(rhive.desc.table(tablename), silent = TRUE)
-    if(class(result) == "try-error") return(FALSE)
+    tablelist <- try(rhive.list.tables(), silent = FALSE)
+    if(class(tablelist) == "try-error") stop("fail to execute 'rhive.list.tables()'")
     
-    return(TRUE)
+    loc <- (tablelist == tolower(tablename))
+    if(length(tablelist[loc]) == 0)
+    	return(FALSE)
+    else
+    	return(TRUE)
+    	
 }
 
 rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient')) {

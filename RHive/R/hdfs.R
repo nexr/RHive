@@ -344,7 +344,7 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
 	}
 	
 	write.table(dat,file=exportname,quote=FALSE,row.names = FALSE, col.names=FALSE, sep = sep)
-	rhive.hdfs.put(exportname, hdfs_path, sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+	rhive.hdfs.put(exportname, hdfs_path, sourcedelete = TRUE, overwrite = TRUE, hdfs = hdfs);
 	
 	client <- .jcast(hiveclient[[1]], new.class="org/apache/hadoop/hive/service/HiveClient",check = FALSE, convert.array = FALSE)
     client$execute(.jnew("java/lang/String",hquery))
@@ -365,7 +365,7 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
 		
 		.generateScript(mapper, mtmpfile, mapScript, "map", mapper_args, buffersize)
 		
-		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportname,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportname,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, hdfs = hdfs);
 	
 	   #unlink(rtmpfile)
 	}
@@ -377,7 +377,7 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
 		
 		.generateScript(reducer, rtmpfile, reduceScript,"reduce", reducer_args, buffersize)
 		
-		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportname,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, fileSystem = fileSystem);
+		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportname,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, hdfs = hdfs);
 		
 		#unlink(rtmpfile)
 		
@@ -388,17 +388,15 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
 rhive.script.unexport <- function(exportname,hdfs = rhive.hdfs.defaults('hdfs')) {
 
     .checkHDFSConnection(hdfs)
-    
-    fileSystem <- .jcast(hdfs[[1]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
 
 	mapScript <- paste("/rhive/script/",exportname,".mapper",sep="")
 	reduceScript <- paste("/rhive/script/",exportname,".reducer",sep="")
 	
-	if(rhive.hdfs.exists(mapScript,fileSystem=fileSystem)) {
+	if(rhive.hdfs.exists(mapScript,hdfs=hdfs)) {
 		rhive.hdfs.rm(mapScript)
 	}
 	
-	if(rhive.hdfs.exists(reduceScript,fileSystem=fileSystem)) {
+	if(rhive.hdfs.exists(reduceScript,hdfs=hdfs)) {
 		rhive.hdfs.rm(reduceScript)
 	}
 	

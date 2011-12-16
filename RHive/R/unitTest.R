@@ -13,7 +13,7 @@
 # limitations under the License.
 
  
-runAllTest <- function (showHTMLOutput = FALSE, filename = "rhiveRUnitTestSummary.html")
+rhive.test <- function (showHTMLOutput = FALSE, filename = "rhiveRUnitTestSummary.html")
 {
     .failureDetails <- function(result) {
         res <- result[[1L]]

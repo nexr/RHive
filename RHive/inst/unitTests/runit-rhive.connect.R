@@ -16,7 +16,7 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-test.hiveConnect <- function()
+test.rhiveConnect <- function()
 {
     ## connect hive
     #hivecon <- hiveConnect()
