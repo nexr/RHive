@@ -11,8 +11,8 @@ rhive.export(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, p
 rhive.exportAll(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
 rhive.assign(name,value)
 rhive.rm(name)
-rhive.script.export(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, fileSystem = rhive.hdfs.defaults('hdfsclient'))
-rhive.script.unexport(exportname,fileSystem = rhive.hdfs.defaults('hdfsclient'))
+rhive.script.export(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.script.unexport(exportname, hdfs = rhive.hdfs.defaults('hdfs'))
 }
 \description{
 Export R function to Hive using functions in Package `RHive'
@@ -116,6 +116,33 @@ this 'expand' function allows user to change one column into many rows.
 
 ## name of UDAF is 'RA'
 \dontrun{rhive.query("select RA('hsum',sal) from emp group by empno")}
+
+
+## export/unexport user define map/reduce script
+\dontrun{
+map <- function(k,v) {
+
+      if(is.null(v)) {
+         put(NA,1)
+      }
+      lapply(v, function(vv) {
+         lapply(strsplit(x=vv,split ="\t")[[1]], function(w) put(paste(args,w,sep=""),1))
+      })
+  
+ }
+
+reduce <- function(k,vv) {
+ 
+     put(k,sum(as.numeric(vv)))
+  
+}
+
+mrscript <- rhive.script.export("scripttest",map,reduce)
+
+
+rhive.query(paste("from (from emp MAP ename,position USING '", mrscript[1], "' as position,one cluster by position) map_output REDUCE map_output.aa,map_output.bb USING '", mrscript[2], "' as position,count",sep=""))
+
+}
 
 ## close connection
 \dontrun{rhive.close()}

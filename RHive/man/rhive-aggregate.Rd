@@ -19,7 +19,7 @@ R Distributed aggregate function using HQL
 }
 \examples{
 ## try to connect hive server
-\dontrun{rhive.connect("127.0.0.1")}
+\dontrun{rhive.connect("hive-server-ip")}
 
 ## invoke napply for numeric return type
 \dontrun{rhive.aggregate('emp','sum','sal',c('ename'))}

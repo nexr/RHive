@@ -25,7 +25,7 @@ R functions to get informations of table from HIVE
 }
 \examples{
 ## try to connect hive server
-\dontrun{rhive.connect("127.0.0.1")}
+\dontrun{rhive.connect("hive-server-ip")}
 
 ## get list of tables from hive
 \dontrun{rhive.list.tables()}

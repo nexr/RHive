@@ -359,6 +359,9 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
     
     fileSystem <- .jcast(hdfs[[1]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
 	
+	map <- "NULL"
+	reduce <- "NULL"
+	
 	if(!is.null(mapper)) {
 		mapScript <- paste(system.file(package="RHive"),"resource","_mapper.template",sep=.Platform$file.sep)
 		mtmpfile <- paste("_rhive_mapper_",as.integer(Sys.time()),sep="")
@@ -367,6 +370,7 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
 		
 		rhive.hdfs.put(mtmpfile, paste("/rhive/script/",exportname,".mapper",sep=""), sourcedelete = TRUE, overwrite = TRUE, hdfs = hdfs);
 	
+	    map <- paste("/rhive/script/",exportname,".mapper",sep="")
 	   #unlink(rtmpfile)
 	}
 	
@@ -379,9 +383,14 @@ rhive.script.export <- function(exportname, mapper = NULL, reducer = NULL, mappe
 		
 		rhive.hdfs.put(rtmpfile, paste("/rhive/script/",exportname,".reducer",sep=""), sourcedelete = TRUE, overwrite = TRUE, hdfs = hdfs);
 		
+		reduce <- paste("/rhive/script/",exportname,".reducer",sep="")
 		#unlink(rtmpfile)
 		
 	}
+	
+	mrscriptnames <- c(map,reduce)
+	
+	return(mrscriptnames)
 	
 }
 

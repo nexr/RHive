@@ -42,7 +42,7 @@ R Distributed apply function using HQL
 }
 \examples{
 ## try to connect hive server
-\dontrun{rhive.connect("127.0.0.1")}
+\dontrun{rhive.connect("hive-server-ip")}
 
 ## invoke napply for numeric return type
 \dontrun{rhive.napply('emp',function(item) {
@@ -53,6 +53,27 @@ item * 10
 \dontrun{rhive.napply('emp',function(item) {
 paste('NAME : ',item,sep='')
 },'ename')}
+
+## custom map/reduce script
+\dontrun{map <- function(k,v) {
+
+      if(is.null(v)) {
+         put(NA,1)
+      }
+      lapply(v, function(vv) {
+         lapply(strsplit(x=vv,split ="\t")[[1]], function(w) put(paste(args,w,sep=""),1))
+      })
+  
+ }
+ 
+ reduce <- function(k,vv) {
+  
+     put(k,sum(as.numeric(vv)))
+  
+ }
+ 
+ rhive.mrapply("emp",map,reduce,c("ename","position"),c("position","one"),by="position",c("position","one"),c("position","count"))}
+
 
 ## close connection
 \dontrun{rhive.close()}
