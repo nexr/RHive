@@ -18,7 +18,7 @@
 rhive.save(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.load(file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.connect(hdfsurl=rhive.hdfs.default.name())
-rhive.hdfs.ls(path="/", fileSystem = hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.hdfs.ls(path="/", hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.get(source, target, sourcedelete = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.rm(..., hdfs = rhive.hdfs.defaults('hdfs'))

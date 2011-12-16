@@ -48,7 +48,7 @@ this 'expand' function allows user to change one column into many rows.
 \item{mapper}{R object as map function or Hive query.}
 \item{reducer}{R object as reducer function.}
 \item{buffersize}{streaming buffer size.}
-\item{fileSystem}{a client for hdfs.}
+\item{hdfs}{a client for hdfs.}
 \item{mapper_args}{mapper custom environment.}
 \item{reducer_args}{reducer custom environment.}
 } 
