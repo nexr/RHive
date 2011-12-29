@@ -1,3 +1,7 @@
+2011-12-29
+
+	* develop basic statistic functions (Mode, range, xtabs, cut, by, merge) 
+
 2011-12-08
 
     * support custom map/reduce script of hive
