@@ -1,4 +1,4 @@
-NexR RHive 0.0-4
+NexR RHive 0.0-5
 ================
 
 	RHive is an R extension facilitating distributed computing via HIVE query.
@@ -37,20 +37,16 @@ Installation Guide
 	
 4. Install RHive
 	4-1. requirement software : ANT.
-	4-2. R CMD INSTALL RHive_0.1-0.tar.gz
+	4-2. R CMD INSTALL RHive_0.0-5.tar.gz
 	4-3. If HADOOP_HOME doesn't exist, do following instruction :
 		 4-3-1. copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
 	     		using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'. 
 		 		this jar file exists under $HIVE_HOME/lib. 
-    4-4. put $RHIVE_HOME/inst/data/emp.cvs to HDFS.
-    4-5. create hive table for this data using following query.
-    	>create external table emp (empno int,ename string,position string,col int,fday string,sal double,status string,deptno int)
-    	 row format delimited fields terminated by ' '
-    	 location '/rhive/data'
 
 5. Launch RHive
 	5-1. launch R
 	5-2. >library(RHive)
+	5-3. >rhive.connect(hive-server-ip)
 
 
 Requirements
@@ -61,7 +57,7 @@ Requirements
 - Rserve 0.6-0
 - rJava 0.9-0
 - Hadoop 0.20.x (x >= 1)
-- Hive 0.7.x (x >= 1)
+- Hive 0.8.x (x >= 0)
 
 
 
