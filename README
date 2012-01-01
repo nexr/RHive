@@ -47,6 +47,9 @@ Installation Guide
 	5-1. launch R
 	5-2. >library(RHive)
 	5-3. >rhive.connect(hive-server-ip)
+	
+6. Tutorial
+    https://github.com/nexr/RHive/wiki/UserGuides
 
 
 Requirements
