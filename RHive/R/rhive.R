@@ -397,8 +397,13 @@ rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')
 
     tablelist <- try(rhive.list.tables(), silent = FALSE)
     if(class(tablelist) == "try-error") stop("fail to execute 'rhive.list.tables()'")
+ 
+ 	if(length(row.names(tablelist)) == 0)
+ 		return(FALSE)
+ 
+    loc <- try((tablelist == tolower(tablename)), silent = TRUE)
+    if(class(loc) == "try-error") return(FALSE)
     
-    loc <- (tablelist == tolower(tablename))
     if(length(tablelist[loc]) == 0)
     	return(FALSE)
     else
