@@ -78,11 +78,15 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
   	unioncols <- c(setdiff(xcols, joinkeys), setdiff(ycols, yjoinkeys))
   	
   	sharedcols <- intersect(setdiff(xcols, joinkeys),setdiff(ycols, yjoinkeys))
+  	
   	if(length(sharedcols) > 0) {
+  		unioncols <- c(paste("x.",setdiff(xcols, c(joinkeys,sharedcols)),sep="",collapse=","),paste("y.",setdiff(ycols,c(yjoinkeys,sharedcols)),sep="",collapse=","))
   		unioncols <- c(setdiff(unioncols, sharedcols), paste("x.",sharedcols,sep=""))
+  	}else {
+  		unioncols <- c(paste("x.",setdiff(xcols,joinkeys),sep=""),paste("y.",setdiff(ycols,yjoinkeys),sep=""))
   	}
   		
-	hql <- paste("SELECT ", paste("x.", joinkeys, sep="", collapse=","), ",", paste(unioncols, collapse=","), " FROM ", x, " x JOIN ", y, " y ", sep="")
+	hql <- paste("SELECT ", paste("x.", joinkeys, sep="", collapse=","), ",", paste(unioncols,collapse=","), " FROM ", x, " x JOIN ", y, " y ", sep="")
 	
 	if(!is.null(joinkeys)) {
 		where <- ""
@@ -97,9 +101,7 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
 	  	
 	  	hql <- paste(hql, where)
   	}
-  	
-  	print(hql)
-  	
+
   	rhive.query(hql)
 }
 

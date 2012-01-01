@@ -11,3 +11,4 @@ RHive/inst/java/rhive_udf.jar
 .project
 .classpath
 .settings
+bin
