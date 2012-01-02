@@ -184,10 +184,10 @@ rhive.basic.by <- function(tablename, cols, INDICES, FUN) {
 	if(missing(FUN))
 		stop("missing FUN")
 
-    colnames <- paste(FUN, "(", cols, ")", sep="", collapse=",")
+    colnames <- paste(FUN, "(", cols, ") ",FUN, sep="", collapse=",")
 	groups <- paste(INDICES, collapse=",")
 
-	hql <- sprintf("SELECT %s FROM %s GROUP BY %s",colnames,tablename,groups)
+	hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",paste(INDICES, collapse=","), colnames,tablename,groups)
 	
 	rhive.query(hql)
 }
