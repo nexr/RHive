@@ -20,7 +20,7 @@ rhive.basic.mode <- function(tablename, col) {
 	if(missing(col))
 		stop("missing colname")
 
-	hql <- sprintf("SELECT %s , COUNT(1) max FROM %s GROUP BY %s ORDER BY max DESC LIMIT 1", col, tablename, col)
+	hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY max DESC LIMIT 1", col, tablename, col)
 	
 	rhive.query(hql)
 
