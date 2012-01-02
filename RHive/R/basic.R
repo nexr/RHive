@@ -35,8 +35,8 @@ rhive.basic.range <- function(tablename, col) {
 
     hql <- sprintf("SELECT MIN(%s) min, MAX(%s) max FROM %s", col, col, tablename)
 	
-	rhive.query(hql)
-
+	result <- rhive.query(hql)
+	return(c(result[['min']],result[['max']]))
 }
 
 rhive.basic.merge <- function(x, y, by.x, by.y) {
