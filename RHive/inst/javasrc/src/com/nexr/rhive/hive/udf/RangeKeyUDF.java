@@ -84,6 +84,19 @@ public class RangeKeyUDF extends GenericUDF {
                 
                 return tree;
             }
+            
+            RangeTree init(String[] breaks, RangeTree tree) {
+                
+                for(int i = 1; i < breaks.length; i++) {
+                    int lstart = parse(breaks[i-1]).intValue();
+                    int lend = parse(breaks[i]).intValue();
+                    
+                    int[] irange = {lstart,lend};
+                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                }
+                
+                return tree;
+            }
 
             Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value) {
                 return ((RangeTreeFactory.IntRangeTree) tree).searchWritable((Integer) value);
@@ -126,7 +139,20 @@ public class RangeKeyUDF extends GenericUDF {
                 }
                 
                 return tree;
-            }            
+            }      
+            
+            RangeTree init(String[] breaks, RangeTree tree) {
+                
+                for(int i = 1; i < breaks.length; i++) {
+                    long lstart = parse(breaks[i-1]).longValue();
+                    long lend = parse(breaks[i]).longValue();
+                    
+                    long[] irange = {lstart,lend};
+                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                }
+                
+                return tree;
+            }
 
             Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value) {
                 return ((RangeTreeFactory.LongRangeTree) tree).searchWritable((Long) value);
@@ -159,8 +185,8 @@ public class RangeKeyUDF extends GenericUDF {
             }
             
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
-                double lstart = parse(minValue).longValue();
-                double lend = parse(maxValue).longValue();
+                double lstart = parse(minValue).doubleValue();
+                double lend = parse(maxValue).doubleValue();
                 int step = parse(stepValue).intValue();
                 
                 for(double idx = lstart; idx < lend; idx=idx+step) {
@@ -170,6 +196,19 @@ public class RangeKeyUDF extends GenericUDF {
                 
                 return tree;
             }          
+            
+            RangeTree init(String[] breaks, RangeTree tree) {
+                
+                for(int i = 1; i < breaks.length; i++) {
+                    double lstart = parse(breaks[i-1]).doubleValue();
+                    double lend = parse(breaks[i]).doubleValue();
+                    
+                    double[] irange = {lstart,lend};
+                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                }
+                
+                return tree;
+            }
 
             Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value) {
                 return ((RangeTreeFactory.DoubleRangeTree) tree).searchWritable((Double) value);
@@ -204,7 +243,12 @@ public class RangeKeyUDF extends GenericUDF {
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
            
                 throw new RuntimeException("can't split min-max for string type.");
-            }               
+            }  
+            
+            RangeTree init(String[] breaks, RangeTree tree) {
+                
+                throw new RuntimeException("can't split min-max for string type.");
+            }
 
             Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value) {
                 return ((RangeTreeFactory.StringRangeTree) tree).searchWritable(String.valueOf(value));
@@ -217,6 +261,8 @@ public class RangeKeyUDF extends GenericUDF {
         abstract Object asArray(String minValue, String maxValue);
 
         abstract RangeTree init(String minValue, String maxValue, String step, RangeTree tree);
+        
+        abstract RangeTree init(String[] breaks, RangeTree tree);
         
         abstract Object search(RangeTreeFactory.RangeTree tree, Object value);
 
@@ -289,24 +335,40 @@ public class RangeKeyUDF extends GenericUDF {
         
         String start, end, step;
         String splits;
-        StringTokenizer st = new StringTokenizer(breaks, ":");
         
-        // min < value <= max
+     // min < value <= max
         RangeTree tree = rangeValue.newTree(breaks, true ,false);
         
-        if (st.countTokens() == 2) {
-            start = st.nextToken();
-            end = st.nextToken();
-            step = "1";
-     
-            tree = rangeValue.init(start, end, step, tree);
-        }else if(st.countTokens() == 3) { 
+        if(breaks.indexOf(":") > 0) {
+        
+            StringTokenizer st = new StringTokenizer(breaks, ":");
             
-            start = st.nextToken();
-            end = st.nextToken();
-            step = st.nextToken();
+            if (st.countTokens() == 2) {
+                start = st.nextToken();
+                end = st.nextToken();
+                step = "1";
+         
+                tree = rangeValue.init(start, end, step, tree);
+            }else if(st.countTokens() == 3) { 
+                
+                start = st.nextToken();
+                end = st.nextToken();
+                step = st.nextToken();
+                
+                tree = rangeValue.init(start, end, step, tree);
+            }else {
+                throw new RuntimeException("fail to parse break syntax : " + breaks);
+            }
+        
+        }else if(breaks.indexOf(",") > 0) {
             
-            tree = rangeValue.init(start, end, step, tree);
+            StringTokenizer st = new StringTokenizer(breaks, ",");
+            String[] elements = new String[st.countTokens()];
+            for(int i = 0; i < elements.length; i++) {
+                elements[i] = st.nextToken();
+            }
+
+            tree = rangeValue.init(elements, tree);
         }else {
             throw new RuntimeException("fail to parse break syntax : " + breaks);
         }

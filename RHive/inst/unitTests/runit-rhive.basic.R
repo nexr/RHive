@@ -83,6 +83,11 @@ test.rhiveBasic <- function()
     queryResult <- rhive.basic.cut("usarrests","rape",breaks="0:50")
 	checkTrue(!is.null(queryResult))
 
+    queryResult <- rhive.basic.cut("usarrests","rape",breaks="0,9,10,30,50")
+	checkTrue(!is.null(queryResult))
+	
+	queryResult <- rhive.basic.cut("usarrests","rape",breaks="0,9,10,30,50", summary=TRUE)
+	checkTrue(!is.null(queryResult))
 
 	queryResult <- rhive.basic.by("empTest",c("sal"),c("id","dep"),"sum")
 	checkTrue(!is.null(queryResult))
