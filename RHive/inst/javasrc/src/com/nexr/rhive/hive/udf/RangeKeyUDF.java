@@ -52,7 +52,7 @@ public class RangeKeyUDF extends GenericUDF {
             }
 
             RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive) {
-                return RangeTreeFactory.createIntTree(name, minExclusive, maxExclusive, 0);
+                return RangeTreeFactory.createIntTree(name, minExclusive, maxExclusive, null);
             }
 
             RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive,
@@ -108,7 +108,7 @@ public class RangeKeyUDF extends GenericUDF {
             }
 
             RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive) {
-                return RangeTreeFactory.createLongTree(name, minExclusive, maxExclusive, 0);
+                return RangeTreeFactory.createLongTree(name, minExclusive, maxExclusive, null);
             }
 
             RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive,
@@ -164,7 +164,7 @@ public class RangeKeyUDF extends GenericUDF {
             }
 
             RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive) {
-                return RangeTreeFactory.createDoubleTree(name, minExclusive, maxExclusive, 0);
+                return RangeTreeFactory.createDoubleTree(name, minExclusive, maxExclusive, null);
             }
 
             RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive,
