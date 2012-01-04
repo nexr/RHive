@@ -18,9 +18,6 @@ stopifnot(require(RUnit, quietly=TRUE))
 
 test.rhive.basic.merge <- function() {
 
-	try(rm(books), silent=TRUE)
-	try(rm(authors), silent=TRUE)
-
 	authors <- data.frame(
          surname = I(c("Tukey", "Venables", "Tierney", "Ripley", "McNeil")),
          nationality = c("US", "Australia", "US", "UK", "Australia"),
@@ -128,7 +125,7 @@ test.rhiveBasic <- function()
 	queryResult <- rhive.basic.range("empTest","sal")
 	checkTrue(!is.null(queryResult))
 
-	queryResult <- rhive.basic.by("empTest",c("sal"),c("id","dep"),"sum")
+	queryResult <- rhive.basic.by("empTest",c("id","dep"),"sum",c("sal"))
 	checkTrue(!is.null(queryResult))
 	
 	queryResult <- rhive.basic.scale("empTest","sal")

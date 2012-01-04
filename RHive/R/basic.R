@@ -173,21 +173,22 @@ rhive.basic.cut <- function(tablename, col, breaks, summary = FALSE) {
 	
 }
 
-rhive.basic.by <- function(tablename, cols, INDICES, FUN) {
+rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
 
-	if(missing(cols))
-		stop("missing colname")
+	if(missing(arguments))
+		stop("missing arguments")
 	if(missing(tablename))
 		stop("missing tablename")
 	if(missing(INDICES))
 		stop("missing INDICES")
-	if(missing(FUN))
-		stop("missing FUN")
+	if(missing(fun))
+		stop("missing fun")
 
-    colnames <- paste(FUN, "(", cols, ") ",FUN, sep="", collapse=",")
+	arguments <- paste(arguments,collapse=",")
+    colnames <- paste(fun, "(", arguments, ") ",fun, sep="", collapse=",")
 	groups <- paste(INDICES, collapse=",")
 
-	hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",paste(INDICES, collapse=","), colnames,tablename,groups)
+	hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",groups,colnames,tablename,groups)
 	
 	rhive.query(hql)
 }

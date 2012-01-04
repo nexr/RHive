@@ -13,7 +13,7 @@ rhive.basic.range(tablename, col)
 rhive.basic.merge(x, y, by.x, by.y)
 rhive.basic.xtabs(x, cols, tablename)
 rhive.basic.cut(tablename, col, breaks, summary = FALSE)
-rhive.basic.by(tablename, cols, INDICES, FUN)
+rhive.basic.by(tablename, INDICES, fun, arguments)
 rhive.basic.scale(tablename, col)
 }
 \description{
@@ -28,7 +28,8 @@ R Distributed basic statistic function using Hive
 \item{breaks}{a numeric vector of two or more cut points. a format is 'min:max:step' and 'step' is optional.}
 \item{summary}{a option whether summarize the result of cut or not.}
 \item{INDICES}{a list of column to be grouped.}
-\item{FUN}{a hive function name to be applied.}
+\item{fun}{a hive function name to be applied.}
+\item{arguments}{input data for a function. for examples, arguments=c("sal","deptno",3.2,"'NexR'")}
 } 
 \author{
 \email{rhive@nexr.com}
@@ -57,7 +58,7 @@ DF <- as.data.frame(UCBAdmissions)
 \dontrun{rhive.basic.cut('emp','sal',breaks='0:5000:100')}
 
 ## extract the summation of salary by group 
-\dontrun{rhive.basic.by('emp',c('sal')),'deptno','sum')}
+\dontrun{rhive.basic.by('emp','deptno','sum',c("sal"))}
 
 ## centers and/or scales the columns of table
 \dontrun{rhive.basic.scale('emp','sal')}
