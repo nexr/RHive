@@ -5,6 +5,7 @@
 \alias{rhive.basic.xtabs}
 \alias{rhive.basic.cut}
 \alias{rhive.basic.by}
+\alias{rhive.basic.scale}
 \title{R Distributed basic statistic function using Hive}
 \usage{
 rhive.basic.mode(tablename, col)
@@ -13,6 +14,7 @@ rhive.basic.merge(x, y, by.x, by.y)
 rhive.basic.xtabs(x, cols, tablename)
 rhive.basic.cut(tablename, col, breaks, summary = FALSE)
 rhive.basic.by(tablename, cols, INDICES, FUN)
+rhive.basic.scale(tablename, col)
 }
 \description{
 R Distributed basic statistic function using Hive
@@ -56,6 +58,9 @@ DF <- as.data.frame(UCBAdmissions)
 
 ## extract the summation of salary by group 
 \dontrun{rhive.basic.by('emp',c('sal')),'deptno','sum')}
+
+## centers and/or scales the columns of table
+\dontrun{rhive.basic.scale('emp','sal')}
 
 ## close connection
 \dontrun{rhive.close()}

@@ -20,7 +20,7 @@ rhive.basic.mode <- function(tablename, col) {
 	if(missing(col))
 		stop("missing colname")
 
-	hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY max DESC LIMIT 1", col, tablename, col)
+	hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY freq DESC LIMIT 1", col, tablename, col)
 	
 	rhive.query(hql)
 
@@ -190,6 +190,28 @@ rhive.basic.by <- function(tablename, cols, INDICES, FUN) {
 	hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",paste(INDICES, collapse=","), colnames,tablename,groups)
 	
 	rhive.query(hql)
+}
+
+rhive.basic.scale <- function(tablename, col) {
+
+	hql <- sprintf("SELECT AVG(%s) avg, STD(%s) std FROM %s",col,col,tablename)
+	summary <- rhive.query(hql)
+	
+	avg <- summary[['avg']]
+	std <- summary[['std']]
+	
+	tmpTable <- paste("cut_", tablename,as.integer(Sys.time()),sep="")
+	xcols <- rhive.desc.table(tablename)[,'col_name']
+	cols <- setdiff(xcols, col)
+
+	hql <- sprintf("CREATE TABLE %s AS SELECT %s, %s, scale(%s,%s,%s) %s FROM %s",tmpTable,paste(cols, collapse=","),col, col,avg,std,paste("sacled_",col,sep=""),tablename)
+	rhive.query(hql)
+	
+	x <- tmpTable
+	attr(x,"scaled:center") <- avg
+	attr(x,"scaled:scale") <- std
+	
+	x
 }
 
 .generateColumnString <- function(columns,sep=",",excludes) {

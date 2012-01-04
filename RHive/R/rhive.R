@@ -171,6 +171,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
      client$execute(.jnew("java/lang/String","create temporary function rkey as 'com.nexr.rhive.hive.udf.RangeKeyUDF'"))
+     client$execute(.jnew("java/lang/String","create temporary function scale as 'com.nexr.rhive.hive.udf.ScaleUDF'"))
 
      hiveclient <- list(client,hivecon,c(host,port),hosts,hdfs,hdfsurl)
      
