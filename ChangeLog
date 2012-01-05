@@ -1,3 +1,7 @@
+201-01-05
+
+	* develop basic statistic functions (scale)
+
 2011-12-29
 
 	* develop basic statistic functions (Mode, range, xtabs, cut, by, merge) 
