@@ -202,6 +202,26 @@ rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 	
 }
 
+rhive.big.query <- function(query , hiveclient =rhive.defaults('hiveclient')) {
+
+	tmptable <- paste("rhive_result_",as.integer(Sys.time()),sep="")
+	query <- paste("CREATE TABLE ", tmptable," AS ", query,sep="")
+	
+	rhive.query(query, hiveclient = hiveclient)
+	length <- rhive.size.table(tmptable)
+	
+	if(length > 107374182) {	
+		x <- tmpTable
+		attr(x,"result:size") <- length
+
+		return(x)
+	}else {
+		result <- rhive.load.table(tmptable, hiveclient = hiveclient)
+		rhive.query(paste("DROP TABLE ",tmptable,sep=""), hiveclient = hiveclient)
+		return(result)
+	}
+}
+
 rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
 
 	.checkConnection(hiveclient)
@@ -630,6 +650,16 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 	rhive.script.unexport(exportname)
 
 	return(resultSet)
+}
+
+rhive.size.table <- function(tablename, hiveclient =rhive.defaults('hiveclient')) {
+
+	metainfo <- rhive.desc.table(tablename,detail=TRUE, hiveclient = hiveclient)
+	location <- strsplit(strsplit(paste(metainfo,""),"location:")[[1]][2],",")[[1]][1]
+
+	datainfo <- rhive.hdfs.du(location, summary=TRUE)
+	return(datainfo$length)
+
 }
 
 rhive.as.string <- function(columns,prefix=NULL) {

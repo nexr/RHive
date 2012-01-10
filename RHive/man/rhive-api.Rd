@@ -3,12 +3,14 @@
 \alias{rhive.desc.table}
 \alias{rhive.load.table}
 \alias{rhive.exist.table}
+\alias{rhive.size.table}
 \title{R functions to get informations of table from HIVE}
 \usage{
 rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 rhive.exist.table(tablename, hiveclient=rhive.defaults('hiveclient')) 
+rhive.size.table(tablename, hiveclient =rhive.defaults('hiveclient'))
 }
 \description{
 R functions to get informations of table from HIVE
