@@ -118,6 +118,57 @@ rhive.hdfs.ls <- function(path="/", hdfs = rhive.hdfs.defaults('hdfs')) {
 	return(df)
 }
 
+rhive.hdfs.du <- function(path="/", summary = FALSE, hdfs = rhive.hdfs.defaults('hdfs')) {
+
+	.checkHDFSConnection(hdfs)
+    fileSystem <- .jcast(hdfs[[1]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
+
+	rdata <- list()
+    transformer <- J("com.nexr.rhive.util.TransformUtils")
+
+    if(summary) {
+		listStatus <- fileSystem$globStatus(.jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",path)));    
+    }else {
+		listStatus <- fileSystem$listStatus(.jnew("org/apache/hadoop/fs/Path",.jnew("java/lang/String",path)));
+	}
+
+	for(index in c(1:listStatus$length)) {
+	 	item <- .jcast(listStatus[[index]], new.class="org/apache/hadoop/fs/FileStatus",check = FALSE, convert.array = FALSE)
+	 	
+	 	splits <- transformer$tranform(item)
+	 	
+	    if(index == 1) {	 
+		    if(item$isDir()) {
+		 		len <- fileSystem$getContentSummary(item$getPath())$getLength()
+		 		rdata[[1]] <- c(len)
+			    rdata[[2]] <- c(splits[6])	
+		 	}else {
+		 		rdata[[1]] <- c(splits[4])
+			    rdata[[2]] <- c(splits[6])	
+		 	}   
+	    }else {	
+		    if(item$isDir()) {
+		 		len <- fileSystem$getContentSummary(item$getPath())$getLength()
+		 		rdata[[1]] <- c(rdata[[1]],len)
+			    rdata[[2]] <- c(rdata[[2]],splits[6])
+		 	
+		 	}else {
+			    rdata[[1]] <- c(rdata[[1]],splits[4])
+			    rdata[[2]] <- c(rdata[[2]],splits[6])	
+		 	}
+	    }
+	}
+	
+	if(listStatus$length == 0) return(NULL)
+
+    df <- as.data.frame(rdata)
+
+	rownames(df) <- NULL
+    colnames(df) <- c("length", "file")
+
+	return(df)
+}
+
 rhive.save <- function(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs')) {
 
 	tmpfile <- paste("_rhive_save_",as.integer(Sys.time()),sep="")

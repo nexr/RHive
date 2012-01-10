@@ -56,4 +56,6 @@ test.rhiveHdfs <- function()
 	
 	rhive.hdfs.rm("/rhive/unittest/empTest.RData")
 	
+	rhive.hdfs.du("/rhive")
+	
 }
