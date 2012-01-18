@@ -50,6 +50,9 @@ test.rhiveScript <- function()
     checkTrue(!is.null(queryResult))
     checkTrue(length(row.names(queryResult)) == 5)
 
+	queryResult <- rhive.mapapply("empTest",map,c("ename","position"),c("position","one"),by="position")
+	checkTrue(!is.null(queryResult))
+
     if(rhive.exist.table("empTest")) {
 		rhive.query("DROP TABLE empTest")
 	}

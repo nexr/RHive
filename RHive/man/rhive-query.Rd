@@ -4,7 +4,7 @@
 \title{Execute HQL(Hive Query) in R, using functions in Package `RHive'}
 \usage{
 rhive.query(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
-rhive.big.query(query, hiveclient =rhive.defaults('hiveclient')) 
+rhive.big.query(query ,fetchsize = 40, limit = -1, hiveclient =rhive.defaults('hiveclient'))
 }
 \description{
 Execute HQL(Hive Query) in R using functions in Package `RHive'

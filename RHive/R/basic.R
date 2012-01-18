@@ -22,7 +22,7 @@ rhive.basic.mode <- function(tablename, col) {
 
 	hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY freq DESC LIMIT 1", col, tablename, col)
 	
-	rhive.query(hql)
+	rhive.big.query(hql)
 
 }
 
@@ -102,7 +102,7 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
 	  	hql <- paste(hql, where)
   	}
 
-  	rhive.query(hql)
+  	rhive.big.query(hql)
 }
 
 rhive.basic.xtabs <- function(x, cols, tablename) {
@@ -190,7 +190,7 @@ rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
 
 	hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",groups,colnames,tablename,groups)
 	
-	rhive.query(hql)
+	rhive.big.query(hql)
 }
 
 rhive.basic.scale <- function(tablename, col) {
