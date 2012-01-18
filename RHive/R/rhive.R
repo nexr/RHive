@@ -695,9 +695,9 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 rhive.drop.table <- function(tablename, hiveclient =rhive.defaults('hiveclient')) {
 
 	if(missing(tablename))
-		stop("tablename parameter is not set.")
+		stop("tablename name is not set.")
 
-	rhive.query(paste("DROP TABLE ",tablename,sep=""))
+	rhive.query(paste("DROP TABLE IF EXISTS ",tablename,sep=""))
 
 }
 
