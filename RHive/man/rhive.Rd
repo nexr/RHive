@@ -33,6 +33,7 @@ rhive.desc.table
 rhive.load.table
 rhive.exist.table
 rhive.size.table
+rhive.drop.table
 rhive.napply
 rhive.sapply
 rhive.aggregate
