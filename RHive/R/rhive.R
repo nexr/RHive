@@ -213,7 +213,7 @@ rhive.big.query <- function(query ,fetchsize = 40, limit = -1, hiveclient =rhive
 	length <- rhive.size.table(tmptable)
 	
 	if(length > memsize) {	
-		x <- tmpTable
+		x <- tmptable
 		attr(x,"result:size") <- length
 
 		return(x)
@@ -674,7 +674,7 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 		length <- rhive.size.table(tmptable)
 	
 		if(length > memsize) {	
-			x <- tmpTable
+			x <- tmptable
 			attr(x,"result:size") <- length
 			
 			resultSet <- x
