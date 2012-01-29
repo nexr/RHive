@@ -1,10 +1,23 @@
-201-01-05
+2012-01-12
+
+    * handle big result of hive query
+
+2012-01-05
 
 	* develop basic statistic functions (scale)
 
 2011-12-29
 
 	* develop basic statistic functions (Mode, range, xtabs, cut, by, merge) 
+
+2011-12-17
+
+    * rhive-0.4 release
+    
+      - support napply, sapply and aggregate functions
+      - support hdfs functions
+      - support custom map/reduce script of hive
+      - add rhive tutorial and user guide 
 
 2011-12-08
 
@@ -27,7 +40,7 @@
     
 2011-11-01
 
-    * develop napply, sapply and aggreate functions
+    * develop napply, sapply and aggregate functions
 
 2011-10-30
 
