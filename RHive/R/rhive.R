@@ -406,11 +406,32 @@ rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('h
 
 rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
 
+	memsize <- 107374182
+
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
 
-	rhive.big.query(paste("select * from",tablename),fetchsize = fetchsize, limit = limit,hiveclient=hiveclient)
 
+	length <- rhive.size.table(tablename)
+
+	if(length > memsize) {	
+	
+		if (limit > 0) {
+			result <- rhive.query(paste("select * from",tablename,"limit",limit),hiveclient=hiveclient)
+			return(result)
+		} else {
+			print("this table is too big to load")
+		    x <- tablename
+			attr(x,"result:size") <- length
+		    return(x)
+		}	
+	
+	} else {
+	
+		result <- rhive.query(paste("select * from",tablename),fetchsize = fetchsize, limit = limit,hiveclient=hiveclient)
+		return(result)
+	
+	}
 }
 
 rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')) {
