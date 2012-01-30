@@ -28,7 +28,7 @@ rhive.test <- function (showHTMLOutput = FALSE, filename = "rhiveRUnitTestSummar
     }
     require("RUnit", quietly = TRUE) || stop("RUnit package not found")
     RUnit_opts <- getOption("RUnit", list())
-    RUnit_opts$verbose <- 0L
+    RUnit_opts$verbose <- 1L
     RUnit_opts$silent <- TRUE
     RUnit_opts$verbose_fail_msg <- TRUE
     options(RUnit = RUnit_opts)
@@ -44,7 +44,7 @@ rhive.test <- function (showHTMLOutput = FALSE, filename = "rhiveRUnitTestSummar
         }
     }
     cat("\n\n")
-    printTextProtocol(testResult, showDetails = FALSE)
+    printTextProtocol(testResult, showDetails = TRUE)
     if (length(details <- .failureDetails(testResult)) > 0) {
         cat("\nTest files with failing tests\n")
         for (i in seq_along(details)) {

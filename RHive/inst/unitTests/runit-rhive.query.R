@@ -16,7 +16,7 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-test.rhiveQuery <- function()
+test.rhive.query <- function()
 {
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")

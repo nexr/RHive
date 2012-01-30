@@ -16,7 +16,7 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-test.rhiveExport <- function()
+test.rhive.export <- function()
 {
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
@@ -27,7 +27,6 @@ test.rhiveExport <- function()
 	}
 	
 	rhive.write.table(empTest)
-	
 	
 	checkTrue(rhive.exist.table("empTest"))
 	

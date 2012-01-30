@@ -15,7 +15,6 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-
 test.rhive.basic.merge <- function() {
 
 	authors <- data.frame(
@@ -106,9 +105,8 @@ test.rhive.basic.xtabs <- function() {
     try(rm(DF), silent=TRUE)
 }
 
+test.rhive.basic.mode <- function() {
 
-test.rhiveBasic <- function()
-{
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
 	empTest <- read.csv2(localData, sep=",")
@@ -119,22 +117,85 @@ test.rhiveBasic <- function()
 	
 	rhive.write.table(empTest)
 
+
 	queryResult <- rhive.basic.mode("empTest","sal")
 	checkTrue(!is.null(queryResult))
 	
-	queryResult <- rhive.basic.range("empTest","sal")
-	checkTrue(!is.null(queryResult))
-
-	queryResult <- rhive.basic.by("empTest",c("id","dep"),"sum",c("sal"))
-	checkTrue(!is.null(queryResult))
-	
-	queryResult <- rhive.basic.scale("empTest","sal")
-	checkTrue(!is.null(queryResult))
-
     if(rhive.exist.table("empTest")) {
 		rhive.query("DROP TABLE empTest")
 	}
 	
 	try(rm(empTest), silent=TRUE)
 	try(rm(localData), silent=TRUE)
+}
+
+test.rhive.basic.range <- function() {
+
+    ## Load emp test data and put it into the Hive
+    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
+	empTest <- read.csv2(localData, sep=",")
+	
+	if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	rhive.write.table(empTest)
+
+	queryResult <- rhive.basic.range("empTest","sal")
+	checkTrue(!is.null(queryResult))
+	
+    if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	try(rm(empTest), silent=TRUE)
+	try(rm(localData), silent=TRUE)
+}
+
+test.rhive.basic.by <- function() {
+
+    ## Load emp test data and put it into the Hive
+    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
+	empTest <- read.csv2(localData, sep=",")
+	
+	if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	rhive.write.table(empTest)
+
+	queryResult <- rhive.basic.by("empTest",c("id","dep"),"sum",c("sal"))
+	checkTrue(!is.null(queryResult))
+	
+    if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	try(rm(empTest), silent=TRUE)
+	try(rm(localData), silent=TRUE)
+
+}
+
+test.rhive.basic.scale <- function() {
+
+    ## Load emp test data and put it into the Hive
+    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
+	empTest <- read.csv2(localData, sep=",")
+	
+	if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	rhive.write.table(empTest)
+
+	queryResult <- rhive.basic.scale("empTest","sal")
+	checkTrue(!is.null(queryResult))
+	
+    if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	try(rm(empTest), silent=TRUE)
+	try(rm(localData), silent=TRUE)
+
 }

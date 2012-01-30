@@ -16,7 +16,7 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-test.rhiveHdfs <- function()
+test.rhive.hdfs <- function()
 {
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
@@ -37,15 +37,13 @@ test.rhiveHdfs <- function()
 	
 	loc <- (listdata['file'] == "/rhive/unittest/emp.csv")
 	checkTrue(length(listdata['file'][loc]) == 1)
-	
-	
+
 	rhive.hdfs.rename("/rhive/unittest/emp.csv","/rhive/unittest/emp1.csv")
 	
 	listdata <- rhive.hdfs.ls("/rhive/unittest")
 	
 	loc <- (listdata['file'] == "/rhive/unittest/emp1.csv")
 	checkTrue(length(listdata['file'][loc]) == 1)
-	
 	
 	rhive.hdfs.rm("/rhive/unittest/emp1.csv")
 	
@@ -56,6 +54,10 @@ test.rhiveHdfs <- function()
 	
 	rhive.hdfs.rm("/rhive/unittest/empTest.RData")
 	
-	rhive.hdfs.du("/rhive")
+	queryResult <- rhive.hdfs.du("/rhive")
+	checkTrue(!is.null(queryResult))
+	
+	totalsize <- rhive.hdfs.du("/rhive",summary=TRUE)
+	checkTrue(length(totalsize['file']) == 1)
 	
 }

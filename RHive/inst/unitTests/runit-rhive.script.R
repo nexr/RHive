@@ -16,7 +16,42 @@
 stopifnot(require(RHive, quietly=TRUE))
 stopifnot(require(RUnit, quietly=TRUE))
 
-test.rhiveScript <- function()
+
+test.rhive.mapapply <- function() {
+
+    ## Load emp test data and put it into the Hive
+    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
+	empTest <- read.csv2(localData, sep=",")
+	
+	if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+	
+	rhive.write.table(empTest)
+	
+	map <- function(k,v) {
+	
+	  if(is.null(v)) {
+         put(NA,1)
+      }
+      lapply(v, function(vv) {
+         lapply(strsplit(x=vv,split ="\t")[[1]], function(w) put(paste(args,w,sep=""),1))
+      })
+	
+	}
+
+	queryResult <- rhive.mapapply("empTest",map,c("ename","position"),c("position","one"),by="position")
+	checkTrue(!is.null(queryResult))
+
+    if(rhive.exist.table("empTest")) {
+		rhive.query("DROP TABLE empTest")
+	}
+
+
+}
+
+
+test.rhive.mrapply <- function()
 {
     ## Load emp test data and put it into the Hive
     localData <- system.file(file.path("data", "emp.csv"), package="RHive")
@@ -49,9 +84,6 @@ test.rhiveScript <- function()
 	
     checkTrue(!is.null(queryResult))
     checkTrue(length(row.names(queryResult)) == 5)
-
-	queryResult <- rhive.mapapply("empTest",map,c("ename","position"),c("position","one"),by="position")
-	checkTrue(!is.null(queryResult))
 
     if(rhive.exist.table("empTest")) {
 		rhive.query("DROP TABLE empTest")
