@@ -39,6 +39,7 @@ rhive.sapply
 rhive.aggregate
 rhive.load
 rhive.save
+rhive.sample
 rhive.mrapply
 rhive.mapapply
 rhive.reduceapply
@@ -54,6 +55,7 @@ rhive.hdfs.cat
 rhive.hdfs.tail
 rhive.hdfs.du
 rhive.hdfs.close
+rhive.hdfs.info
 rhive.basic.mode
 rhive.basic.range
 rhive.basic.merge

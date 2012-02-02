@@ -478,14 +478,9 @@ rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hivecli
 	rhive.assign(exportname,FUN)
 	rhive.exportAll(exportname,hiveclient)
 	
-	tmptable <- paste(exportname,"_table",sep="")
-	
-	query <- paste("CREATE TABLE ",tmptable," AS SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
+	query <- paste("SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
 	
 	rhive.big.query(query,hiveclient=hiveclient)
-	
-	tmptable
-
 }
 
 rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hiveclient')) {
@@ -511,13 +506,9 @@ rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hivecl
 	rhive.assign(exportname,FUN)
 	rhive.exportAll(exportname,hiveclient)
 	
-	tmptable <- paste(exportname,"_table",sep="")
+	query <- paste("SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
 	
-	query <- paste("CREATE TABLE ",tmptable," AS SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
-	
-	rhive.query(query,hiveclient=hiveclient)
-
-	tmptable
+	rhive.big.query(query,hiveclient=hiveclient)
 }
 
 rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient =rhive.defaults('hiveclient')) {
@@ -535,10 +526,10 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
          colindex <- colindex + 1
     }
     
-    tmptable <- paste(tablename,"_aggregate",as.integer(Sys.time()),sep="")
+    result <- ""
     
     if(is.null(groups))
-		rhive.query(paste("CREATE TABLE ",tmptable," AS SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),hiveclient=hiveclient)
+		result <- rhive.big.query(paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),hiveclient=hiveclient)
 	else {
 		
 		index <- 0
@@ -553,13 +544,13 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
 			index <- index + 1
 		}
 		
-		query <- paste("CREATE TABLE ",tmptable," AS SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
+		query <- paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
 
-	    rhive.query(query,hiveclient=hiveclient)
+	    result <- rhive.big.query(query,hiveclient=hiveclient)
 	}
 	
 	
-	tmptable
+	return(result)
 
 }
 

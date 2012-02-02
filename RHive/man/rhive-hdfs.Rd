@@ -14,6 +14,7 @@
 \alias{rhive.hdfs.du}
 \alias{rhive.hdfs.close}
 \alias{rhive.write.table}
+\alias{rhive.hdfs.info}
 \title{R functions to communicate with HDFS}
 \usage{
 rhive.save(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
@@ -31,6 +32,7 @@ rhive.hdfs.tail(path, hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.du(path="/", summary = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.close(hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.write.table(dat, tablename = NULL, sep = ",", nastring = NULL, hdfs = rhive.hdfs.defaults('hdfs'), hiveclient=rhive.hdfs.defaults('hiveclient'))
+rhive.hdfs.info(path, hdfs = rhive.hdfs.defaults('hdfs'))
 }
 \description{
 R functions to communicate with HDFS
@@ -62,6 +64,8 @@ rhive.save : save R Objects to HDFS as R data format
 rhive.load : load R data format file stored in HDFS
 
 rhive.write.table : create Hive table using R data.frame
+
+rhive.hdfs.info : report block information of path
 }
 \arguments{
 \item{hdfsurl}{namenode url for connecting to hdfs.}

@@ -24,8 +24,9 @@ rhive.hdfs.connect <- function(hdfsurl=rhive.hdfs.default.name()) {
      
      fs <- fileSystem$get(config)
      fsshell <- .jnew("org/apache/hadoop/fs/FsShell",config)
+     dfutils <- .jnew("com/nexr/rhive/util/DFUtils",config)
      
-     hdfs <- list(fs,fsshell)
+     hdfs <- list(fs,fsshell,dfutils)
      assign('hdfs',hdfs,env=RHive:::.rhiveEnv)
    
    	 if(rhive.hdfs.exists('/rhive/lib/rhive_udf.jar'))
@@ -462,6 +463,30 @@ rhive.script.unexport <- function(exportname,hdfs = rhive.hdfs.defaults('hdfs'))
 	
 	return(TRUE)
 }
+
+
+rhive.hdfs.info <- function(path, hdfs = rhive.hdfs.defaults('hdfs')) {
+
+	dfutils <- .jcast(hdfs[[3]], new.class="com/nexr/rhive/util/DFUtils",check = FALSE, convert.array = FALSE)
+	
+	metas <- dfutils$getFileInfo(path)
+	
+	rdata <- list()
+
+	rdata[[1]] <- c(as.numeric(strsplit(metas[1],' ')[[1]][1]))
+	rdata[[2]] <- c(as.numeric(metas[2]))
+	rdata[[3]] <- c(as.numeric(metas[3]))
+	rdata[[4]] <- c(as.numeric(metas[4]))
+
+    df <- as.data.frame(rdata)
+
+	rownames(df) <- NULL
+    colnames(df) <- c("size", "dirs", "files", "blocks")
+
+	return(df)
+
+}
+
 
 .generateCreateQuery <- function (tablename, colspecs, hdfs_path, sep = ",")
 {
