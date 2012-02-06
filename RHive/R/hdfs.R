@@ -493,6 +493,11 @@ rhive.hdfs.info <- function(path, hdfs = rhive.hdfs.defaults('hdfs')) {
     create <- paste("CREATE TABLE ", tablename , " (")
     
     colnames <- gsub("[^[:alnum:]_]+", "", names(colspecs))
+    
+    if(any(duplicated(tolower(colnames))) == TRUE) {
+    	stop(paste("hive doesn't support case-sensitive column-name :",paste(colnames,collapse=",")))
+    }
+
     entries <- paste(colnames, colspecs)
     create <- paste(create, paste(entries, collapse = ", "), sep="")
     create <- paste(create, ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '", sep , "'",sep="")
