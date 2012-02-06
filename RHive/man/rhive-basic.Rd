@@ -12,7 +12,7 @@ rhive.basic.mode(tablename, col)
 rhive.basic.range(tablename, col)
 rhive.basic.merge(x, y, by.x, by.y)
 rhive.basic.xtabs(x, cols, tablename)
-rhive.basic.cut(tablename, col, breaks, summary = FALSE)
+rhive.basic.cut(tablename, col, breaks, right=TRUE, summary = FALSE)
 rhive.basic.by(tablename, INDICES, fun, arguments)
 rhive.basic.scale(tablename, col)
 }
@@ -25,11 +25,14 @@ R Distributed basic statistic function using Hive
 \item{by.x, by.y}{specifications of the common columns.}
 \item{col}{column name}
 \item{cols}{column names or the cross-classifying variables.}
-\item{breaks}{a numeric vector of two or more cut points. a format is 'min:max:step' and 'step' is optional.}
+\item{breaks}{a numeric vector of two or more cut points. a format is 'min:max:step' and 'step' is optional. or
+either a numeric vector of two or more cut points or a single number (greater than or equal to 2) 
+giving the number of intervals into which 'x' is to be cut.}
 \item{summary}{a option whether summarize the result of cut or not.}
 \item{INDICES}{a list of column to be grouped.}
 \item{fun}{a hive function name to be applied.}
 \item{arguments}{input data for a function. for examples, arguments=c("sal","deptno",3.2,"'NexR'")}
+\item{right}{logical, indicating if the intervals should be closed on the right (and open on the left) or vice versa.}
 } 
 \author{
 \email{rhive@nexr.com}

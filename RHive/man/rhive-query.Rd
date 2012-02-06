@@ -10,7 +10,6 @@ rhive.big.query(query ,fetchsize = 40, limit = -1, hiveclient =rhive.defaults('h
 Execute HQL(Hive Query) in R using functions in Package `RHive'
 }
 \arguments{
-\item{tablename}{hive table name.}
 \item{query}{hive query.}
 \item{fetchsize}{fetch size for result.}
 \item{limit}{total result size.}

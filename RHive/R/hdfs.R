@@ -523,7 +523,7 @@ rhive.hdfs.info <- function(path, hdfs = rhive.hdfs.defaults('hdfs')) {
 	
 	status <- system(sprintf("chmod 775 %s", script), ignore.stderr = TRUE)
 	
-	if(status) {
+	if(status != 0) {
 		warning("no executable found")
 		invisible(FALSE)
 	}

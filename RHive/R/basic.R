@@ -135,17 +135,49 @@ rhive.basic.xtabs <- function(x, cols, tablename) {
 
 }
 
-rhive.basic.cut <- function(tablename, col, breaks, summary = FALSE) {
+rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE) {
 	
-	if(missing(col))
-		stop("missing colname")
 	if(missing(tablename))
 		stop("missing tablename")
 	if(missing(breaks))
 		stop("missing breaks")
 	
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+		
+	if(missing(col) || is.null(col)) {
+		x <- unlist(strsplit(tablename,"\\$"))
+		
+		if(length(x) != 2)
+			stop("missing colname")
+		
+		tablename <- x[1]
+		col <- x[2]	
+	}
+		
+	tablename <- tolower(tablename)
+	col <- tolower(col)	
+		
+	if(is.vector(breaks) && !is.character(breaks)) {
+	
+		if(length(breaks) == 1L) {
+			if(is.na(breaks) | breaks < 2L)
+				stop("invalid number of intervals")
+				
+			nb <- as.integer(breaks + 1)
+			range <- rhive.basic.range(tablename, col)
+			dx <- diff(range)
+			if(dx == 0)
+				dx <- abs(range[1L])
+			breaks <- seq.int(range[1L] - dx / (breaks * 1000), range[2L] + dx / (breaks * 1000), length.out = nb)
+		}
+		
+		breaks <- paste(breaks,collapse=",")
+	}
+	
 	if(summary) {
-		hql <- sprintf("SELECT rkey(%s,'%s'), COUNT(%s) FROM %s GROUP BY rkey(%s,'%s')",col,breaks,col,tablename,col,breaks)
+		hql <- sprintf("SELECT rkey(%s,'%s'), COUNT(%s) FROM %s GROUP BY rkey(%s,'%s','%s')",col,breaks,col,tablename,col,breaks,right)
 		
 		tmp <- rhive.query(hql)
 		
@@ -155,20 +187,19 @@ rhive.basic.cut <- function(tablename, col, breaks, summary = FALSE) {
 		return(result)
 	}else {
 	
-		tmpTable <- paste("cut_", tablename,as.integer(Sys.time()),sep="")
 		hql <- ""
 	    xcols <- rhive.desc.table(tablename)[,'col_name']
 		cols <- setdiff(xcols, col)
 		
 		if(length(cols) > 0) {
-			hql <- sprintf("CREATE TABLE %s AS SELECT %s, rkey(%s,'%s') %s FROM %s",tmpTable,paste(cols, collapse=","),col,breaks,col, tablename)
+			hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s FROM %s",paste(cols, collapse=","),col,breaks,right,col,tablename)
 		}else {
-			hql <- sprintf("CREATE TABLE %s AS SELECT rkey(%s,'%s') %s FROM %s",tmpTable, col,breaks,col,tablename)
+			hql <- sprintf("SELECT rkey(%s,'%s','%s') %s FROM %s", col,breaks,right,col,tablename)
 		}
 		
-		rhive.query(hql)
+		result <- rhive.big.query(hql)
 	
-		return(tmpTable)
+		return(result)
 	}
 	
 }

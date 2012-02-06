@@ -43,6 +43,9 @@ public class RangeKeyUDF extends GenericUDF {
 
     private ObjectInspector returnOI;
     
+    private String breaks = null;
+    private Boolean isRight = null;
+    
     private static Map<String, RangeTreeFactory.RangeTree> TREES = new LinkedHashMap<String, RangeTreeFactory.RangeTree>();
     
     public static enum RANGEVALUE {
@@ -295,9 +298,9 @@ public class RangeKeyUDF extends GenericUDF {
             config = session == null ? new Configuration() : session.getConf();
         }
 
-        if (arguments.length < 2) {
+        if (arguments.length < 3) {
             throw new UDFArgumentLengthException(
-                    "The function rkey(column, breaks) needs at least three arguments.");
+                    "The function rkey(column, breaks, right) needs at least three arguments.");
         }
 
         String valueType = arguments[0].getTypeName();
@@ -312,12 +315,16 @@ public class RangeKeyUDF extends GenericUDF {
     @Override
     public Object evaluate(DeferredObject[] records) throws HiveException {
 
-        String breaks = (String) ((PrimitiveObjectInspector) argumentOIs[1])
-                .getPrimitiveJavaObject(records[1].get());
-
+        if(breaks == null) {
+            breaks = (String) ((PrimitiveObjectInspector) argumentOIs[1])
+                    .getPrimitiveJavaObject(records[1].get());
+            isRight = new Boolean((String) ((PrimitiveObjectInspector) argumentOIs[1])
+                    .getPrimitiveJavaObject(records[2].get()));
+        }
+        
         RangeTreeFactory.RangeTree tree = TREES.get(breaks);
         if (tree == null) {
-            TREES.put(breaks, tree = loadTree(breaks, rangeValue, returnOI));
+            TREES.put(breaks, tree = loadTree());
         }
         Object value = ((PrimitiveObjectInspector) argumentOIs[0])
                 .getPrimitiveJavaObject(records[0].get());
@@ -331,13 +338,12 @@ public class RangeKeyUDF extends GenericUDF {
         }
     }
     
-    private RangeTree loadTree(String breaks, RANGEVALUE rangeValue, ObjectInspector returnOI2) {
+    private RangeTree loadTree() {
         
         String start, end, step;
         String splits;
         
-     // min < value <= max
-        RangeTree tree = rangeValue.newTree(breaks, true ,false);
+        RangeTree tree = rangeValue.newTree(breaks, isRight.booleanValue() ,!isRight.booleanValue());
         
         if(breaks.indexOf(":") > 0) {
         
