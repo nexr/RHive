@@ -27,6 +27,7 @@ public class DFUtils {
         return this.conf;
     }
     
+    @SuppressWarnings("unchecked")
     private String getInfoServer() throws IOException {
         return NetUtils.getServerAddress(getConf(), "dfs.info.bindAddress", "dfs.info.port",
                 "dfs.http.address");

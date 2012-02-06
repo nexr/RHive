@@ -75,6 +75,7 @@ public class RangeKeyUDF extends GenericUDF {
                 return ((RangeTreeFactory.IntRangeTree) tree).search((Integer) value);
             }
             
+            @SuppressWarnings("unchecked")
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
                 int lstart = parse(minValue).intValue();
                 int lend = parse(maxValue).intValue();
@@ -88,6 +89,7 @@ public class RangeKeyUDF extends GenericUDF {
                 return tree;
             }
             
+            @SuppressWarnings("unchecked")
             RangeTree init(String[] breaks, RangeTree tree) {
                 
                 for(int i = 1; i < breaks.length; i++) {
@@ -131,6 +133,7 @@ public class RangeKeyUDF extends GenericUDF {
                 return ((RangeTreeFactory.LongRangeTree) tree).search((Long) value);
             }
             
+            @SuppressWarnings("unchecked")
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
                 long lstart = parse(minValue).longValue();
                 long lend = parse(maxValue).longValue();
@@ -144,6 +147,7 @@ public class RangeKeyUDF extends GenericUDF {
                 return tree;
             }      
             
+            @SuppressWarnings("unchecked")
             RangeTree init(String[] breaks, RangeTree tree) {
                 
                 for(int i = 1; i < breaks.length; i++) {
@@ -187,6 +191,7 @@ public class RangeKeyUDF extends GenericUDF {
                 return ((RangeTreeFactory.DoubleRangeTree) tree).search((Double) value);
             }
             
+            @SuppressWarnings("unchecked")
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
                 double lstart = parse(minValue).doubleValue();
                 double lend = parse(maxValue).doubleValue();
@@ -200,6 +205,7 @@ public class RangeKeyUDF extends GenericUDF {
                 return tree;
             }          
             
+            @SuppressWarnings("unchecked")
             RangeTree init(String[] breaks, RangeTree tree) {
                 
                 for(int i = 1; i < breaks.length; i++) {
@@ -263,17 +269,21 @@ public class RangeKeyUDF extends GenericUDF {
 
         abstract Object asArray(String minValue, String maxValue);
 
+        @SuppressWarnings("unchecked")
         abstract RangeTree init(String minValue, String maxValue, String step, RangeTree tree);
         
+        @SuppressWarnings("unchecked")
         abstract RangeTree init(String[] breaks, RangeTree tree);
         
         abstract Object search(RangeTreeFactory.RangeTree tree, Object value);
 
         abstract Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value);
 
+        @SuppressWarnings("unchecked")
         abstract RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive,
                 boolean maxExclusive);
 
+        @SuppressWarnings("unchecked")
         abstract RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive,
                 boolean maxExclusive, Object defaultValue);
     }

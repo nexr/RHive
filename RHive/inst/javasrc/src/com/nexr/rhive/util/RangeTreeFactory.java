@@ -26,30 +26,35 @@ import org.apache.hadoop.io.Writable;
 
 public class RangeTreeFactory {
     
+    @SuppressWarnings("unchecked")
     public static RangeTree createStringTree(String name, boolean minExclusive,
             boolean maxExclusive, Object defaultValue) {
         StringRangeComparator scomp = new StringRangeComparator(minExclusive, maxExclusive);
         return new StringRangeTree(name, scomp, defaultValue);
     }
 
+    @SuppressWarnings("unchecked")
     public static RangeTree createDoubleTree(String name, boolean minExclusive,
             boolean maxExclusive, Object defaultValue) {
         DoubleRangeComparator dcomp = new DoubleRangeComparator(minExclusive, maxExclusive);
         return new DoubleRangeTree(name, dcomp, defaultValue);
     }
 
+    @SuppressWarnings("unchecked")
     public static RangeTree createLongTree(String name, boolean minExclusive,
             boolean maxExclusive, Object defaultValue) {
         LongRangeComparator lcomp = new LongRangeComparator(minExclusive, maxExclusive);
         return new LongRangeTree(name, lcomp, defaultValue);
     }
 
+    @SuppressWarnings("unchecked")
     public static RangeTree createIntTree(String name, boolean minExclusive, boolean maxExclusive,
             Object defaultValue) {
         IntRangeComparator icomp = new IntRangeComparator(minExclusive, maxExclusive);
         return new IntRangeTree(name, icomp, defaultValue);
     }
 
+    @SuppressWarnings("unchecked")
     public static abstract class RangeTree<T, V> extends TreeMap<T, V> {
 
         private final String name;
@@ -87,6 +92,7 @@ public class RangeTreeFactory {
 
     }
 
+    @SuppressWarnings("unchecked")
     public static class StringRangeTree<V> extends RangeTree<String[], V> {
 
         StringRangeTree(String name, Comparator<String[]> comparator, V defaultValue) {
@@ -102,6 +108,7 @@ public class RangeTreeFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static class IntRangeTree<V> extends RangeTree<int[], V> {
 
         IntRangeTree(String name, Comparator<int[]> comparator, V defaultValue) {
@@ -117,6 +124,7 @@ public class RangeTreeFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static class LongRangeTree<V> extends RangeTree<long[], V> {
 
         LongRangeTree(String name, Comparator<long[]> comparator, V defaultValue) {
@@ -132,6 +140,7 @@ public class RangeTreeFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static class DoubleRangeTree<V> extends RangeTree<double[], V> {
 
         DoubleRangeTree(String name, Comparator<double[]> comparator, V defaultValue) {
@@ -147,6 +156,7 @@ public class RangeTreeFactory {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static class StringRangeComparator implements Comparator<String[]> {
 
         final boolean minExclusive;
