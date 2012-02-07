@@ -385,10 +385,30 @@ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'),
 	return(TRUE)
 }
 
-rhive.list.tables <- function(hiveclient=rhive.defaults('hiveclient')) {
+rhive.list.tables <- function(pattern, hiveclient=rhive.defaults('hiveclient')) {
 
-	rhive.query("show tables",hiveclient=hiveclient)
+	tablelist <- rhive.query("show tables",hiveclient=hiveclient)
+	
+	all.names <- as.character(tablelist[,'tab_name'])
 
+    if (!missing(pattern)) {
+        if ((ll <- length(grep("[", pattern, fixed = TRUE))) && 
+            ll != length(grep("]", pattern, fixed = TRUE))) {
+            if (pattern == "[") {
+                pattern <- "\\["
+                warning("replaced regular expression pattern '[' by  '\\\\['")
+            }
+            else if (length(grep("[^\\\\]\\[<-", pattern))) {
+                pattern <- sub("\\[<-", "\\\\\\[<-", pattern)
+                warning("replaced '[<-' by '\\\\[<-' in regular expression pattern")
+            }
+        }
+        all.names <- grep(pattern, all.names, value = TRUE)
+    }
+
+	tab_name <- all.names
+	
+	return(as.data.frame(tab_name))
 }
 
 rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('hiveclient')) {
@@ -704,13 +724,33 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 }
 
 
-rhive.drop.table <- function(tablename, hiveclient =rhive.defaults('hiveclient')) {
+rhive.drop.table <- function(tablename, list, hiveclient =rhive.defaults('hiveclient')) {
 
-	if(missing(tablename))
-		stop("tablename name is not set.")
+	if(!missing(tablename)) {
+		tablename <- substitute(tablename)
+		if(!is.character(tablename))
+			tablename <- deparse(tablename)
+				
+		tablename <- tolower(tablename)
+	
+		rhive.query(paste("DROP TABLE IF EXISTS ",tablename,sep=""))
+	}
 
-	rhive.query(paste("DROP TABLE IF EXISTS ",tablename,sep=""))
-
+	if(!missing(list)) {
+		if(is.data.frame(list)) {
+			list <- as.character(list[,'tab_name'])
+		}
+		
+		for(tablename in list) {
+			tablename <- substitute(tablename)
+			if(!is.character(tablename))
+				tablename <- deparse(tablename)
+					
+			tablename <- tolower(tablename)
+			
+			rhive.query(paste("DROP TABLE IF EXISTS ",tablename,sep=""))		
+		}
+	}
 }
 
 

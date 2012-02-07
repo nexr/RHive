@@ -20,6 +20,13 @@ rhive.basic.mode <- function(tablename, col) {
 	if(missing(col))
 		stop("missing colname")
 
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+			
+	tablename <- tolower(tablename)
+	col <- tolower(col)
+
 	hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY freq DESC LIMIT 1", col, tablename, col)
 	
 	rhive.big.query(hql)
@@ -33,6 +40,14 @@ rhive.basic.range <- function(tablename, col) {
 	if(missing(col))
 		stop("missing colname")
 
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+			
+	tablename <- tolower(tablename)
+	col <- tolower(col)
+
+
     hql <- sprintf("SELECT MIN(%s) min, MAX(%s) max FROM %s", col, col, tablename)
 	
 	result <- rhive.query(hql)
@@ -45,6 +60,18 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
 		stop("missing parameter(first tablename)")
 	if(missing(y))
 		stop("missing parameter(second tablename)")
+
+	x <- substitute(x)
+	if(!is.character(x))
+		x <- deparse(x)
+			
+	x <- tolower(x)
+	
+	y <- substitute(y)
+	if(!is.character(y))
+		y <- deparse(y)
+			
+	y <- tolower(y)	
 
 	xcols <- rhive.desc.table(x)[,'col_name']
 	ycols <- rhive.desc.table(y)[,'col_name']
@@ -111,6 +138,13 @@ rhive.basic.xtabs <- function(x, cols, tablename) {
 		stop("missing colnames")
 	if(missing(tablename))
 		stop("missing tablename")
+
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+			
+	tablename <- tolower(tablename)
+	cols <- tolower(cols)
 
 	gcols <- .generateColumnString(cols)
 
@@ -215,6 +249,12 @@ rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
 	if(missing(fun))
 		stop("missing fun")
 
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+			
+	tablename <- tolower(tablename)
+
 	arguments <- paste(arguments,collapse=",")
     colnames <- paste(fun, "(", arguments, ") ",fun, sep="", collapse=",")
 	groups <- paste(INDICES, collapse=",")
@@ -225,6 +265,16 @@ rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
 }
 
 rhive.basic.scale <- function(tablename, col) {
+
+	if(missing(tablename))
+		stop("tablename name is not set.")
+
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+			
+	tablename <- tolower(tablename)
+	col <- tolower(col)
 
 	hql <- sprintf("SELECT AVG(%s) avg, STD(%s) std FROM %s",col,col,tablename)
 	summary <- rhive.query(hql)

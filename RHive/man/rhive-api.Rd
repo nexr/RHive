@@ -7,12 +7,12 @@
 \alias{rhive.drop.table}
 \title{R functions to get informations of table from HIVE}
 \usage{
-rhive.list.tables(hiveclient=rhive.defaults('hiveclient'))
+rhive.list.tables(pattern, hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 rhive.exist.table(tablename, hiveclient=rhive.defaults('hiveclient')) 
 rhive.size.table(tablename, hiveclient =rhive.defaults('hiveclient'))
-rhive.drop.table(tablename, hiveclient =rhive.defaults('hiveclient'))
+rhive.drop.table(tablename, list, hiveclient =rhive.defaults('hiveclient'))
 }
 \description{
 R functions to get informations of table from HIVE
@@ -23,6 +23,10 @@ R functions to get informations of table from HIVE
 \item{detail}{a flag on whether to show detail of table info.}
 \item{limit}{total fetch size. -1 means full fetch}
 \item{fetchsize}{the count of record to load at one time}
+\item{pattern}{an optional regular expression. Only names matching 
+'pattern' are returned. 'glob2rx' can be used to convert 
+wildcard patterns to regular expressions.}
+\item{list}{a character vector naming tables to be removed. or rhive.list.tables's result.}          
 } 
 \author{
 \email{rhive@nexr.com}
