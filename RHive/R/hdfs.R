@@ -328,6 +328,61 @@ rhive.hdfs.tail <- function(path, hdfs = rhive.hdfs.defaults('hdfs')) {
 	invisible()
 }
 
+rhive.hdfs.chmod <- function(cmd, path, recursive=FALSE, hdfs = rhive.hdfs.defaults('hdfs')) {
+
+	if(missing(path))
+		stop("missing argument")
+
+	.checkHDFSConnection(hdfs)
+
+	fsshell <- .jcast(hdfs[[2]], new.class="org/apache/hadoop/fs/FsShell",check = FALSE, convert.array = FALSE)
+	
+	if(recursive) {
+		fsshell$run(c("-chmod","-R",cmd,path))
+	}else {
+		fsshell$run(c("-chmod",cmd,path))
+	}
+	invisible()
+}
+
+
+rhive.hdfs.chown <- function(cmd, path, recursive=FALSE, hdfs = rhive.hdfs.defaults('hdfs')) {
+
+	if(missing(path))
+		stop("missing argument")
+
+	.checkHDFSConnection(hdfs)
+
+	fsshell <- .jcast(hdfs[[2]], new.class="org/apache/hadoop/fs/FsShell",check = FALSE, convert.array = FALSE)
+	
+	if(recursive) {
+		fsshell$run(c("-chown","-R",cmd,path))
+	}else {
+		fsshell$run(c("-chown",cmd,path))
+	}
+	invisible()
+
+}
+
+rhive.hdfs.chgrp <- function(cmd, path, recursive=FALSE, hdfs = rhive.hdfs.defaults('hdfs')) {
+
+	if(missing(path))
+		stop("missing argument")
+
+	.checkHDFSConnection(hdfs)
+
+	fsshell <- .jcast(hdfs[[2]], new.class="org/apache/hadoop/fs/FsShell",check = FALSE, convert.array = FALSE)
+	
+	if(recursive) {
+		fsshell$run(c("-chgrp","-R",cmd,path))
+	}else {
+		fsshell$run(c("-chgrp",cmd,path))
+	}
+	invisible()
+
+}
+
+
 rhive.hdfs.close <- function(hdfs = rhive.hdfs.defaults('hdfs')) {
 
     .checkHDFSConnection(hdfs)
@@ -362,9 +417,11 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
     }
     if (length(tablename) != 1L) 
         stop(sQuote(tablename), " should be a name")
-	exportname <- tablename
+        
+	exportname <- paste(tablename,".rhive",sep="")
+	
 	if(is.null(tablename)) {
-		exportname <- paste("rhive_r_table",as.integer(Sys.time()),".rhive",sep="")
+		stop("tablename should be named")
 	}
 
 	rowname <- "rowname"
@@ -384,7 +441,9 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
 	
 	names(colspecs) <- names(dat)
 
-	hdfs_root_path <- paste("/rhive/data/",as.integer(Sys.time()),sep="")
+	dirname <- paste(tablename,"_",as.integer(Sys.time()),sep="")
+	
+	hdfs_root_path <- paste("/rhive/data/",dirname,sep="")
     hdfs_path <- paste(hdfs_root_path,"/",exportname,sep="")
 	
 	hquery <- .generateCreateQuery(tablename, colspecs, hdfs_path = hdfs_root_path, sep = sep)

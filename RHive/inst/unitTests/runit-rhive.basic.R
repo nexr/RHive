@@ -32,14 +32,10 @@ test.rhive.basic.merge <- function() {
                    "An Introduction to R"),
          other.author = c(NA, "Ripley", NA, NA, NA, NA,
                           "Venables & Smith"))
-                          
-    if(rhive.exist.table("authors")) {
-    	rhive.query("DROP TABLE authors")
-    }
-    
-    if(rhive.exist.table("books")) {
-    	rhive.query("DROP TABLE books")
-    }
+                
+                
+    rhive.drop.table("authors")          
+	rhive.drop.table("books") 
 
 	rhive.write.table(authors)
 	rhive.write.table(books)
@@ -47,12 +43,8 @@ test.rhive.basic.merge <- function() {
 	queryResult <- rhive.basic.merge("authors","books",by.x="surname",by.y="name")
 	checkTrue(!is.null(queryResult))
 	
-	if(rhive.exist.table("authors")) {
-    	rhive.query("DROP TABLE authors")
-    }
-    if(rhive.exist.table("books")) {
-    	rhive.query("DROP TABLE books")
-    }
+    rhive.drop.table("authors")          
+	rhive.drop.table("books") 
 
     try(rm(books), silent=TRUE)
 	try(rm(authors), silent=TRUE)
@@ -61,9 +53,7 @@ test.rhive.basic.merge <- function() {
 
 test.rhive.basic.cut <- function() {
 
-	if(rhive.exist.table("usarrests")) {
-    	rhive.query("DROP TABLE usarrests")
-    }
+	rhive.drop.table("usarrests")
 
 	rhive.write.table(USArrests)
 
@@ -79,9 +69,10 @@ test.rhive.basic.cut <- function() {
 	queryResult <- rhive.basic.cut("usarrests","rape",breaks="0,9,10,30,50", summary=TRUE)
 	checkTrue(!is.null(queryResult))
 
-	if(rhive.exist.table("usarrests")) {
-    	rhive.query("DROP TABLE usarrests")
-    }
+	queryResult <- rhive.basic.cut(USArrests,"rape", right=FALSE, breaks=0:50)
+	checkTrue(!is.null(queryResult))
+
+	rhive.drop.table("usarrests")
 
 }
 

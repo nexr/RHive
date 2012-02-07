@@ -56,6 +56,9 @@ rhive.hdfs.tail
 rhive.hdfs.du
 rhive.hdfs.close
 rhive.hdfs.info
+rhive.hdfs.chmod
+rhive.hdfs.chown
+rhive.hdfs.chgrp
 rhive.basic.mode
 rhive.basic.range
 rhive.basic.merge

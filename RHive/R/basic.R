@@ -177,8 +177,8 @@ rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE)
 	}
 	
 	if(summary) {
-		hql <- sprintf("SELECT rkey(%s,'%s'), COUNT(%s) FROM %s GROUP BY rkey(%s,'%s','%s')",col,breaks,col,tablename,col,breaks,right)
-		
+		hql <- sprintf("SELECT rkey(%s,'%s','%s'), COUNT(%s) FROM %s GROUP BY rkey(%s,'%s','%s')",col,breaks,right, col,tablename,col,breaks,right)
+	
 		tmp <- rhive.query(hql)
 		
 		result <- unlist(tmp['X_c1'])

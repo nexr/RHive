@@ -60,4 +60,7 @@ test.rhive.hdfs <- function()
 	totalsize <- rhive.hdfs.du("/rhive",summary=TRUE)
 	checkTrue(length(totalsize['file']) == 1)
 	
+	rhive.hdfs.chmod("775","/rhive/unittest/emp1.csv")
+	rhive.hdfs.chown("rhive","/rhive/unittest/emp1.csv")
+	rhive.hdfs.chgrp("rhive","/rhive/unittest/emp1.csv")
 }
