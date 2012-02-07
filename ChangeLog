@@ -1,3 +1,11 @@
+2012-02-07
+
+	* fix bug that generates same directory name in rhive.write.table
+
+2012-02-06
+
+    * add right option and new feature of rhive.basic.cut function
+
 2012-01-12
 
     * handle big result of hive query
