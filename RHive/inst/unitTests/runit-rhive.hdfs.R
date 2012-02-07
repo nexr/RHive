@@ -45,6 +45,18 @@ test.rhive.hdfs <- function()
 	loc <- (listdata['file'] == "/rhive/unittest/emp1.csv")
 	checkTrue(length(listdata['file'][loc]) == 1)
 	
+	rhive.hdfs.chmod("666","/rhive/unittest/emp1.csv")
+	listdata <- rhive.hdfs.ls("/rhive/unittest/emp1.csv")
+	checkTrue(listdata[['permission']][1] == "rw-rw-rw-")
+	
+	rhive.hdfs.chown("rhive","/rhive/unittest/emp1.csv")
+	listdata <- rhive.hdfs.ls("/rhive/unittest/emp1.csv")
+	checkTrue(listdata[['owner']][1] == "rhive")
+	
+	rhive.hdfs.chgrp("grhive","/rhive/unittest/emp1.csv")
+	listdata <- rhive.hdfs.ls("/rhive/unittest/emp1.csv")
+	checkTrue(listdata[['group']][1] == "grhive")
+	
 	rhive.hdfs.rm("/rhive/unittest/emp1.csv")
 	
 	listdata <- rhive.hdfs.ls("/rhive/unittest")
@@ -60,7 +72,4 @@ test.rhive.hdfs <- function()
 	totalsize <- rhive.hdfs.du("/rhive",summary=TRUE)
 	checkTrue(length(totalsize['file']) == 1)
 	
-	rhive.hdfs.chmod("775","/rhive/unittest/emp1.csv")
-	rhive.hdfs.chown("rhive","/rhive/unittest/emp1.csv")
-	rhive.hdfs.chgrp("rhive","/rhive/unittest/emp1.csv")
 }
