@@ -137,7 +137,7 @@ public class RangeKeyUDF extends GenericUDF {
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
                 long lstart = parse(minValue).longValue();
                 long lend = parse(maxValue).longValue();
-                int step = parse(stepValue).intValue();
+                long step = parse(stepValue).longValue();
                 
                 for(long idx = lstart; idx < lend; idx=idx+step) {
                     long[] irange = {idx,idx+step};
@@ -195,7 +195,7 @@ public class RangeKeyUDF extends GenericUDF {
             RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
                 double lstart = parse(minValue).doubleValue();
                 double lend = parse(maxValue).doubleValue();
-                int step = parse(stepValue).intValue();
+                double step = parse(stepValue).doubleValue();
                 
                 for(double idx = lstart; idx < lend; idx=idx+step) {
                     double[] irange = {idx,idx+step};
