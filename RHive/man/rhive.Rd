@@ -64,8 +64,10 @@ rhive.basic.range
 rhive.basic.merge
 rhive.basic.xtabs
 rhive.basic.cut
+rhive.basic.cut2
 rhive.basic.by
 rhive.basic.scale
+rhive.basic.t.test
 rhive.write.table
 hiveConnect
 hiveQuery
