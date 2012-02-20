@@ -1,3 +1,8 @@
+2012-02-20
+
+    * add rhive.basic.t.test function
+    * add rhive.basic.cut2 function
+
 2012-02-07
 
 	* fix bug that generates same directory name in rhive.write.table
