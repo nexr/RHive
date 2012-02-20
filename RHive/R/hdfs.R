@@ -424,9 +424,11 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
 		stop("tablename should be named")
 	}
 
-	rowname <- "rowname"
-    dat <- cbind(row.names(dat), dat)
-    names(dat)[1L] <- rowname
+	if(length(intersect(names(dat),"rhive_row")) == 0) {
+		rowname <- "rhive_row"
+	    dat <- cbind(row.names(dat), dat)
+	    names(dat)[1L] <- rowname
+    }
 	
 	types <- sapply(dat, typeof)
 	facs <- sapply(dat, is.factor)
