@@ -428,12 +428,13 @@ rhive.basic.t.test <- function(x,y) {
 	result[[1]] <- t
 	result[[2]] <- df
 	result[[3]] <- p
-	result[[4]][1] <- meanX
-	result[[4]][2] <- meanY
+	result[[4]] <- list()
+	result[[4]][[1]] <- meanX
+	result[[4]][[2]] <- meanY
 	names(result[[1]]) <- "t"
 	names(result[[2]]) <- "df"
-	names(result[[4]][1]) <- "mean of x"
-	names(result[[4]][2]) <- "mean of y" 
+	names(result[[4]][[1]]) <- "mean of x"
+	names(result[[4]][[2]]) <- "mean of y" 
 	
 	names(result) <- c("statistic","parameter","p.value","estimate")
 	
