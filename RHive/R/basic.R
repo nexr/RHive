@@ -405,8 +405,8 @@ rhive.basic.t.test <- function(x,y) {
 	tableY <- y[1]
 	colY <- y[2]	
 
-	resultX <- rhive.query(sprintf("select variance(%s), avg(%s), count(%s) from %s",colX,colX,colX,colX,tableX))
-    resultY <- rhive.query(sprintf("select variance(%s), avg(%s), count(%s) from %s",colY,colY,colY,colY,tableY))
+	resultX <- rhive.query(paste("select variance(",colX,"), avg(",colX,"), count(",colX,") from ",tableX,sep=""))
+    resultY <- rhive.query(paste("select variance(",colY,"), avg(",colY,"), count(",colY,") from ",tableY,sep=""))
 
 	varX <- resultX[[1]]
 	varY <- resultY[[1]]
