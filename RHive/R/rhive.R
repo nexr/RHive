@@ -210,7 +210,7 @@ rhive.big.query <- function(query ,fetchsize = 40, limit = -1, memlimit = 573741
 	rhive.query(query, fetchsize = fetchsize, limit = limit, hiveclient = hiveclient)
 	length <- rhive.size.table(tmptable)
 	
-	if(length > memsize) {	
+	if(length > memlimit) {	
 		x <- tmptable
 		attr(x,"result:size") <- length
 
