@@ -76,6 +76,20 @@ test.rhive.basic.cut <- function() {
 
 }
 
+test.rhive.basic.cut2 <- function() {
+
+	rhive.drop.table("usarrests")
+
+	rhive.write.table(USArrests)
+
+    queryResult <- rhive.basic.cut2("usarrests","rape","urbanpop",breaks1="0:50",breaks2="0:100")
+	checkTrue(!is.null(queryResult))
+
+	rhive.drop.table("usarrests")
+
+}
+
+
 test.rhive.basic.xtabs <- function() {
 
 	DF <- as.data.frame(UCBAdmissions)
@@ -189,4 +203,25 @@ test.rhive.basic.scale <- function() {
 	try(rm(empTest), silent=TRUE)
 	try(rm(localData), silent=TRUE)
 
+}
+
+test.rhive.basic.t.test <- function() {
+
+
+	x <- 1:10
+	y <- 7:20
+	testX <- data.frame(x)
+	testY <- data.frame(y)
+	
+	rhive.drop.table("testX")
+	rhive.drop.table("testY")
+	
+	rhive.write.table(testX)
+	rhive.write.table(testY)
+	
+	queryResult <- rhive.basic.t.test(testX$x,testY$y)
+	checkTrue(!is.null(queryResult$p.value))
+	
+	rhive.drop.table("testX")
+	rhive.drop.table("testY")
 }

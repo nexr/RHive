@@ -169,7 +169,7 @@ rhive.basic.xtabs <- function(x, cols, tablename) {
 
 }
 
-rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE) {
+rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE) {
 	
 	if(missing(tablename))
 		stop("missing tablename")
@@ -231,10 +231,91 @@ rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE)
 			hql <- sprintf("SELECT rkey(%s,'%s','%s') %s FROM %s", col,breaks,right,col,tablename)
 		}
 		
-		result <- rhive.big.query(hql)
+		if(forcedRef)
+			result <- rhive.big.query(hql,memlimit=-1)
+		else
+			result <- rhive.big.query(hql)
 	
 		return(result)
 	}
+	
+}
+
+rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE, forcedRef = TRUE) {
+	
+	if(missing(tablename))
+		stop("missing tablename")
+	if(missing(breaks1))
+		stop("missing breaks1")
+	if(missing(breaks2))
+		stop("missing breaks2")
+	
+	tablename <- substitute(tablename)
+	if(!is.character(tablename))
+		tablename <- deparse(tablename)
+		
+	if(missing(col1) || is.null(col1)) {
+		stop("missing colname")	
+	}
+	if(missing(col2) || is.null(col2)) {
+		stop("missing colname")	
+	}
+		
+	tablename <- tolower(tablename)
+	col1 <- tolower(col1)	
+	col2 <- tolower(col2)
+		
+	if(is.vector(breaks1) && !is.character(breaks1)) {
+	
+		if(length(breaks1) == 1L) {
+			if(is.na(breaks1) | breaks1 < 2L)
+				stop("invalid number of intervals")
+				
+			nb <- as.integer(breaks1 + 1)
+			range <- rhive.basic.range(tablename, col1)
+			dx <- diff(range)
+			if(dx == 0)
+				dx <- abs(range[1L])
+			breaks1 <- seq.int(range[1L] - dx / (breaks1 * 1000), range[2L] + dx / (breaks1 * 1000), length.out = nb)
+		}
+		
+		breaks1 <- paste(breaks1,collapse=",")
+	}
+	
+	if(is.vector(breaks2) && !is.character(breaks2)) {
+	
+		if(length(breaks2) == 1L) {
+			if(is.na(breaks2) | breaks2 < 2L)
+				stop("invalid number of intervals")
+				
+			nb <- as.integer(breaks2 + 1)
+			range <- rhive.basic.range(tablename, col2)
+			dx <- diff(range)
+			if(dx == 0)
+				dx <- abs(range[1L])
+			breaks2 <- seq.int(range[1L] - dx / (breaks2 * 1000), range[2L] + dx / (breaks2 * 1000), length.out = nb)
+		}
+		
+		breaks2 <- paste(breaks2,collapse=",")
+	}
+	
+	
+	hql <- ""
+    xcols <- rhive.desc.table(tablename)[,'col_name']
+	cols <- setdiff(xcols, c(col1,col2))
+	
+	if(length(cols) > 0) {
+		hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,breaks1,right,col1,col2,breaks2,right,col2, tablename)
+	}else {
+		hql <- sprintf("SELECT rkey(%s,'%s','%s') %s , rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1,breaks1,right,col1,col2,breaks2,right,col2,tablename)
+	}
+	
+	if(forcedRef)
+		result <- rhive.big.query(hql,memlimit=-1)
+	else
+		result <- rhive.big.query(hql)
+
+	return(result)
 	
 }
 
@@ -294,6 +375,69 @@ rhive.basic.scale <- function(tablename, col) {
 	attr(x,"scaled:scale") <- std
 	
 	x
+}
+
+
+
+rhive.basic.t.test <- function(x,y) {
+
+	tableX <- substitute(x)
+	if(!is.character(tableX))
+		tableX <- deparse(tableX)
+
+	x <- unlist(strsplit(tableX,"\\$"))
+		
+	if(length(x) != 2)
+		stop("missing colname")
+		
+	tableX <- x[1]
+	colX <- x[2]	
+
+	tableY <- substitute(y)
+	if(!is.character(tableY))
+		tableY <- deparse(tableY)
+
+	y <- unlist(strsplit(tableY,"\\$"))
+		
+	if(length(y) != 2)
+		stop("missing colname")
+		
+	tableY <- y[1]
+	colY <- y[2]	
+
+	resultX <- rhive.query(sprintf("select variance(%s), avg(%s), count(%s) from %s",colX,colX,colX,colX,tableX))
+    resultY <- rhive.query(sprintf("select variance(%s), avg(%s), count(%s) from %s",colY,colY,colY,colY,tableY))
+
+	varX <- resultX[[1]]
+	varY <- resultY[[1]]
+	meanX <- resultX[[2]]
+	meanY <- resultY[[2]]
+	countX <- resultX[[3]]
+	countY <- resultY[[3]]
+	
+	t <- (meanX - meanY) / sqrt(varX/countX + varY/countY)
+	df <- (varX / countX + varY / countY)^2 / ((varX^2 / (countX^2 * (countX-1))) + (varY^2 / (countY^2 * (countY - 1))))
+	p <- (1-pt(abs(t), df=df)) * 2
+
+
+	message <- sprintf("t = %s, df = %s, p-value = %s, mean of x : %s, mean of y : %s", t, df, p, meanX, meanY)
+	print(message)
+	
+	result <- list()
+	
+	result[[1]] <- t
+	result[[2]] <- df
+	result[[3]] <- p
+	result[[4]][1] <- meanX
+	result[[4]][2] <- meanY
+	names(result[[1]]) <- "t"
+	names(result[[2]]) <- "df"
+	names(result[[4]][1]) <- "mean of x"
+	names(result[[4]][2]) <- "mean of y" 
+	
+	names(result) <- c("statistic","parameter","p.value","estimate")
+	
+	return(result)
 }
 
 .generateColumnString <- function(columns,sep=",",excludes) {

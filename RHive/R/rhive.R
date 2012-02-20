@@ -202,10 +202,8 @@ rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 	
 }
 
-rhive.big.query <- function(query ,fetchsize = 40, limit = -1, hiveclient =rhive.defaults('hiveclient')) {
+rhive.big.query <- function(query ,fetchsize = 40, limit = -1, memlimit = 57374182, hiveclient =rhive.defaults('hiveclient')) {
 
-	memsize <- 107374182
-	
 	tmptable <- paste("rhive_result_",as.integer(Sys.time()),sep="")
 	query <- paste("CREATE TABLE ", tmptable," AS ", query,sep="")
 	
