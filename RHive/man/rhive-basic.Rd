@@ -14,7 +14,7 @@
 rhive.basic.mode(tablename, col)
 rhive.basic.range(tablename, col)
 rhive.basic.merge(x, y, by.x, by.y)
-rhive.basic.xtabs(x, cols, tablename)
+rhive.basic.xtabs(formula, tablename)
 rhive.basic.cut(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE)
 rhive.basic.cut2(tablename, col1, col2, breaks1, breaks2, right=TRUE, forcedRef = TRUE)
 rhive.basic.by(tablename, INDICES, fun, arguments)
@@ -31,7 +31,9 @@ R Distributed basic statistic function using Hive
 \item{col}{column name}
 \item{col1}{column name}
 \item{col2}{column name}
-\item{cols}{column names or the cross-classifying variables.}
+\item{formula}{a formula object with the cross-classifying variables
+		  (separated by '+') on the right hand side (or an object
+		  which can be coerced to a formula).}
 \item{breaks}{a numeric vector of two or more cut points. a format is 'min:max:step' and 'step' is optional. or
 either a numeric vector of two or more cut points or a single number (greater than or equal to 2) 
 giving the number of intervals into which 'x' is to be cut.}

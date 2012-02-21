@@ -100,7 +100,7 @@ test.rhive.basic.xtabs <- function() {
 
 	rhive.write.table(DF)
 
-	queryResult <- rhive.basic.xtabs("freq",c("gender","admit"),"df")
+	queryResult <- rhive.basic.xtabs(freq ~gender + admit,"df")
 	checkTrue(!is.null(queryResult))
 
     if(rhive.exist.table("df")) {

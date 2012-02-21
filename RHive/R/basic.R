@@ -132,12 +132,20 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
   	rhive.big.query(hql)
 }
 
-rhive.basic.xtabs <- function(x, cols, tablename) {
+rhive.basic.xtabs <- function(formula, tablename) {
 
-	if(missing(cols))
-		stop("missing colnames")
+	if(missing(formula))
+		stop("missing formula")
 	if(missing(tablename))
 		stop("missing tablename")
+
+	cformula <- as.character(formula)
+	
+	if(length(cformula)==3)
+		x <- cformula[2]
+	
+	cols <- ifelse(length(cformula)==3,cformula[3],cformula[2])
+	cols <- unlist(strsplit(gsub(" ", "", cols),"\\+"))
 
 	tablename <- substitute(tablename)
 	if(!is.character(tablename))
@@ -148,10 +156,10 @@ rhive.basic.xtabs <- function(x, cols, tablename) {
 
 	gcols <- .generateColumnString(cols)
 
-	if(missing(x)) {
-		hql <- sprintf("SELECT %s, COUNT(1) x_count FROM %s GROUP BY %s", gcols, tablename, gcols)
-	}else {
+	if(length(cformula)==3) {
 		hql <- sprintf("SELECT %s, SUM(%s) %s FROM %s GROUP BY %s", gcols, x, x, tablename, gcols)
+	}else {
+		hql <- sprintf("SELECT %s, COUNT(1) x_count FROM %s GROUP BY %s", gcols, tablename, gcols)
 	}
 	
 	pivotresult <- rhive.query(hql)
@@ -159,10 +167,10 @@ rhive.basic.xtabs <- function(x, cols, tablename) {
 	fcols <- .generateColumnString(cols,sep="+")
 	formula <- ""
 	
-	if(missing(x)) {
-		formula <- sprintf("%s ~ %s","x_count",fcols)
-	}else {
+	if(length(cformula)==3) {
 		formula <- sprintf("%s ~ %s",x,fcols)
+	}else {
+		formula <- sprintf("%s ~ %s","x_count",fcols)
 	}
 	
 	return(xtabs(formula, pivotresult)) 
