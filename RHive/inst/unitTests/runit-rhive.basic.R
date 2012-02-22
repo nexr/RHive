@@ -82,7 +82,10 @@ test.rhive.basic.cut2 <- function() {
 
 	rhive.write.table(USArrests)
 
-    queryResult <- rhive.basic.cut2("usarrests","rape","urbanpop",breaks1="0:50",breaks2="0:100")
+    queryResult <- rhive.basic.cut2("usarrests","rape","urbanpop",breaks1="0:50",breaks2="0:100", forcedRef=FALSE)
+	checkTrue(!is.null(queryResult))
+	
+	queryResult <- rhive.basic.cut2("usarrests","rape","urbanpop",breaks1="0:50",breaks2="0:100", keepCol=TRUE, forcedRef=FALSE)
 	checkTrue(!is.null(queryResult))
 
 	rhive.drop.table("usarrests")

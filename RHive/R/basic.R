@@ -224,7 +224,7 @@ rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE,
 	
 }
 
-rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE, forcedRef = TRUE) {
+rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE, keepCol = FALSE, forcedRef = TRUE) {
 	
 	if(missing(tablename))
 		stop("missing tablename")
@@ -283,10 +283,18 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
     xcols <- rhive.desc.table(tablename)[,'col_name']
 	cols <- setdiff(xcols, c(col1,col2))
 	
-	if(length(cols) > 0) {
-		hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,breaks1,right,col1,col2,breaks2,right,col2, tablename)
+	if(keepCol) {
+		if(length(cols) > 0) {
+			hql <- sprintf("SELECT %s, %s, rkey(%s,'%s','%s') %s, %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,col1,breaks1,right,paste(col1,"_cut",sep=""),col2, col2,breaks2,right,paste(col2,"_cut",sep=""), tablename)
+		}else {
+			hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s , %s, rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1, col1,breaks1,right,paste(col1,"_cut",sep=""),col2, col2,breaks2,right,paste(col2,"_cut",sep=""),tablename)
+		}	
 	}else {
-		hql <- sprintf("SELECT rkey(%s,'%s','%s') %s , rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1,breaks1,right,col1,col2,breaks2,right,col2,tablename)
+		if(length(cols) > 0) {
+			hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,breaks1,right,col1,col2,breaks2,right,col2, tablename)
+		}else {
+			hql <- sprintf("SELECT rkey(%s,'%s','%s') %s , rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1,breaks1,right,col1,col2,breaks2,right,col2,tablename)
+		}
 	}
 	
 	if(forcedRef)

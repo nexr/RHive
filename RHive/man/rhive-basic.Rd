@@ -17,7 +17,7 @@ rhive.basic.range(tablename, col)
 rhive.basic.merge(x, y, by.x, by.y)
 rhive.basic.xtabs(formula, tablename)
 rhive.basic.cut(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE)
-rhive.basic.cut2(tablename, col1, col2, breaks1, breaks2, right=TRUE, forcedRef = TRUE)
+rhive.basic.cut2(tablename, col1, col2, breaks1, breaks2, right=TRUE, keepCol = FALSE, forcedRef = TRUE)
 rhive.basic.by(tablename, INDICES, fun, arguments)
 rhive.basic.scale(tablename, col)
 rhive.basic.t.test(x,col1,y,col2)
@@ -46,6 +46,7 @@ giving the number of intervals into which 'x' is to be cut.}
 \item{fun}{a hive function name to be applied.}
 \item{arguments}{input data for a function. for examples, arguments=c("sal","deptno",3.2,"'NexR'")}
 \item{right}{logical, indicating if the intervals should be closed on the right (and open on the left) or vice versa.}
+\item{keepCol}{an option which keeps original columns}
 \item{forcedRef}{the option which forces to create temp-table for result.}
 \item{percent}{percent of data size which is picked up.}
 \item{seed}{first selected block index.}
