@@ -1,3 +1,7 @@
+2012-02-22
+
+    * develop rhive.block.sample to use hive's block sampling
+
 2012-02-20
 
     * add rhive.basic.t.test function

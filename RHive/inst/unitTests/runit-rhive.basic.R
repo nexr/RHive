@@ -225,3 +225,19 @@ test.rhive.basic.t.test <- function() {
 	rhive.drop.table("testX")
 	rhive.drop.table("testY")
 }
+
+
+test.rhive.block.sample <- function() {
+
+	## Load emp test data and put it into the Hive
+    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
+	empTest <- read.csv2(localData, sep=",")
+	rhive.drop.table("empTest")
+	
+	rhive.write.table(empTest)
+	
+	queryResult <- rhive.block.sample("emptest")
+	checkTrue(rhive.exist.table(queryResult))
+
+	rhive.drop.table(queryResult)
+}

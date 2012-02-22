@@ -411,17 +411,16 @@ rhive.block.sample <- function(tablename, percent = 0.01, seed = 0, subset) {
     tmptable <- paste("rhive_sblk_",as.integer(Sys.time()),sep="")
     if(missing(subset) || is.null(subset)) {
     	hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",tablename,"TABLESAMPLE(",percent,"PERCENT)") 
+    	rhive.query(hql)
     }else {
         stmptable <- paste("rhive_subset_",as.integer(Sys.time()),sep="")
     	hql <- paste("CREATE TABLE",stmptable,"AS SELECT * FROM",tablename,"WHERE",subset) 
         rhive.query(hql)
     
     	hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",stmptable,"TABLESAMPLE(",percent,"PERCENT)") 
+    	rhive.query(hql)
+	    rhive.drop.table(stmptable)
 	}
-
-	rhive.query(hql)
-	
-	rhive.drop.table(stmptable)
 
 	return(tmptable)
 }
