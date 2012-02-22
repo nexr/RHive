@@ -69,7 +69,7 @@ test.rhive.basic.cut <- function() {
 	queryResult <- rhive.basic.cut("usarrests","rape",breaks="0,9,10,30,50", summary=TRUE)
 	checkTrue(!is.null(queryResult))
 
-	queryResult <- rhive.basic.cut(USArrests,"rape", right=FALSE, breaks=0:50)
+	queryResult <- rhive.basic.cut("usarrests","rape", right=FALSE, breaks=0:50)
 	checkTrue(!is.null(queryResult))
 
 	rhive.drop.table("usarrests")
