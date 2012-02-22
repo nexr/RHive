@@ -19,10 +19,6 @@ rhive.basic.mode <- function(tablename, col) {
 		stop("missing tablename")
 	if(missing(col))
 		stop("missing colname")
-
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 			
 	tablename <- tolower(tablename)
 	col <- tolower(col)
@@ -39,10 +35,6 @@ rhive.basic.range <- function(tablename, col) {
 		stop("missing tablename")
 	if(missing(col))
 		stop("missing colname")
-
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 			
 	tablename <- tolower(tablename)
 	col <- tolower(col)
@@ -60,17 +52,8 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
 		stop("missing parameter(first tablename)")
 	if(missing(y))
 		stop("missing parameter(second tablename)")
-
-	x <- substitute(x)
-	if(!is.character(x))
-		x <- deparse(x)
 			
 	x <- tolower(x)
-	
-	y <- substitute(y)
-	if(!is.character(y))
-		y <- deparse(y)
-			
 	y <- tolower(y)	
 
 	xcols <- rhive.desc.table(x)[,'col_name']
@@ -146,10 +129,6 @@ rhive.basic.xtabs <- function(formula, tablename) {
 	
 	cols <- ifelse(length(cformula)==3,cformula[3],cformula[2])
 	cols <- unlist(strsplit(gsub(" ", "", cols),"\\+"))
-
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 			
 	tablename <- tolower(tablename)
 	cols <- tolower(cols)
@@ -183,10 +162,6 @@ rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE,
 		stop("missing tablename")
 	if(missing(breaks))
 		stop("missing breaks")
-	
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 		
 	if(missing(col) || is.null(col)) {
 		x <- unlist(strsplit(tablename,"\\$"))
@@ -257,10 +232,6 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
 		stop("missing breaks1")
 	if(missing(breaks2))
 		stop("missing breaks2")
-	
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 		
 	if(missing(col1) || is.null(col1)) {
 		stop("missing colname")	
@@ -337,10 +308,6 @@ rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
 		stop("missing INDICES")
 	if(missing(fun))
 		stop("missing fun")
-
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 			
 	tablename <- tolower(tablename)
 
@@ -357,10 +324,6 @@ rhive.basic.scale <- function(tablename, col) {
 
 	if(missing(tablename))
 		stop("tablename name is not set.")
-
-	tablename <- substitute(tablename)
-	if(!is.character(tablename))
-		tablename <- deparse(tablename)
 			
 	tablename <- tolower(tablename)
 	col <- tolower(col)
@@ -387,31 +350,18 @@ rhive.basic.scale <- function(tablename, col) {
 
 
 
-rhive.basic.t.test <- function(x,y) {
+rhive.basic.t.test <- function(x,col1,y,col2) {
 
-	tableX <- substitute(x)
-	if(!is.character(tableX))
-		tableX <- deparse(tableX)
+	if(missing(x) || missing(y))
+		stop("tablename name is not set.")
+	if(missing(col1) || missing(col2))
+		stop("column name is not set.")
 
-	x <- unlist(strsplit(tableX,"\\$"))
-		
-	if(length(x) != 2)
-		stop("missing colname")
-		
-	tableX <- x[1]
-	colX <- x[2]	
+	tableX <- x
+	colX <- col1	
 
-	tableY <- substitute(y)
-	if(!is.character(tableY))
-		tableY <- deparse(tableY)
-
-	y <- unlist(strsplit(tableY,"\\$"))
-		
-	if(length(y) != 2)
-		stop("missing colname")
-		
-	tableY <- y[1]
-	colY <- y[2]	
+	tableY <- y
+	colY <- col2	
 
 	resultX <- rhive.query(paste("select variance(",colX,"), avg(",colX,"), count(",colX,") from ",tableX,sep=""))
     resultY <- rhive.query(paste("select variance(",colY,"), avg(",colY,"), count(",colY,") from ",tableY,sep=""))
@@ -448,6 +398,34 @@ rhive.basic.t.test <- function(x,y) {
 	
 	return(result)
 }
+
+rhive.block.sample <- function(tablename, percent = 0.01, seed = 0, subset) {
+			
+	if(missing(tablename))
+		stop("tablename name is not set.")		
+			
+	tablename <- tolower(tablename)
+
+    rhive.query(paste("set hive.sample.seednumber=",seed,sep=""))
+     
+    tmptable <- paste("rhive_sblk_",as.integer(Sys.time()),sep="")
+    if(missing(subset) || is.null(subset)) {
+    	hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",tablename,"TABLESAMPLE(",percent,"PERCENT)") 
+    }else {
+        stmptable <- paste("rhive_subset_",as.integer(Sys.time()),sep="")
+    	hql <- paste("CREATE TABLE",stmptable,"AS SELECT * FROM",tablename,"WHERE",subset) 
+        rhive.query(hql)
+    
+    	hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",stmptable,"TABLESAMPLE(",percent,"PERCENT)") 
+	}
+
+	rhive.query(hql)
+	
+	rhive.drop.table(stmptable)
+
+	return(tmptable)
+}
+
 
 .generateColumnString <- function(columns,sep=",",excludes) {
 

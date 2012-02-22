@@ -219,7 +219,7 @@ test.rhive.basic.t.test <- function() {
 	rhive.write.table(testX)
 	rhive.write.table(testY)
 	
-	queryResult <- rhive.basic.t.test(testX$x,testY$y)
+	queryResult <- rhive.basic.t.test("testX","x","testY","y")
 	checkTrue(!is.null(queryResult$p.value))
 	
 	rhive.drop.table("testX")

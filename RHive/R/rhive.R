@@ -724,11 +724,7 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 
 rhive.drop.table <- function(tablename, list, hiveclient =rhive.defaults('hiveclient')) {
 
-	if(!missing(tablename)) {
-		tablename <- substitute(tablename)
-		if(!is.character(tablename))
-			tablename <- deparse(tablename)
-				
+	if(!missing(tablename)) {			
 		tablename <- tolower(tablename)
 	
 		rhive.query(paste("DROP TABLE IF EXISTS ",tablename,sep=""))
@@ -739,11 +735,7 @@ rhive.drop.table <- function(tablename, list, hiveclient =rhive.defaults('hivecl
 			list <- as.character(list[,'tab_name'])
 		}
 		
-		for(tablename in list) {
-			tablename <- substitute(tablename)
-			if(!is.character(tablename))
-				tablename <- deparse(tablename)
-					
+		for(tablename in list) {				
 			tablename <- tolower(tablename)
 			
 			rhive.query(paste("DROP TABLE IF EXISTS ",tablename,sep=""))		
@@ -753,6 +745,11 @@ rhive.drop.table <- function(tablename, list, hiveclient =rhive.defaults('hivecl
 
 
 rhive.size.table <- function(tablename, hiveclient =rhive.defaults('hiveclient')) {
+
+	if(missing(tablename))
+		stop("missing tablename")
+
+	tablename <- tolower(tablename)
 
 	metainfo <- rhive.desc.table(tablename,detail=TRUE, hiveclient = hiveclient)
 	location <- strsplit(strsplit(paste(metainfo,""),"location:")[[1]][2],",")[[1]][1]

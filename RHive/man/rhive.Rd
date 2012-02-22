@@ -68,6 +68,7 @@ rhive.basic.cut2
 rhive.basic.by
 rhive.basic.scale
 rhive.basic.t.test
+rhive.basic.sample
 rhive.write.table
 hiveConnect
 hiveQuery

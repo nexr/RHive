@@ -9,6 +9,7 @@
 \alias{rhive.basic.by}
 \alias{rhive.basic.scale}
 \alias{rhive.basic.t.test}
+\alias{rhive.block.sample}
 \title{R Distributed basic statistic function using Hive}
 \usage{
 rhive.basic.mode(tablename, col)
@@ -19,7 +20,8 @@ rhive.basic.cut(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef =
 rhive.basic.cut2(tablename, col1, col2, breaks1, breaks2, right=TRUE, forcedRef = TRUE)
 rhive.basic.by(tablename, INDICES, fun, arguments)
 rhive.basic.scale(tablename, col)
-rhive.basic.t.test(x,y)
+rhive.basic.t.test(x,col1,y,col2)
+rhive.block.sample(tablename, percent = 0.01, seed = 0, subset) 
 }
 \description{
 R Distributed basic statistic function using Hive
@@ -45,6 +47,9 @@ giving the number of intervals into which 'x' is to be cut.}
 \item{arguments}{input data for a function. for examples, arguments=c("sal","deptno",3.2,"'NexR'")}
 \item{right}{logical, indicating if the intervals should be closed on the right (and open on the left) or vice versa.}
 \item{forcedRef}{the option which forces to create temp-table for result.}
+\item{percent}{percent of data size which is picked up.}
+\item{seed}{first selected block index.}
+\item{subset}{an optional record-set specifying a subset of observations to be used.}
 } 
 \author{
 \email{rhive@nexr.com}
@@ -83,6 +88,9 @@ DF <- as.data.frame(UCBAdmissions)
 
 ## analyze two dataset 
 \dontrun{rhive.basic.t.test(emp$sal,emp$age)}
+
+## sampling
+\dontrun{rhive.basic.sample("emp",subset="id < 100")}
 
 ## close connection
 \dontrun{rhive.close()}
