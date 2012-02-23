@@ -76,28 +76,46 @@ public class RangeKeyUDF extends GenericUDF {
             }
             
             @SuppressWarnings("unchecked")
-            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
+            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
+
                 int lstart = parse(minValue).intValue();
                 int lend = parse(maxValue).intValue();
                 int step = parse(stepValue).intValue();
                 
                 for(int idx = lstart; idx < lend; idx=idx+step) {
                     int[] irange = {idx,idx+step};
-                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                    tree.put(irange, left +irange[0] + "," + irange[1] + right);
                 }
                 
                 return tree;
             }
             
             @SuppressWarnings("unchecked")
-            RangeTree init(String[] breaks, RangeTree tree) {
+            RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
+                
                 
                 for(int i = 1; i < breaks.length; i++) {
                     int lstart = parse(breaks[i-1]).intValue();
                     int lend = parse(breaks[i]).intValue();
                     
                     int[] irange = {lstart,lend};
-                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                    tree.put(irange, left +irange[0] + "," + irange[1] + right);
                 }
                 
                 return tree;
@@ -134,28 +152,45 @@ public class RangeKeyUDF extends GenericUDF {
             }
             
             @SuppressWarnings("unchecked")
-            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
+            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
+                
                 long lstart = parse(minValue).longValue();
                 long lend = parse(maxValue).longValue();
                 long step = parse(stepValue).longValue();
                 
                 for(long idx = lstart; idx < lend; idx=idx+step) {
                     long[] irange = {idx,idx+step};
-                    tree.put(irange, "(" + irange[0] + "," + irange[1] + "]");
+                    tree.put(irange, left + irange[0] + "," + irange[1] + right);
                 }
                 
                 return tree;
             }      
             
             @SuppressWarnings("unchecked")
-            RangeTree init(String[] breaks, RangeTree tree) {
+            RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
                 
                 for(int i = 1; i < breaks.length; i++) {
                     long lstart = parse(breaks[i-1]).longValue();
                     long lend = parse(breaks[i]).longValue();
                     
                     long[] irange = {lstart,lend};
-                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                    tree.put(irange, left +irange[0] + "," + irange[1] + right);
                 }
                 
                 return tree;
@@ -192,28 +227,45 @@ public class RangeKeyUDF extends GenericUDF {
             }
             
             @SuppressWarnings("unchecked")
-            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
+            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
+                
                 double lstart = parse(minValue).doubleValue();
                 double lend = parse(maxValue).doubleValue();
                 double step = parse(stepValue).doubleValue();
                 
                 for(double idx = lstart; idx < lend; idx=idx+step) {
                     double[] irange = {idx,idx+step};
-                    tree.put(irange, "(" + irange[0] + "," + irange[1] + "]");
+                    tree.put(irange, left + irange[0] + "," + irange[1] + right);
                 }
                 
                 return tree;
             }          
             
             @SuppressWarnings("unchecked")
-            RangeTree init(String[] breaks, RangeTree tree) {
+            RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
                 
                 for(int i = 1; i < breaks.length; i++) {
                     double lstart = parse(breaks[i-1]).doubleValue();
                     double lend = parse(breaks[i]).doubleValue();
                     
                     double[] irange = {lstart,lend};
-                    tree.put(irange, "(" +irange[0] + "," + irange[1] + "]");
+                    tree.put(irange, left +irange[0] + "," + irange[1] + right);
                 }
                 
                 return tree;
@@ -249,12 +301,12 @@ public class RangeKeyUDF extends GenericUDF {
                 return ((RangeTreeFactory.StringRangeTree) tree).search(String.valueOf(value));
             }
             
-            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree) {
+            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
            
                 throw new RuntimeException("can't split min-max for string type.");
             }  
             
-            RangeTree init(String[] breaks, RangeTree tree) {
+            RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
                 
                 throw new RuntimeException("can't split min-max for string type.");
             }
@@ -270,10 +322,10 @@ public class RangeKeyUDF extends GenericUDF {
         abstract Object asArray(String minValue, String maxValue);
 
         @SuppressWarnings("unchecked")
-        abstract RangeTree init(String minValue, String maxValue, String step, RangeTree tree);
+        abstract RangeTree init(String minValue, String maxValue, String step, RangeTree tree, boolean minExclusive);
         
         @SuppressWarnings("unchecked")
-        abstract RangeTree init(String[] breaks, RangeTree tree);
+        abstract RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive);
         
         abstract Object search(RangeTreeFactory.RangeTree tree, Object value);
 
@@ -364,14 +416,14 @@ public class RangeKeyUDF extends GenericUDF {
                 end = st.nextToken();
                 step = "1";
          
-                tree = rangeValue.init(start, end, step, tree);
+                tree = rangeValue.init(start, end, step, tree, isRight.booleanValue());
             }else if(st.countTokens() == 3) { 
                 
                 start = st.nextToken();
                 end = st.nextToken();
                 step = st.nextToken();
                 
-                tree = rangeValue.init(start, end, step, tree);
+                tree = rangeValue.init(start, end, step, tree, isRight.booleanValue());
             }else {
                 throw new RuntimeException("fail to parse break syntax : " + breaks);
             }
@@ -384,7 +436,7 @@ public class RangeKeyUDF extends GenericUDF {
                 elements[i] = st.nextToken();
             }
 
-            tree = rangeValue.init(elements, tree);
+            tree = rangeValue.init(elements, tree, isRight.booleanValue());
         }else {
             throw new RuntimeException("fail to parse break syntax : " + breaks);
         }
