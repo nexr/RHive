@@ -1,3 +1,14 @@
+2012-02-28
+
+    * rhive-0.0-5 release
+    
+     - support basic statistic functions (mode, range, xtabs, cut, by, merge, scale, sample, t.test)
+     - support big result data what R can't handle
+
+2012-02-27
+
+    * fix bug that generate wrong query for rhive.basic.merge
+
 2012-02-22
 
     * develop rhive.block.sample to use hive's block sampling
@@ -29,7 +40,7 @@
 
 2011-12-17
 
-    * rhive-0.4 release
+    * rhive-0.0-4 release
     
       - support napply, sapply and aggregate functions
       - support hdfs functions
@@ -61,7 +72,7 @@
 
 2011-10-30
 
-    * rhive-0.3 release
+    * rhive-0.0-3 release
       
       - execute hive query in R
       - export R Ojbects to use in Hive Query as UDF
