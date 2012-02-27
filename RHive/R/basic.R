@@ -61,8 +61,7 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
 	
 	joinkeys <- NULL
 	yjoinkeys <- NULL
-	unioncols <- c(xcols,ycols)
-	
+
 	if(missing(by.x) && missing(by.y)) {
 	
 		joinkeys <- intersect(xcols, ycols)
@@ -90,7 +89,6 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
   	sharedcols <- intersect(setdiff(xcols, joinkeys),setdiff(ycols, yjoinkeys))
   	
   	if(length(sharedcols) > 0) {
-  		unioncols <- c(paste("x.",setdiff(xcols, c(joinkeys,sharedcols)),sep="",collapse=","),paste("y.",setdiff(ycols,c(yjoinkeys,sharedcols)),sep="",collapse=","))
   		unioncols <- c(setdiff(unioncols, sharedcols), paste("x.",sharedcols,sep=""))
   	}else {
   		unioncols <- c(paste("x.",setdiff(xcols,joinkeys),sep=""),paste("y.",setdiff(ycols,yjoinkeys),sep=""))
