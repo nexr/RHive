@@ -36,15 +36,24 @@ test.rhive.basic.merge <- function() {
                 
     rhive.drop.table("authors")          
 	rhive.drop.table("books") 
+	rhive.drop.table("iris")
+	rhive.drop.table("jiris")
 
 	rhive.write.table(authors)
 	rhive.write.table(books)
+	rhive.write.table(iris)
+	rhive.write.table(iris,"jiris")
 	
 	queryResult <- rhive.basic.merge("authors","books",by.x="surname",by.y="name")
 	checkTrue(!is.null(queryResult))
 	
+	queryResult <- rhive.basic.merge("iris","jiris",by.x="sepallength",by.y="sepallength")
+	checkTrue(!is.null(queryResult))
+	
     rhive.drop.table("authors")          
 	rhive.drop.table("books") 
+	rhive.drop.table("iris")
+	rhive.drop.table("jiris")
 
     try(rm(books), silent=TRUE)
 	try(rm(authors), silent=TRUE)
