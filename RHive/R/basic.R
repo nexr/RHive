@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-rhive.basic.mode <- function(tablename, col) {
+rhive.basic.mode <- function(tablename, col, forcedRef = TRUE) {
 
 	if(missing(tablename))
 		stop("missing tablename")
@@ -24,8 +24,13 @@ rhive.basic.mode <- function(tablename, col) {
 	col <- tolower(col)
 
 	hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY freq DESC LIMIT 1", col, tablename, col)
-	
-	rhive.big.query(hql)
+
+	if(forcedRef)
+		result <- rhive.big.query(hql,memlimit=-1)
+	else
+		result <- rhive.big.query(hql)
+
+	return(result)
 
 }
 
@@ -46,7 +51,7 @@ rhive.basic.range <- function(tablename, col) {
 	return(c(result[['min']],result[['max']]))
 }
 
-rhive.basic.merge <- function(x, y, by.x, by.y) {
+rhive.basic.merge <- function(x, y, by.x, by.y, forcedRef = TRUE) {
 
 	if(missing(x))
 		stop("missing parameter(first tablename)")
@@ -110,7 +115,12 @@ rhive.basic.merge <- function(x, y, by.x, by.y) {
 	  	hql <- paste(hql, where)
   	}
 
-  	rhive.big.query(hql)
+	if(forcedRef)
+		result <- rhive.big.query(hql,memlimit=-1)
+	else
+		result <- rhive.big.query(hql)
+
+	return(result)
 }
 
 rhive.basic.xtabs <- function(formula, tablename) {
@@ -304,7 +314,7 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
 	
 }
 
-rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
+rhive.basic.by <- function(tablename, INDICES, fun, arguments, forcedRef = TRUE) {
 
 	if(missing(arguments))
 		stop("missing arguments")
@@ -323,7 +333,12 @@ rhive.basic.by <- function(tablename, INDICES, fun, arguments) {
 
 	hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",groups,colnames,tablename,groups)
 	
-	rhive.big.query(hql)
+	if(forcedRef)
+		result <- rhive.big.query(hql,memlimit=-1)
+	else
+		result <- rhive.big.query(hql)
+
+	return(result)
 }
 
 rhive.basic.scale <- function(tablename, col) {

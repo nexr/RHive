@@ -12,13 +12,13 @@
 \alias{rhive.block.sample}
 \title{R Distributed basic statistic function using Hive}
 \usage{
-rhive.basic.mode(tablename, col)
+rhive.basic.mode(tablename, col, forcedRef = TRUE)
 rhive.basic.range(tablename, col)
-rhive.basic.merge(x, y, by.x, by.y)
+rhive.basic.merge(x, y, by.x, by.y, forcedRef = TRUE)
 rhive.basic.xtabs(formula, tablename)
 rhive.basic.cut(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE)
 rhive.basic.cut2(tablename, col1, col2, breaks1, breaks2, right=TRUE, keepCol = FALSE, forcedRef = TRUE)
-rhive.basic.by(tablename, INDICES, fun, arguments)
+rhive.basic.by(tablename, INDICES, fun, arguments, forcedRef = TRUE)
 rhive.basic.scale(tablename, col)
 rhive.basic.t.test(x,col1,y,col2)
 rhive.block.sample(tablename, percent = 0.01, seed = 0, subset) 
