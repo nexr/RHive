@@ -27,7 +27,7 @@ rhive.hdfs.connect <- function(hdfsurl=rhive.hdfs.default.name()) {
      dfutils <- .jnew("com/nexr/rhive/util/DFUtils",config)
      
      hdfs <- list(fs,fsshell,dfutils)
-     assign('hdfs',hdfs,env=RHive:::.rhiveEnv)
+     assign('hdfs',hdfs,envir=RHive:::.rhiveEnv)
    
    	 if(rhive.hdfs.exists('/rhive/lib/rhive_udf.jar'))
    	 	rhive.hdfs.rm('/rhive/lib/rhive_udf.jar')

@@ -37,10 +37,10 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
   
   if(hadoop=="")
     rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T))
+               ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T))
   else {
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full=T)
+               ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T)
                ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,sprintf("%s/conf",hadoop))
@@ -181,7 +181,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      #     hivecon$close()	  
      #      print("call finalizer")
     # })
-     assign('hiveclient',hiveclient,env=RHive:::.rhiveEnv)
+     assign('hiveclient',hiveclient,envir=RHive:::.rhiveEnv)
 
 }
 
