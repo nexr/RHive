@@ -40,7 +40,7 @@ test.rhive.mapapply <- function() {
 	
 	}
 
-	queryResult <- rhive.mapapply("empTest",map,c("ename","position"),c("position","one"),by="position")
+	queryResult <- rhive.mapapply("empTest",map,c("ename","position"),c("position","one"),by="position",forcedRef=FALSE)
 	checkTrue(!is.null(queryResult))
 
     if(rhive.exist.table("empTest")) {
@@ -80,7 +80,7 @@ test.rhive.mrapply <- function()
   
 	}
 	
-	queryResult <- rhive.mrapply("empTest",map,reduce,c("ename","position"),c("position","one"),by="position",c("position","one"),c("word","count"))
+	queryResult <- rhive.mrapply("empTest",map,reduce,c("ename","position"),c("position","one"),by="position",c("position","one"),c("word","count"),forcedRef=FALSE)
 	
     checkTrue(!is.null(queryResult))
     checkTrue(length(row.names(queryResult)) == 5)
