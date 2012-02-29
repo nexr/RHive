@@ -496,7 +496,7 @@ rhive.napply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhiv
 	rhive.assign(exportname,FUN)
 	rhive.exportAll(exportname,hiveclient)
 	
-	query <- paste("SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
+	hql <- paste("SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
 
 	if(forcedRef)
 		result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
@@ -529,7 +529,7 @@ rhive.sapply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhiv
 	rhive.assign(exportname,FUN)
 	rhive.exportAll(exportname,hiveclient)
 	
-	query <- paste("SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
+	hql <- paste("SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
 	
 	if(forcedRef)
 		result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
@@ -539,7 +539,7 @@ rhive.sapply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhiv
 	return(result)
 }
 
-rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , , forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
+rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
     
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")    
@@ -576,7 +576,7 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , , forcedRef
 			index <- index + 1
 		}
 		
-		query <- paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
+		hql <- paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
 
 		if(forcedRef)
 			result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
