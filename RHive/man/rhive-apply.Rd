@@ -6,11 +6,11 @@
 \alias{rhive.reduceapply}
 \title{R Distributed apply function using HQL}
 \usage{
-rhive.napply(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient'))
-rhive.sapply(tablename, FUN, ..., hiveclient =rhive.defaults('hiveclient'))
-rhive.mrapply(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient'))
-rhive.mapapply(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient'))
-rhive.reduceapply(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient'))
+rhive.napply(tablename, FUN, ...,forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
+rhive.sapply(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
+rhive.mrapply(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
+rhive.mapapply(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
+rhive.reduceapply(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
 }
 \description{
 R Distributed apply function using HQL
@@ -36,6 +36,7 @@ R Distributed apply function using HQL
 \item{args}{custom environment.}
 \item{mapper_args}{mapper custom environment.}
 \item{reducer_args}{reducer custom environment.}
+\item{forcedRef}{the option which forces to create temp-table for result.}
 } 
 \author{
 \email{rhive@nexr.com}

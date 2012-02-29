@@ -473,7 +473,7 @@ rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')
     	
 }
 
-rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hiveclient')) {
+rhive.napply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
 
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
@@ -497,11 +497,16 @@ rhive.napply <- function(tablename, FUN, ...,hiveclient =rhive.defaults('hivecli
 	rhive.exportAll(exportname,hiveclient)
 	
 	query <- paste("SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
-	
-	rhive.big.query(query,hiveclient=hiveclient)
+
+	if(forcedRef)
+		result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
+	else
+		result <- rhive.big.query(hql,hiveclient=hiveclient)
+
+	return(result)
 }
 
-rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hiveclient')) {
+rhive.sapply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
 
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
@@ -526,10 +531,15 @@ rhive.sapply <- function(tablename, FUN, ..., hiveclient =rhive.defaults('hivecl
 	
 	query <- paste("SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
 	
-	rhive.big.query(query,hiveclient=hiveclient)
+	if(forcedRef)
+		result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
+	else
+		result <- rhive.big.query(hql,hiveclient=hiveclient)
+
+	return(result)
 }
 
-rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient =rhive.defaults('hiveclient')) {
+rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , , forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
     
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")    
@@ -546,9 +556,13 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
     
     result <- ""
     
-    if(is.null(groups))
-		result <- rhive.big.query(paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),hiveclient=hiveclient)
-	else {
+    if(is.null(groups)) {
+		if(forcedRef)
+			result <- rhive.big.query(paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),memlimit=-1,hiveclient=hiveclient)
+		else
+			result <- rhive.big.query(paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),hiveclient=hiveclient)
+
+	} else {
 		
 		index <- 0
 		gs <- ""
@@ -564,7 +578,10 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
 		
 		query <- paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
 
-	    result <- rhive.big.query(query,hiveclient=hiveclient)
+		if(forcedRef)
+			result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
+		else
+			result <- rhive.big.query(hql,hiveclient=hiveclient)
 	}
 	
 	
@@ -572,19 +589,19 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , hiveclient 
 
 }
 
-rhive.mapapply <- function(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+rhive.mapapply <- function(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
 
-	rhive.mrapply(tablename,mapperFUN=mapperFUN,reducerFUN = NULL, mapinput=mapinput,mapoutput=mapoutput,by=by,mapper_args=args, reducer_args=NULL, buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
-
-}
-
-rhive.reduceapply <- function(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
-
-	rhive.mrapply(tablename,mapperFUN=NULL, reducerFUN=reducerFUN,reduceinput=reduceinput,reduceoutput=reduceoutput,mapper_args=NULL, reducer_args=args, buffersize=buffersize, verbose=verbose,hiveclient=hiveclient)
+	rhive.mrapply(tablename,mapperFUN=mapperFUN,reducerFUN = NULL, mapinput=mapinput,mapoutput=mapoutput,by=by,mapper_args=args, reducer_args=NULL, buffersize=buffersize, verbose=verbose, forcedRef = forcedRef, hiveclient=hiveclient)
 
 }
 
-rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, hiveclient =rhive.defaults('hiveclient')) {
+rhive.reduceapply <- function(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
+
+	rhive.mrapply(tablename,mapperFUN=NULL, reducerFUN=reducerFUN,reduceinput=reduceinput,reduceoutput=reduceoutput,mapper_args=NULL, reducer_args=args, buffersize=buffersize, verbose=verbose,forcedRef = forcedRef, hiveclient=hiveclient)
+
+}
+
+rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
 
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
@@ -695,15 +712,18 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 		print(paste("HIVE-QUERY : ", hql,sep=""))
 
 	resultSet <- NULL
-	if(isBigQuery)
-		resultSet <- rhive.big.query(hql,hiveclient=hiveclient)
-	else {
-	    memsize <- 107374182
+	if(isBigQuery) {
+		if(forcedRef)
+			resultSet <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
+		else
+			resultSet <- rhive.big.query(hql,hiveclient=hiveclient)
+	} else {
+	    memsize <- 57374182
     	rhive.query(hql,hiveclient=hiveclient)
 
 		length <- rhive.size.table(tmptable)
 	
-		if(length > memsize) {	
+		if(forcedRef || length > memsize) {	
 			x <- tmptable
 			attr(x,"result:size") <- length
 			

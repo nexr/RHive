@@ -2,7 +2,7 @@
 \alias{rhive.aggregate}
 \title{R Distributed aggregate function using HQL}
 \usage{
-rhive.aggregate(tablename, hiveFUN, ..., groups = NULL , hiveclient =rhive.defaults('hiveclient'))
+rhive.aggregate(tablename, hiveFUN, ..., groups = NULL , forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
 }
 \description{
 R Distributed aggregate function using HQL
@@ -13,6 +13,7 @@ R Distributed aggregate function using HQL
 \item{hiveFUN}{the hive buit-in function name to be applied.}
 \item{...}{optional arguments to 'hiveFUN'.}
 \item{groups}{aggregated key list. it is vector type}
+\item{forcedRef}{the option which forces to create temp-table for result.}
 } 
 \author{
 \email{rhive@nexr.com}
