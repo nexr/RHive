@@ -424,11 +424,10 @@ rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('h
 
 rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient')) {
 
-	memsize <- 107374182
+	memsize <- 2097152
 
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
-
 
 	length <- rhive.size.table(tablename)
 
@@ -438,7 +437,7 @@ rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=r
 			result <- rhive.query(paste("select * from",tablename,"limit",limit),hiveclient=hiveclient)
 			return(result)
 		} else {
-			print("this table is too big to load")
+			print("this table is too large to load with this function. use 'rhive.load.table2' instead.")
 		    x <- tablename
 			attr(x,"result:size") <- length
 		    return(x)
@@ -450,6 +449,37 @@ rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=r
 		return(result)
 	
 	}
+}
+
+rhive.load.table2 <- function(tablename, hiveclient=rhive.defaults('hiveclient')) {
+
+	if(!is.character(tablename))
+		stop("argument type is wrong. tablename must be string type.")
+
+    dirname <- format(as.POSIXlt(Sys.time()),format="%Y%m%d_%H%M%S")
+    
+    if(!file.exists("rhive_load")) {
+    	dir.create("rhive_load")
+    }
+    
+    dir <- paste(getwd(),"/rhive_load/",dirname,sep="")
+	dir.create(dir)
+
+	colnames <- rhive.query(paste("insert overwrite local directory '",dir,"' select * from ",tablename,sep=""))
+
+	fullData <- NULL
+
+	for(filename in list.files(dir,full.name=TRUE)) {
+	      data <- read.csv(file=filename,header=FALSE,sep='\001')
+		  if(is.null(fullData))
+		  	  fullData <- data
+		  else
+		      fullData <- rbind(fullData,data)
+	}
+
+	names(fullData) <- names(colnames)
+	
+	return(fullData)
 }
 
 rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')) {
