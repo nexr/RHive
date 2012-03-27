@@ -219,7 +219,12 @@ rhive.big.query <- function(query ,fetchsize = 40, limit = -1, memlimit = 573741
 
 		return(x)
 	}else {
-		result <- rhive.query(paste("select * from",tmptable),hiveclient=hiveclient)
+	
+		if(length < 1024 * 1024)
+			result <- rhive.query(paste("select * from",tmptable),hiveclient=hiveclient)
+		else
+			result <- rhive.load.table2(tmptable,hiveclient=hiveclient)
+			
 		rhive.query(paste("DROP TABLE ",tmptable,sep=""), hiveclient = hiveclient)
 		return(result)
 	}
