@@ -2,6 +2,7 @@
 \alias{rhive.list.tables}
 \alias{rhive.desc.table}
 \alias{rhive.load.table}
+\alias{rhive.load.table2}
 \alias{rhive.exist.table}
 \alias{rhive.size.table}
 \alias{rhive.drop.table}
@@ -10,6 +11,7 @@
 rhive.list.tables(pattern, hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
+rhive.load.table2(tablename, hiveclient=rhive.defaults('hiveclient'))
 rhive.exist.table(tablename, hiveclient=rhive.defaults('hiveclient')) 
 rhive.size.table(tablename, hiveclient =rhive.defaults('hiveclient'))
 rhive.drop.table(tablename, list, hiveclient =rhive.defaults('hiveclient'))
