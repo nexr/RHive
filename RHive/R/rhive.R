@@ -32,6 +32,9 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
 	  slaves <- try(read.csv(sprintf("%s/conf/slaves",hadoop),header=FALSE)$V1,silent=TRUE)
 	  if(class(slaves) != "try-error")
 	  	assign("slaves",as.character(slaves),envir=.rhiveEnv)
+	  else {
+	  	print("there is no slaves file of HADOOP. so you should pass hosts argument when you call rhive.connect().")
+	  }
   
   }
   
