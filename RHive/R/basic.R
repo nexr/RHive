@@ -355,7 +355,8 @@ rhive.basic.scale <- function(tablename, col) {
 	avg <- summary[['avg']]
 	std <- summary[['std']]
 	
-	tmpTable <- paste("cut_", tablename,as.integer(Sys.time()),sep="")
+	postfix <- format(as.POSIXlt(Sys.time()),format="%Y%m%d%H%M%S")
+	tmpTable <- paste("cut_", tablename,postfix,sep="")
 	xcols <- rhive.desc.table(tablename)[,'col_name']
 	cols <- setdiff(xcols, col)
 

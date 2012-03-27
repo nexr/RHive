@@ -443,7 +443,9 @@ rhive.write.table <- function(dat, tablename = NULL, sep = ",", nastring = NULL,
 	
 	names(colspecs) <- names(dat)
 
-	dirname <- paste(tablename,"_",as.integer(Sys.time()),sep="")
+    postfix <- format(as.POSIXlt(Sys.time()),format="%Y%m%d%H%M%S")
+
+	dirname <- paste(tablename,"_",postfix,sep="")
 	
 	hdfs_root_path <- paste("/rhive/data/",dirname,sep="")
     hdfs_path <- paste(hdfs_root_path,"/",exportname,sep="")
