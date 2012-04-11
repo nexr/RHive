@@ -73,6 +73,9 @@ rhive.hdfs.ls <- function(path="/", hdfs = rhive.hdfs.defaults('hdfs')) {
 
     .checkHDFSConnection(hdfs)
     
+    if(!rhive.hdfs.exists(path))
+    	return(NULL)
+    
     fileSystem <- .jcast(hdfs[[1]], new.class="org/apache/hadoop/fs/FileSystem",check = FALSE, convert.array = FALSE)
 
 	rdata <- list()
