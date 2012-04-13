@@ -592,13 +592,13 @@ rhive.hdfs.info <- function(path, hdfs = rhive.hdfs.defaults('hdfs')) {
 		cat(sprintf("%s", line), file = output, sep="\n", append = TRUE)
 	}
 	
-	status <- system(sprintf("chmod 775 %s", script), ignore.stderr = TRUE)
+	status <- system(sprintf("chmod 775 %s", output), ignore.stderr = TRUE)
 	
 	if(status != 0) {
 		warning("no executable found")
 		invisible(FALSE)
 	}
-	invisible(script)
+	invisible(output)
 }
 
 .local_cleanup <- function(files){
