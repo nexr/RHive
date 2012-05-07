@@ -39,6 +39,13 @@ public class RangeTreeFactory {
         DoubleRangeComparator dcomp = new DoubleRangeComparator(minExclusive, maxExclusive);
         return new DoubleRangeTree(name, dcomp, defaultValue);
     }
+    
+    @SuppressWarnings("unchecked")
+    public static RangeTree createFloatTree(String name, boolean minExclusive,
+            boolean maxExclusive, Object defaultValue) {
+        FloatRangeComparator dcomp = new FloatRangeComparator(minExclusive, maxExclusive);
+        return new FloatRangeTree(name, dcomp, defaultValue);
+    }
 
     @SuppressWarnings("unchecked")
     public static RangeTree createLongTree(String name, boolean minExclusive,
@@ -155,6 +162,22 @@ public class RangeTreeFactory {
             return convertWritable(search(value));
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    public static class FloatRangeTree<V> extends RangeTree<float[], V> {
+
+        FloatRangeTree(String name, Comparator<float[]> comparator, V defaultValue) {
+            super(name, comparator, defaultValue);
+        }
+
+        public V search(float value) {
+            return get(new float[] { value, value });
+        }
+
+        public Writable searchWritable(float value) {
+            return convertWritable(search(value));
+        }
+    }
 
     @SuppressWarnings("unchecked")
     private static class StringRangeComparator implements Comparator<String[]> {
@@ -237,6 +260,29 @@ public class RangeTreeFactory {
         }
 
         public int compare(double[] o1, double[] o2) {
+            int minCompared = o1[0] < o2[0] ? -1 : o1[0] == o2[0] ? 0 : 1;
+            if (minCompared <= 0) {
+                return minCompared == 0 && minExclusive ? -1 : minCompared;
+            }
+            int maxCompared = o1[1] < o2[1] ? -1 : o1[1] == o2[1] ? 0 : 1;
+            if (maxCompared <= 0) {
+                return maxCompared == 0 && maxExclusive ? 1 : 0;
+            }
+            return maxCompared;
+        }
+    }
+    
+    private static class FloatRangeComparator implements Comparator<float[]> {
+
+        final boolean minExclusive;
+        final boolean maxExclusive;
+
+        public FloatRangeComparator(boolean minExclusive, boolean maxExclusive) {
+            this.minExclusive = minExclusive;
+            this.maxExclusive = maxExclusive;
+        }
+
+        public int compare(float[] o1, float[] o2) {
             int minCompared = o1[0] < o2[0] ? -1 : o1[0] == o2[0] ? 0 : 1;
             if (minCompared <= 0) {
                 return minCompared == 0 && minExclusive ? -1 : minCompared;

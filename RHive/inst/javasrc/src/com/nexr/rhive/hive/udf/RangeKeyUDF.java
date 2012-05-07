@@ -68,7 +68,7 @@ public class RangeKeyUDF extends GenericUDF {
             }
 
             Object asArray(String minValue, String maxValue) {
-                return new int[] { parse(minValue), parse(maxValue) };
+                return new int[] { parse(minValue).intValue() , parse(maxValue).intValue() };
             }
 
             Object search(RangeTreeFactory.RangeTree tree, Object value) {
@@ -144,7 +144,7 @@ public class RangeKeyUDF extends GenericUDF {
             }
 
             Object asArray(String minValue, String maxValue) {
-                return new long[] { parse(minValue), parse(maxValue) };
+                return new long[] { parse(minValue).longValue() , parse(maxValue).longValue() };
             }
 
             Object search(RangeTreeFactory.RangeTree tree, Object value) {
@@ -219,7 +219,7 @@ public class RangeKeyUDF extends GenericUDF {
             }
 
             Object asArray(String minValue, String maxValue) {
-                return new double[] { parse(minValue), parse(maxValue) };
+                return new double[] { parse(minValue).doubleValue() , parse(maxValue).doubleValue() };
             }
 
             Object search(RangeTreeFactory.RangeTree tree, Object value) {
@@ -273,6 +273,81 @@ public class RangeKeyUDF extends GenericUDF {
 
             Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value) {
                 return ((RangeTreeFactory.DoubleRangeTree) tree).searchWritable((Double) value);
+            }
+        },
+        FLOAT_TYPE {
+            ObjectInspector inspector() {
+                return PrimitiveObjectInspectorFactory.writableFloatObjectInspector;
+            }
+
+            RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive) {
+                return RangeTreeFactory.createFloatTree(name, minExclusive, maxExclusive, null);
+            }
+
+            RangeTreeFactory.RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive,
+                    Object defaultValue) {
+                return RangeTreeFactory.createFloatTree(name, minExclusive, maxExclusive, defaultValue);
+            }
+
+            Float parse(String value) {
+                return Float.valueOf(value);
+            }
+
+            Object asArray(String minValue, String maxValue) {
+                return new float[] { parse(minValue).floatValue(), parse(maxValue).floatValue() };
+            }
+
+            Object search(RangeTreeFactory.RangeTree tree, Object value) {
+                return ((RangeTreeFactory.FloatRangeTree) tree).search((Float) value);
+            }
+            
+            @SuppressWarnings("unchecked")
+            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
+                
+                float lstart = parse(minValue).floatValue();
+                float lend = parse(maxValue).floatValue();
+                float step = parse(stepValue).floatValue();
+                
+                for(float idx = lstart; idx < lend; idx=idx+step) {
+                    float[] irange = {idx,idx+step};
+                    tree.put(irange, left + irange[0] + "," + irange[1] + right);
+                }
+                
+                return tree;
+            }          
+            
+            @SuppressWarnings("unchecked")
+            RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
+                
+                String left = "(";
+                String right = "]";
+                
+                if(!minExclusive) {
+                    left = "[";
+                    right = ")";
+                }
+                
+                for(int i = 1; i < breaks.length; i++) {
+                    float lstart = parse(breaks[i-1]).floatValue();
+                    float lend = parse(breaks[i]).floatValue();
+                    
+                    float[] irange = {lstart,lend};
+                    tree.put(irange, left +irange[0] + "," + irange[1] + right);
+                }
+                
+                return tree;
+            }
+
+            Writable searchWritable(RangeTreeFactory.RangeTree tree, Object value) {
+                return ((RangeTreeFactory.FloatRangeTree) tree).searchWritable((Float) value);
             }
         },
         STRING_TYPE {
@@ -341,16 +416,19 @@ public class RangeKeyUDF extends GenericUDF {
     }
 
     private RANGEVALUE valueOf(String typeName) {
+        
         if (typeName.equals(Constants.INT_TYPE_NAME)) {
             return RANGEVALUE.INT_TYPE;
         } else if (typeName.equals(Constants.BIGINT_TYPE_NAME)) {
             return RANGEVALUE.BIGINT_TYPE;
         } else if (typeName.equals(Constants.DOUBLE_TYPE_NAME)) {
             return RANGEVALUE.DOUBLE_TYPE;
+        } else if (typeName.equals(Constants.FLOAT_TYPE_NAME)) {
+            return RANGEVALUE.FLOAT_TYPE;
         } else if (typeName.equals(Constants.STRING_TYPE_NAME)) {
             return RANGEVALUE.STRING_TYPE;
         }
-        throw new IllegalArgumentException("No enum const " + typeName);
+        throw new IllegalArgumentException("RHive doesn't support this type " + typeName);
     }
 
     @Override
