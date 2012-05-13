@@ -158,6 +158,20 @@ public class GenericUDTFUnFold extends GenericUDTF {
         
         try {
             String[] originStrs = parseString(originStr, delim);
+            
+            if (originStrs.length != numCols) {
+
+                StringBuffer sb = new StringBuffer();
+                
+                for(int i = 0; i < originStrs.length - 1; i++) {
+                    sb.append(originStrs[i] + delim);
+                }
+                sb.append(originStrs[originStrs.length - 1]);
+                
+                throw new HiveException("original data count[" + originStrs.length + "] doesn't match unfold column count[ " + numCols + "] : original data {" + sb.toString() + "}");
+                
+            }
+            
             for (int i = 0; i < numCols; ++i) {
                 
                 if (originStrs[i] == null)
