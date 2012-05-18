@@ -1,3 +1,21 @@
+2012-5-15
+
+    * support float type in 'rhive.basic.cut' function  
+
+2012-04-13
+
+    * fix bug that try to change mode template script not generated script during generating map/reduce script
+    * add validation check whether file/directory exists in ls() function
+
+2012-03-27
+
+    * update man-file
+    * add addition info message for rhive.exportAll without slaves file
+
+2012-03-23
+
+    * add rhive.load.table2 function to improve data loading performance into R
+
 2012-02-28
 
     * rhive-0.0-5 release
