@@ -462,7 +462,7 @@ rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=r
 	}
 }
 
-rhive.load.table2 <- function(tablename, hiveclient=rhive.defaults('hiveclient')) {
+rhive.load.table2 <- function(tablename, remote = TRUE, hiveclient=rhive.defaults('hiveclient')) {
 
 	if(!is.character(tablename))
 		stop("argument type is wrong. tablename must be string type.")
@@ -476,10 +476,26 @@ rhive.load.table2 <- function(tablename, hiveclient=rhive.defaults('hiveclient')
     dir <- paste(getwd(),"/rhive_load/",dirname,sep="")
 	dir.create(dir)
 
-	colnames <- rhive.query(paste("insert overwrite local directory '",dir,"' select * from ",tablename,sep=""))
+	colnames <- NULL
 
+	if(remote) {
+	    if(!rhive.hdfs.exists("/tmp/rhive_load")) {
+    		rhive.hdfs.mkdirs("/tmp/rhive_load")
+    	}
+    	
+    	hdfs <- paste("/tmp/rhive_load/",dirname,sep="")
+
+		colnames <- rhive.query(paste("insert overwrite directory '",hdfs,"' select * from ",tablename,sep=""))
+	
+		rhive.hdfs.get(hdfs, dir, sourcedelete = TRUE);
+		dir <- paste(dir,"/",dirname,sep="")
+	
+	}else {
+		colnames <- rhive.query(paste("insert overwrite local directory '",dir,"' select * from ",tablename,sep=""))
+	}
+	
 	fullData <- NULL
-
+	
 	for(filename in list.files(dir,full.name=TRUE)) {
 	      data <- read.csv(file=filename,header=FALSE,sep='\001')
 		  if(is.null(fullData))

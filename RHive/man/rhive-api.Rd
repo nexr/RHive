@@ -11,7 +11,7 @@
 rhive.list.tables(pattern, hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
-rhive.load.table2(tablename, hiveclient=rhive.defaults('hiveclient'))
+rhive.load.table2(tablename, remote = TRUE, hiveclient=rhive.defaults('hiveclient'))
 rhive.exist.table(tablename, hiveclient=rhive.defaults('hiveclient')) 
 rhive.size.table(tablename, hiveclient =rhive.defaults('hiveclient'))
 rhive.drop.table(tablename, list, hiveclient =rhive.defaults('hiveclient'))
@@ -22,6 +22,7 @@ R functions to get informations of table from HIVE
 \arguments{
 \item{hiveclient}{a client for hive.}
 \item{tablename}{hive table name.}
+\item{remote}{hiveserver mode.}
 \item{detail}{a flag on whether to show detail of table info.}
 \item{limit}{total fetch size. -1 means full fetch}
 \item{fetchsize}{the count of record to load at one time}
