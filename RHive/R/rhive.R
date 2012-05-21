@@ -110,6 +110,16 @@ rhive.env <- function(ALL=FALSE) {
 	if(!is.null(slaves)) {
 		cat(sprintf("Default RServe List\n"))
 		cat(sprintf("%s", unlist(slaves)))
+		
+		for(rhost in slaves) {
+	    	rcon <- RSconnect(rhost, port)
+	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
+	    	
+	    	cat(sprintf("%s : RHIVE_DATA = %s\n",rhost,rhive_data))
+	    	
+	    	RSclose(rcon)
+	    }
+		
 		cat(sprintf("\n"))
 	}else {
 		cat(sprintf("No RServe\n"))
@@ -345,10 +355,20 @@ rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), po
 			print("exceed limit object size")
 		}
 		
-		command <- paste("save(",exportname,",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")
-		RSeval(rcon,command)
+		rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
 		
-		RSclose(rcon)
+		if(is.null(rhive_data) || rhive_data == "") {
+			command <- paste("save(",exportname,",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")
+			RSeval(rcon,command)
+			
+			RSclose(rcon)
+		}else {
+		
+			command <- paste("save(",exportname,",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")
+			RSeval(rcon,command)
+			
+			RSclose(rcon)
+		}
 	}
 	
 	return(TRUE)
@@ -383,11 +403,20 @@ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'),
 				print("exceed limit object size")
 			}
 	    }
+	    
+	    rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
+	    
+	    if(is.null(rhive_data) || rhive_data == "") {
+	    	command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")	
+			RSeval(rcon,command)
 		
-		command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")	
-		RSeval(rcon,command)
-	
-		RSclose(rcon)
+			RSclose(rcon)
+	    }else {
+			command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")	
+			RSeval(rcon,command)
+		
+			RSclose(rcon)
+		}
 	
 	}
 	
