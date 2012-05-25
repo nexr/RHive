@@ -111,6 +111,8 @@ rhive.env <- function(ALL=FALSE) {
 		cat(sprintf("Default RServe List\n"))
 		cat(sprintf("%s", unlist(slaves)))
 		
+		port <- 6311
+		
 		for(rhost in slaves) {
 	    	rcon <- RSconnect(rhost, port)
 	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")

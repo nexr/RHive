@@ -179,8 +179,14 @@ public class RUDF extends GenericUDF {
         if (!funclist.containsKey(export_name)) {
             
             try {
-                String rhive_data = System.getProperty("RHIVE_DATA");
-                if(rhive_data == null || rhive_data == "") {
+                REXP rhive_data = getConnection().eval("Sys.getenv('RHIVE_DATA')");
+                String srhive_data = null;
+                
+                if(rhive_data != null) {
+                    srhive_data = rhive_data.asString();
+                }
+
+                if(srhive_data == null || srhive_data == "") {
                     
                     getConnection().eval(
                             "load(file=paste('/tmp','/" + export_name
@@ -194,6 +200,7 @@ public class RUDF extends GenericUDF {
                 }
 
             } catch (Exception e) {
+    
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 e.printStackTrace(new PrintStream(output));
                 throw new HiveException(new String(output.toByteArray()));

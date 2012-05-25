@@ -440,9 +440,15 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 
                 try {
                     
-                    String rhive_data = System.getProperty("RHIVE_DATA");
-                    if(rhive_data == null || rhive_data == "") {
-                        
+                    REXP rhive_data = getConnection().eval("Sys.getenv('RHIVE_DATA')");
+                    String srhive_data = null;
+                    
+                    if(rhive_data != null) {
+                        srhive_data = rhive_data.asString();
+                    }
+
+                    if(srhive_data == null || srhive_data == "") {
+
                         getConnection().eval(
                                 "load(file=paste('/tmp','/" + export_name
                                         + ".Rdata',sep=''))");
