@@ -114,6 +114,9 @@ rhive.env <- function(ALL=FALSE) {
 		port <- 6311
 		
 		for(rhost in slaves) {
+		
+			port <- 6311
+		
 	    	rcon <- RSconnect(rhost, port)
 	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
 	    	
@@ -530,7 +533,7 @@ rhive.load.table2 <- function(tablename, remote = TRUE, hiveclient=rhive.default
 	
 	fullData <- NULL
 	
-	for(filename in list.files(dir,full.name=TRUE)) {
+	for(filename in list.files(dir,full.names=TRUE)) {
 	      data <- read.csv(file=filename,header=FALSE,sep='\001')
 		  if(is.null(fullData))
 		  	  fullData <- data
