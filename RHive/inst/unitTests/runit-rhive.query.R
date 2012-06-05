@@ -35,3 +35,16 @@ test.rhive.query <- function()
 		rhive.query("DROP TABLE empTest")
 	}
 }
+
+test.rhive.array2String <- function()
+{
+	rhive.drop.table("iris")
+	rhive.write.table(iris)
+	
+	rhive.query("alter table iris replace columns (sepalwidth bigint)")
+	
+	queryResult <- rhive.query("select array2String(percentile(sepalwidth, array(0,0.2,0.4,0.5,0.99,1))) from iris")
+	checkTrue(!is.null(queryResult))
+
+	rhive.drop.table("iris")
+}

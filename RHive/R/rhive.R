@@ -187,6 +187,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
      client$execute(.jnew("java/lang/String","create temporary function rkey as 'com.nexr.rhive.hive.udf.RangeKeyUDF'"))
      client$execute(.jnew("java/lang/String","create temporary function scale as 'com.nexr.rhive.hive.udf.ScaleUDF'"))
+     client$execute(.jnew("java/lang/String","create temporary function array2String as 'com.nexr.rhive.hive.udf.GenericUDFArrayToString'"))
 
      hiveclient <- list(client,hivecon,c(host,port),hosts,hdfs,hdfsurl)
      
@@ -266,7 +267,9 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 	        rschema <- .jcast(schema$get(as.integer(pos)), new.class="org/apache/hadoop/hive/metastore/api/FieldSchema",check = FALSE, convert.array = FALSE)
 	        if(rschema$getType() == "string") {
 	        	rdata[[pos + 1]] <- character()
-	        } else {
+	        } else if(length(grep("^array",rschema$getType())) > 0) {
+				rdata[[pos + 1]] <- character()
+		   	} else {
 	        	rdata[[pos + 1]] <- numeric()
 	        }
 	        	
