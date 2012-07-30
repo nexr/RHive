@@ -117,7 +117,13 @@ rhive.env <- function(ALL=FALSE) {
 		
 			port <- 6311
 		
-	    	rcon <- RSconnect(rhost, port)
+	    	result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+
+            if(class(result)[1] == "try-error") {
+                cat(sprintf("warning: cant't connect to a Rserver at %s:%s",rhost,port))
+                next
+            }
+
 	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
 	    	
 	    	cat(sprintf("%s : RHIVE_DATA = %s\n",rhost,rhive_data))
@@ -354,8 +360,14 @@ rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), po
 	hosts <- hiveclient[[4]]
 
 	for(rhost in hosts) {
-	    rcon <- RSconnect(rhost, port)
-	    
+
+        result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+
+        if(class(result)[1] == "try-error") {
+              cat(sprintf("cant't connect to a Rserver at %s:%s",rhost,port))
+              next
+        }
+
 	    if(object.size(get(exportname,pos,envir)) < limit) {
 	    	result <- try(RSassign(rcon,get(exportname,pos,envir),exportname), silent = FALSE)
 	    	if(class(result) == "try-error") return(FALSE)
@@ -399,8 +411,14 @@ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'),
     for(rhost in hosts) {
     
         total_size <- 0
-	    rcon <- RSconnect(rhost, port)
-	    
+
+        result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+
+        if(class(result)[1] == "try-error") {
+            cat(sprintf("cant't connect to a Rserver at %s:%s",rhost,port))
+            next
+        }
+
 	   for(item in list) {
 	   		value <- get(item,pos,envir)
 	        total_size <- total_size + object.size(value)
