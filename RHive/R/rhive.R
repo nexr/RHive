@@ -13,23 +13,28 @@
 # limitations under the License.
 
 
-rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE){
+rhive.init <- function(hive=NULL,libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, hlibs=NULL, verbose=FALSE){
 
   if(is.null(hive)) hive <- Sys.getenv("HIVE_HOME")
   if(hive=="")
     stop(sprintf("HIVE_HOME(%s) is missing. Please set it and rerun", Sys.getenv("HIVE_HOME")))
   if(is.null(libs)) libs <- sprintf("%s/lib",hive)
-  
+
   if(verbose) cat(sprintf("Detected hive=%s and libs=%s\n",hive,libs))
-  
-  if(is.null(hadoop)) hadoop <- Sys.getenv("HADOOP_HOME")
-  if(hadoop=="") {
+
+  if(is.null(hadoop_home)) hadoop_home <- Sys.getenv("HADOOP_HOME")
+
+  if(is.null(hadoop_conf)) hadoop_conf <- Sys.getenv("HADOOP_CONF_DIR")
+
+  if (hadoop_conf=="") hadoop_conf  <- sprintf("%s/conf",hadoop_home)
+
+  if(hadoop_home=="") {
     print("HADOOP_HOME is missing. HDFS functions doesn't work")
     assign("slaves",c("127.0.0.1"),envir=.rhiveEnv)
   } else {  
-	  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop)
+	  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop_home)
 	  
-	  slaves <- try(read.csv(sprintf("%s/conf/slaves",hadoop),header=FALSE)$V1,silent=TRUE)
+	  slaves <- try(read.csv(sprintf("%s/slaves",hadoop_conf),header=FALSE)$V1,silent=TRUE)
 	  if(class(slaves) != "try-error")
 	  	assign("slaves",as.character(slaves),envir=.rhiveEnv)
 	  else {
@@ -38,20 +43,20 @@ rhive.init <- function(hive=NULL,libs=NULL,hadoop=NULL,hlibs=NULL,verbose=FALSE)
   
   }
   
-  if(hadoop=="")
+  if(hadoop_home=="")
     rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T))
   else {
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T)
-               ,list.files(hadoop,full.names=TRUE,pattern="jar$",recursive=FALSE)
+               ,list.files(hadoop_home,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,sprintf("%s/conf",hadoop))
+               ,sprintf("%s",hadoop_conf))
   }
   assign("classpath",rhive.CP,envir=.rhiveEnv)
   .jinit(classpath= rhive.CP)
 
-  if(hadoop!="") {
+  if(hadoop_home!="") {
 	  config <- .jnew("org/apache/hadoop/conf/Configuration")
 	  classloader <- .jclassLoader()
 	  config$setClassLoader(classloader)
@@ -97,8 +102,9 @@ rhive.rm <- function(name) {
 
 rhive.env <- function(ALL=FALSE) {
 
-	hadoop_home <- Sys.getenv("HADOOP_HOME")
 	hive_home <- Sys.getenv("HIVE_HOME")
+	hadoop_home <- Sys.getenv("HADOOP_HOME")
+	hadoop_conf <- Sys.getenv("HADOOP_CONF_DIR")
 
 	slaves <- rhive.defaults('slaves')
 	classpath <- rhive.defaults('classpath')
@@ -106,18 +112,25 @@ rhive.env <- function(ALL=FALSE) {
 	
 	cat(sprintf("Hive Home Directory : %s\n", hive_home))
 	cat(sprintf("Hadoop Home Directory : %s\n", hadoop_home))
-	
+	cat(sprintf("Hadoop Conf Directory : %s\n", hadoop_conf))
+
 	if(!is.null(slaves)) {
 		cat(sprintf("Default RServe List\n"))
 		cat(sprintf("%s", unlist(slaves)))
-		
+
 		port <- 6311
 		
 		for(rhost in slaves) {
 		
 			port <- 6311
 		
-	    	rcon <- RSconnect(rhost, port)
+	    	result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+
+            if(class(result)[1] == "try-error") {
+                cat(sprintf("warning: cant't connect to a Rserver at %s:%s",rhost,port))
+                next
+            }
+
 	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
 	    	
 	    	cat(sprintf("%s : RHIVE_DATA = %s\n",rhost,rhive_data))
@@ -354,8 +367,14 @@ rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), po
 	hosts <- hiveclient[[4]]
 
 	for(rhost in hosts) {
-	    rcon <- RSconnect(rhost, port)
-	    
+
+        result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+
+        if(class(result)[1] == "try-error") {
+              cat(sprintf("cant't connect to a Rserver at %s:%s",rhost,port))
+              next
+        }
+
 	    if(object.size(get(exportname,pos,envir)) < limit) {
 	    	result <- try(RSassign(rcon,get(exportname,pos,envir),exportname), silent = FALSE)
 	    	if(class(result) == "try-error") return(FALSE)
@@ -399,8 +418,14 @@ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'),
     for(rhost in hosts) {
     
         total_size <- 0
-	    rcon <- RSconnect(rhost, port)
-	    
+
+        result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+
+        if(class(result)[1] == "try-error") {
+            cat(sprintf("cant't connect to a Rserver at %s:%s",rhost,port))
+            next
+        }
+
 	   for(item in list) {
 	   		value <- get(item,pos,envir)
 	        total_size <- total_size + object.size(value)
