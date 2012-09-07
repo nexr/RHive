@@ -16,8 +16,7 @@
 
 package com.nexr.rhive.hive.udf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Map;
@@ -45,15 +44,8 @@ import org.apache.hadoop.hive.serde2.objectinspector.primitive.StringObjectInspe
 import org.apache.hadoop.hive.serde2.typeinfo.PrimitiveTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.io.Text;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPDouble;
-import org.rosuda.REngine.REXPGenericVector;
-import org.rosuda.REngine.REXPInteger;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REXPString;
-import org.rosuda.REngine.REXPVector;
-import org.rosuda.REngine.RList;
-import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.JRI.*;
+import static com.nexr.rhive.util.DFUtils.*;
 
 /**
  * RUDAF
@@ -61,10 +53,10 @@ import org.rosuda.REngine.Rserve.RConnection;
  */
 @Description(name = "RA", value = "_FUNC_(export-name,arg1,arg2,...) - Returns the result of R aggregation function")
 public class RUDAF extends AbstractGenericUDAFResolver {
-    
+
     @Override
     public GenericUDAFEvaluator getEvaluator(TypeInfo[] parameters) throws SemanticException {
-        
+
         for (int i = 0; i < parameters.length; i++) {
             switch (((PrimitiveTypeInfo) parameters[i]).getPrimitiveCategory()) {
                 case BYTE:
@@ -85,14 +77,13 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         
         return new GenericRUDAF();
     }
-    
+
     /**
      * GenericRUDAF.
      *
      */
     public static class GenericRUDAF extends GenericUDAFEvaluator {
-        
-        private static RConnection         rconnection;
+
         private static Map<String, String> funclist    = new Hashtable<String, String>();
         private static String              NULL        = "";
         private static int                 STRING_TYPE = 1;
@@ -123,7 +114,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         @Override
         public ObjectInspector init(Mode mode, ObjectInspector[] arguments) throws HiveException {
             super.init(mode, arguments);
-            
+
             if (mode == Mode.PARTIAL1 || mode == Mode.COMPLETE) {
                 
                 GenericUDFUtils.ReturnObjectInspectorResolver returnOIResolver;
@@ -195,7 +186,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         
         /** class for storing exportName and values. */
         static class RResultAgg implements AggregationBuffer {
-            
+
             boolean empty;
             
             String  funcName;
@@ -219,12 +210,12 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         
         @Override
         public void iterate(AggregationBuffer agg, Object[] parameters) throws HiveException {
-            
+
             String function_name = PrimitiveObjectInspectorUtils.getString(parameters[0],
                     inputOIs[0]);
-            
-            loadExportedRScript(function_name);
-            
+
+            loadExportedRScript(funclist,function_name);
+
             try {
                 RResultAgg myagg = (RResultAgg) agg;
                 myagg.empty = false;
@@ -236,7 +227,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 } else {
                     argument.append(myagg.values + ",c(");
                 }
-                
+
                 for (int i = 1; i < parameters.length; i++) {
                     
                     if (types[i] == STRING_TYPE) {
@@ -261,7 +252,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                     if (i < (parameters.length - 1))
                         argument.append(",");
                 }
-                
+
                 REXP rdata = null;
                 try {
                     rdata = getConnection().eval(function_name + "(" + argument.toString() + "))");
@@ -275,6 +266,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 if (rdata != null) {
                     tranformR2Hive(myagg, rdata, false);
                 }
+
             } catch (NumberFormatException e) {
                 if (!warned) {
                     warned = true;
@@ -284,7 +276,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         
         @Override
         public Object terminatePartial(AggregationBuffer agg) throws HiveException {
-            
+
             try {
                 RResultAgg myagg = (RResultAgg) agg;
                 String function_name = myagg.funcName + ".partial";
@@ -300,14 +292,14 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 } catch (Exception e) {
                     ByteArrayOutputStream output = new ByteArrayOutputStream();
                     e.printStackTrace(new PrintStream(output));
-                    throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "(" + myagg.values
-                            + ")");
+                    throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "(" + myagg.values + ")");
                 }
-                
+
+
                 if (rdata != null) {
                     tranformR2Hive(myagg, rdata, false);
                 }
-                
+
                 ((Text) partialResult[0]).set(myagg.values);
                 ((Text) partialResult[1]).set(myagg.funcName);
                 
@@ -325,7 +317,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         
         @Override
         public void merge(AggregationBuffer agg, Object partial) throws HiveException {
-            
+
             if (partial != null) {
                 RResultAgg myagg = (RResultAgg) agg;
                 
@@ -340,7 +332,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 myagg.empty = false;
                 
                 try {
-                    loadExportedRScript(myagg.funcName);
+                    loadExportedRScript(funclist, myagg.funcName);
                     
                     String function_name = myagg.funcName + ".merge";
                     
@@ -380,6 +372,7 @@ public class RUDAF extends AbstractGenericUDAFResolver {
         @Override
         public Object terminate(AggregationBuffer agg) throws HiveException {
             RResultAgg myagg = (RResultAgg) agg;
+
             if (myagg.empty) {
                 return null;
             }
@@ -404,9 +397,9 @@ public class RUDAF extends AbstractGenericUDAFResolver {
                 if (rdata != null) {
                     tranformR2Hive(myagg, rdata, true);
                 }
-                
+
                 result.set(myagg.values);
-                
+
             } catch (NumberFormatException e) {
                 if (!warned) {
                     warned = true;
@@ -419,86 +412,17 @@ public class RUDAF extends AbstractGenericUDAFResolver {
             return result;
         }
         
-        private RConnection getConnection() throws UDFArgumentException {
-            if (rconnection == null || !rconnection.isConnected()) {
-                try {
-                    rconnection = new RConnection("127.0.0.1");
-                } catch (Exception e) {
-                    throw new UDFArgumentException(e.toString());
-                }
-            }
-            
-            return rconnection;
-        }
-        
-        /**
-         * @param export_name
-         * @throws HiveException
-         */
-        private void loadExportedRScript(String export_name) throws HiveException {
-            if (!funclist.containsKey(export_name)) {
-                
-                try {
-                    
-                    REXP rhive_data = getConnection().eval("Sys.getenv('RHIVE_DATA')");
-                    String srhive_data = null;
-                    
-                    if(rhive_data != null) {
-                        srhive_data = rhive_data.asString();
-                    }
 
-                    if(srhive_data == null || srhive_data == "") {
 
-                        getConnection().eval(
-                                "load(file=paste('/tmp','/" + export_name
-                                        + ".Rdata',sep=''))");
-                    }else {
-                    
-                        getConnection().eval(
-                                "load(file=paste(Sys.getenv('RHIVE_DATA'),'/" + export_name
-                                        + ".Rdata',sep=''))");
-                    
-                    }
-                } catch (Exception e) {
-                    ByteArrayOutputStream output = new ByteArrayOutputStream();
-                    e.printStackTrace(new PrintStream(output));
-                    throw new HiveException(new String(output.toByteArray()));
-                }
-                
-                funclist.put(export_name, NULL);
-            }
-        }
-        
         private void tranformR2Hive(RResultAgg myagg, REXP rdata, boolean isTerminate)
                 throws HiveException {
             try {
-                
-                // why rserve only return REXPGenericVector, not REXPList
-                if (rdata instanceof REXPGenericVector) {
-                    StringBuffer sb = new StringBuffer();
-                    REXPGenericVector list = (REXPGenericVector) rdata;
-                    
-                    handleList(list, sb, isTerminate);
-                    
-                    myagg.values = sb.toString();
-                    
-                } else if (rdata instanceof REXPVector) {
-                    StringBuffer sb = new StringBuffer();
-                    REXPVector vector = (REXPVector) rdata;
-                    
-                    handleVector(vector, sb, isTerminate);
-                    
-                    myagg.values = sb.toString();
-                    
-                } else if (rdata instanceof REXPString) {
-                    myagg.values = "'" + rdata.asString() + "'";
-                } else if (rdata instanceof REXPDouble) {
-                    myagg.values = Double.toString(rdata.asDouble());
-                } else if (rdata instanceof REXPInteger) {
-                    myagg.values = Integer.toString(rdata.asInteger());
-                } else {
-                    throw new HiveException("not support this type : " + rdata.toString());
-                }
+                StringBuffer sb = new StringBuffer();
+
+                appendRData(sb,rdata,isTerminate);
+
+                myagg.values = sb.toString();
+
             } catch (Exception e) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 e.printStackTrace(new PrintStream(output));
@@ -506,71 +430,103 @@ public class RUDAF extends AbstractGenericUDAFResolver {
             }
         }
 
-        private void handleList(REXPGenericVector list, StringBuffer sb, boolean isTerminate)
-                throws REXPMismatchException, HiveException {
-            RList rlist = list.asList();
-            
+        private void appendRData(StringBuffer sb,REXP rdata , boolean isTerminate) throws HiveException {
+
+            int type = rdata.getType();
+            // why only return type Vector, not List
+            if (type == REXP.XT_VECTOR || type == REXP.XT_LIST) {
+                RList list = rdata.asList();
+
+                handleList(list, sb, isTerminate);
+
+            } else if (type == REXP.XT_ARRAY_BOOL || type == REXP.XT_ARRAY_DOUBLE || type == REXP.XT_ARRAY_INT || type == REXP.XT_ARRAY_STR) {
+
+                handleArray(rdata, sb, isTerminate);
+
+            } else if (type == REXP.XT_STR) {
+                sb.append("'" + rdata.asString() + "'");
+            } else if (type == REXP.XT_DOUBLE) {
+                sb.append(Double.toString(rdata.asDouble()));
+            } else if (type == REXP.XT_INT) {
+                sb.append(Integer.toString(rdata.asInt()));
+            } else if (type == REXP.XT_BOOL) {
+                sb.append(((rdata.asInt() == 1 )? "TRUE" : "FALSE"));
+            } else {
+                throw new HiveException("not support this type : " + rdata.toString());
+            }
+        }
+
+        private void handleList(RList rlist, StringBuffer sb, boolean isTerminate)
+                throws HiveException {
+
             if (!isTerminate)
                 sb.append("list(");
-            
-            for (int i = 0; i < rlist.size(); i++) {
-                
-                Object result = rlist.get(i);
-                
-                if (result instanceof REXPVector) {
-                    
-                    REXPVector vector = (REXPVector) result;
-                    handleVector(vector, sb, isTerminate);
-                    
-                } else if (result instanceof REXPString) {
-                    sb.append("'" + ((REXPString) result).asString() + "'");
-                } else if (result instanceof REXPDouble) {
-                    sb.append(Double.toString(((REXPDouble) result).asDouble()));
-                } else if (result instanceof REXPInteger) {
-                    sb.append(Integer.toString(((REXPInteger) result).asInteger()));
-                } else {
-                    throw new HiveException(
-                            "only support vector, string, double and integer in List");
-                }
-                
-                if (i < (rlist.size() - 1))
+
+            for (int i = 0;i < rlist.keys().length; i++) {
+
+                REXP rdata = rlist.at(i);
+
+                appendRData(sb,rdata,isTerminate);
+
+                if (i < (rlist.keys().length - 1))
                     sb.append(",");
             }
-            
+
             if (!isTerminate)
                 sb.append(")");
         }
 
-        private void handleVector(REXPVector vector, StringBuffer sb, boolean isTerminate)
-                throws REXPMismatchException, HiveException {
+        private void handleArray(REXP array, StringBuffer sb, boolean isTerminate)
+                throws HiveException {
             // all elements of vector is double and string.
             if (!isTerminate)
                 sb.append("c(");
-            
-            if (vector.isNumeric()) {
-             
-                // convert all numeric data to double.
-                double[] values = vector.asDoubles();
-                for (int j = 0; j < values.length; j++) {
-                    sb.append(Double.toString(values[j]));
-                    if (j < (values.length - 1))
+
+            int type = array.getType();
+
+            if (type == REXP.XT_ARRAY_BOOL){
+
+                int [] elements = array.asIntArray();
+                for (int i = 0; i < elements.length; i++){
+                    sb.append((elements[i] == 1 )? "TRUE" : "FALSE");
+                    if (i < (elements.length - 1))
                         sb.append(",");
                 }
-            } else if (vector.isString()) {
-                String[] values = vector.asStrings();
-                for (int j = 0; j < values.length; j++) {
-                    sb.append("'" + values[j] + "'");
-                    if (j < (values.length - 1))
+
+            } else if (type == REXP.XT_ARRAY_DOUBLE) {
+
+                double [] elements = array.asDoubleArray();
+                for (int i = 0; i < elements.length; i++){
+                    sb.append(Double.toString(elements[i]));
+                    if (i < (elements.length - 1))
+                        sb.append(",");
+                }
+
+            } else if (type == REXP.XT_ARRAY_INT) {
+
+                int [] elements = array.asIntArray();
+                for (int i = 0; i < elements.length; i++){
+                    sb.append(Integer.toString(elements[i]));
+                    if (i < (elements.length - 1))
+                        sb.append(",");
+                }
+
+            } else if (type == REXP.XT_ARRAY_STR) {
+
+                String [] elements = array.asStringArray();
+                for (int i = 0; i < elements.length; i++){
+                    sb.append("'"+elements[i]+"'");
+                    if (i < (elements.length - 1))
                         sb.append(",");
                 }
             } else {
                 throw new HiveException(
                         "only support numeric and string in vector");
             }
-            
+
             if (!isTerminate)
                 sb.append(")");
         }
-        
+
     }
 }

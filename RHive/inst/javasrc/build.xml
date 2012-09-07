@@ -37,8 +37,7 @@
     </javac>
     <unjar dest="${classes.dir}">
        <fileset dir=".">
-          <include name="lib/REngine.jar"/>
-          <include name="lib/RserveEngine.jar"/>
+           <include name="lib/JRI.jar"/>
        </fileset>
     </unjar>
   </target>

@@ -1,3 +1,7 @@
+2012-9-7
+
+    * UDAF, UDF functions use HDFS instead of Rserve
+
 2012-6-8
 
     * rhive-0.0-6 release

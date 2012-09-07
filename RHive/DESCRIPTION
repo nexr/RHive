@@ -9,7 +9,7 @@ Description: RHive is an R extension facilitating
 Author: NexR
 Maintainer: NexR <rhive@nexr.com>
 License: Apache License (== 2.0)
-Depends: R (>= 2.13.0), rJava (>= 0.9-0), Rserve (>= 0.6-0)
+Depends: R (>= 2.13.0), rJava (>= 0.9-0)
 Enhances: rJava
 SystemRequirements: Hadoop core >= 0.20.3 (http://hadoop.apache.org/core/), 
                     Hive >= 0.8 (http://hive.apache.org/)

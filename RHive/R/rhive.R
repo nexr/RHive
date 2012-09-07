@@ -31,18 +31,18 @@ rhive.init <- function(hive=NULL,libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, 
   if(hadoop_home=="") {
     print("HADOOP_HOME is missing. HDFS functions doesn't work")
     assign("slaves",c("127.0.0.1"),envir=.rhiveEnv)
-  } else {  
+  } else {
 	  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop_home)
-	  
+
 	  slaves <- try(read.csv(sprintf("%s/slaves",hadoop_conf),header=FALSE)$V1,silent=TRUE)
 	  if(class(slaves) != "try-error")
 	  	assign("slaves",as.character(slaves),envir=.rhiveEnv)
 	  else {
 	  	print("there is no slaves file of HADOOP. so you should pass hosts argument when you call rhive.connect().")
 	  }
-  
+
   }
-  
+
   if(hadoop_home=="")
     rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T))
@@ -85,7 +85,7 @@ rhive.assign <- function(name, value) {
 
 	result <- try(assign(name,value,envir=.rhiveExportEnv), silent = FALSE)
 	if(class(result) == "try-error") return(FALSE)
-	
+
 	return(TRUE)
 
 }
@@ -106,42 +106,12 @@ rhive.env <- function(ALL=FALSE) {
 	hadoop_home <- Sys.getenv("HADOOP_HOME")
 	hadoop_conf <- Sys.getenv("HADOOP_CONF_DIR")
 
-	slaves <- rhive.defaults('slaves')
 	classpath <- rhive.defaults('classpath')
 	rhiveclient <- rhive.defaults('hiveclient')
 	
 	cat(sprintf("Hive Home Directory : %s\n", hive_home))
 	cat(sprintf("Hadoop Home Directory : %s\n", hadoop_home))
 	cat(sprintf("Hadoop Conf Directory : %s\n", hadoop_conf))
-
-	if(!is.null(slaves)) {
-		cat(sprintf("Default RServe List\n"))
-		cat(sprintf("%s", unlist(slaves)))
-
-		port <- 6311
-		
-		for(rhost in slaves) {
-		
-			port <- 6311
-		
-	    	result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
-
-            if(class(result)[1] == "try-error") {
-                cat(sprintf("warning: cant't connect to a Rserver at %s:%s",rhost,port))
-                next
-            }
-
-	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
-	    	
-	    	cat(sprintf("%s : RHIVE_DATA = %s\n",rhost,rhive_data))
-	    	
-	    	RSclose(rcon)
-	    }
-		
-		cat(sprintf("\n"))
-	}else {
-		cat(sprintf("No RServe\n"))
-	}
 	
 	if(is.null(rhiveclient)) {
 		cat(sprintf("Disconnected HiveServer and HDFS\n"))
@@ -195,7 +165,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
  		sprintf("fail to connect RHive [hiveserver = %s:%s, hdfs = %s]\n", host,port,hdfsurl)
  		return(NULL)
      }
-     
+
      client$execute(.jnew("java/lang/String","add jar hdfs:///rhive/lib/rhive_udf.jar"))
      client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
      client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF'"))
@@ -360,99 +330,69 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 
 }
 
+
 rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
-    
+
     .checkConnection(hiveclient)
 
-	hosts <- hiveclient[[4]]
+    rhive_data <- Sys.getenv('RHIVE_DATA')
 
-	for(rhost in hosts) {
+    if(is.null(rhive_data) || rhive_data == "") {
 
-        result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+        dropfile <- paste('/tmp','/',exportname,'.Rdata',sep='')
+        runstr <-  paste("save(",exportname,", file=dropfile,envir=.rhiveExportEnv)",seq="")
+        eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
 
-        if(class(result)[1] == "try-error") {
-              cat(sprintf("cant't connect to a Rserver at %s:%s",rhost,port))
-              next
-        }
+    }else {
 
-	    if(object.size(get(exportname,pos,envir)) < limit) {
-	    	result <- try(RSassign(rcon,get(exportname,pos,envir),exportname), silent = FALSE)
-	    	if(class(result) == "try-error") return(FALSE)
-		}else {
-			print("exceed limit object size")
-		}
-		
-		rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
-		
-		if(is.null(rhive_data) || rhive_data == "") {
-			command <- paste("save(",exportname,",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")
-			RSeval(rcon,command)
-			
-			RSclose(rcon)
-		}else {
-		
-			command <- paste("save(",exportname,",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")
-			RSeval(rcon,command)
-			
-			RSclose(rcon)
-		}
-	}
-	
-	return(TRUE)
+        dropfile <- paste(rhive_data,'/',exportname,'.Rdata',sep='')
+        runstr <-  paste("save(",exportname,", file=dropfile,envir=.rhiveExportEnv)",seq="")
+        eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+    }
 
+    return(TRUE)
 }
 
-rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'), pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
     
     .checkConnection(hiveclient)
-    
-    hosts <- hiveclient[[4]]
-    
+
     if(attr(envir,"name") <- 'no attribute' == "package:RHive") {
     	print("can not export 'package:RHive'")
     	return(FALSE)
     }
     
     list <- ls(NULL,pos,envir)
-   
-    for(rhost in hosts) {
-    
-        total_size <- 0
 
-        result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
+    total_size <- 0
 
-        if(class(result)[1] == "try-error") {
-            cat(sprintf("cant't connect to a Rserver at %s:%s",rhost,port))
-            next
+	for(item in list) {
+        value <- get(item,pos,envir)
+        total_size <- total_size + object.size(value)
+        if(total_size >= limit) {
+            print("exceed limit object size")
         }
+    }
 
-	   for(item in list) {
-	   		value <- get(item,pos,envir)
-	        total_size <- total_size + object.size(value)
-	        if(total_size < limit) {
-	    		result <- try(RSassign(rcon,value,item), silent = FALSE)
-	    		if(class(result) == "try-error") return(FALSE)
-	    	}else {
-				print("exceed limit object size")
-			}
-	    }
-	    
-	    rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
-	    
-	    if(is.null(rhive_data) || rhive_data == "") {
-	    	command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")	
-			RSeval(rcon,command)
-		
-			RSclose(rcon)
-	    }else {
-			command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")	
-			RSeval(rcon,command)
-		
-			RSclose(rcon)
-		}
-	
-	}
-	
+    rhive_data <- Sys.getenv('RHIVE_DATA')
+
+    if(is.null(rhive_data) || rhive_data == "") {
+
+        dropfile <- paste('/tmp','/',exportname,'.Rdata',sep='')
+        runstr <- paste('save(list=ls(pattern="[^',exportname,']",envir=.rhiveExportEnv), file=\'',dropfile,'\',envir=.rhiveExportEnv)',sep='')
+        eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+
+    }else {
+
+        dropfile <- paste(rhive_data,'/',exportname,'.Rdata',sep='')
+        runstr <- paste('save(list=ls(pattern="[^exportname]",envir=.rhiveExportEnv), file=\'',dropfile,'\',envir=.rhiveExportEnv)',sep='')
+               eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+    }
+
 	return(TRUE)
 }
 
