@@ -50,6 +50,7 @@ rhive.init <- function(hive=NULL,libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, 
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T)
                ,list.files(hadoop_home,full.names=TRUE,pattern="jar$",recursive=FALSE)
+               ,list.files(sprintf("%s/client",hadoop_home),full.names=TRUE,pattern="hdfs",recursive=FALSE)
                ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,sprintf("%s",hadoop_conf))
   }
