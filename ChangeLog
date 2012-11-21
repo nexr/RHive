@@ -1,4 +1,9 @@
-2012-6-8
+2012-11-20
+
+    * rhive-0.0-7 release
+      - Make RHive work with CDH4
+      - connection fail to rserver will be ignored
+      - try read hadoop config files from $HADOOP_CONF_DIR then $HADOOP_HOME/conf
 
     * rhive-0.0-6 release
     
