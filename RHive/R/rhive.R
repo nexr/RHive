@@ -120,11 +120,11 @@ rhive.env <- function(ALL=FALSE) {
 		cat(sprintf("%s", unlist(slaves)))
 
 		port <- 6311
-		
+
 		for(rhost in slaves) {
-		
+
 			port <- 6311
-		
+
 	    	result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
 
             if(class(result)[1] == "try-error") {
@@ -133,12 +133,12 @@ rhive.env <- function(ALL=FALSE) {
             }
 
 	    	rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
-	    	
+
 	    	cat(sprintf("%s : RHIVE_DATA = %s\n",rhost,rhive_data))
-	    	
+
 	    	RSclose(rcon)
 	    }
-		
+
 		cat(sprintf("\n"))
 	}else {
 		cat(sprintf("No RServe\n"))
@@ -146,7 +146,7 @@ rhive.env <- function(ALL=FALSE) {
 	if (rhive.defaults('hdfstransfer')  == TRUE) {
 	    cat(sprintf("No Rserve Mode\n"))
 	}
-	
+
 	if(is.null(rhiveclient)) {
 		cat(sprintf("Disconnected HiveServer and HDFS\n"))
 	}else {
@@ -160,7 +160,7 @@ rhive.env <- function(ALL=FALSE) {
 		else
 			cat(sprintf("Disconnected HDFS\n"))
 	}
-		
+
 	if(ALL) {
 		cat(sprintf("RHive Library List\n"))
 		cat(sprintf("%s",classpath))
@@ -192,7 +192,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      hivecon <- .jnew("org/apache/thrift/transport/TSocket",.jnew("java/lang/String",host),as.integer(port))
      tpt <- .jnew("org/apache/thrift/protocol/TBinaryProtocol",.jcast(hivecon, new.class="org/apache/thrift/transport/TTransport",check = FALSE, convert.array = FALSE))
      client <- .jnew("org/apache/hadoop/hive/service/HiveClient",.jcast(tpt, new.class="org/apache/thrift/protocol/TProtocol",check = FALSE, convert.array = FALSE))
-     
+
      result <- try(hivecon$open(), silent = FALSE)
      if(class(result) == "try-error") {
      	if(!is.null(hdfs)) {
@@ -202,7 +202,8 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
  		return(NULL)
      }
 
-     client$execute(.jnew("java/lang/String","add jar hdfs:///rhive/lib/rhive_udf.jar"))
+     addjar <- sprintf("add jar %srhive/lib/rhive_udf.jar", hdfsurl)
+     client$execute(.jnew("java/lang/String",addjar))
       if (rhive.defaults('hdfstransfer')  == FALSE){
         client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
         client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF'"))
@@ -218,11 +219,11 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      client$execute(.jnew("java/lang/String","create temporary function array2String as 'com.nexr.rhive.hive.udf.GenericUDFArrayToString'"))
 
      hiveclient <- list(client,hivecon,c(host,port),hosts,hdfs,hdfsurl)
-     
+
      class(hiveclient) <- "rhive.client.connection"
      #reg.finalizer(hiveclient,function(r) {
-     #     hivecon <- .jcast(r[[2]], new.class="org/apache/thrift/transport/TSocket",check = FALSE, convert.array = FALSE) 
-     #     hivecon$close()	  
+     #     hivecon <- .jcast(r[[2]], new.class="org/apache/thrift/transport/TSocket",check = FALSE, convert.array = FALSE)
+     #     hivecon$close()
      #      print("call finalizer")
     # })
      assign('hiveclient',hiveclient,envir=RHive:::.rhiveEnv)
@@ -243,7 +244,7 @@ rhive.close <- function(hiveclient=rhive.defaults('hiveclient')) {
 	rm("hiveclient",envir=.rhiveEnv)
 
 	return(TRUE)
-	
+
 }
 
 rhive.big.query <- function(query ,fetchsize = 40, limit = -1, memlimit = 57374182, hiveclient =rhive.defaults('hiveclient')) {
@@ -253,22 +254,22 @@ rhive.big.query <- function(query ,fetchsize = 40, limit = -1, memlimit = 573741
 
 	tmptable <- paste("rhive_result_",postfix,sep="")
 	query <- paste("CREATE TABLE ", tmptable," AS ", query,sep="")
-	
+
 	rhive.query(query, fetchsize = fetchsize, limit = limit, hiveclient = hiveclient)
 	length <- rhive.size.table(tmptable)
-	
-	if(length > memlimit) {	
+
+	if(length > memlimit) {
 		x <- tmptable
 		attr(x,"result:size") <- length
 
 		return(x)
 	}else {
-	
+
 		if(length < 1024 * 1024)
 			result <- rhive.query(paste("select * from",tmptable),hiveclient=hiveclient)
 		else
 			result <- rhive.load.table2(tmptable,hiveclient=hiveclient)
-			
+
 		rhive.query(paste("DROP TABLE ",tmptable,sep=""), hiveclient = hiveclient)
 		return(result)
 	}
@@ -282,11 +283,11 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 
 	client <- .jcast(hiveclient[[1]], new.class="org/apache/hadoop/hive/service/HiveClient",check = FALSE, convert.array = FALSE)
     client$execute(.jnew("java/lang/String",query))
-     
+
     fullSchema <- client$getSchema();
     jfullSchema <- .jcast(fullSchema, new.class="org/apache/hadoop/hive/metastore/api/Schema",check = FALSE, convert.array = TRUE)
     fschema <- jfullSchema$getFieldSchemas();
-    
+
     if(!is.null(fschema)) {
 	    schema <- .jcast(fschema, new.class="java/util/List",check = FALSE, convert.array = FALSE)
 	    if (!schema$isEmpty()) {
@@ -300,58 +301,58 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 		   	} else {
 	        	rdata[[pos + 1]] <- numeric()
 	        }
-	        	
+
 	        names(rdata)[pos + 1] <- rschema$getName()
 	      }
 	    }
     }
 
-     result <- client$fetchN(as.integer(fetchsize))  
+     result <- client$fetchN(as.integer(fetchsize))
      list <- .jcast(result, new.class="java/util/List",check = FALSE, convert.array = FALSE)
      totalcount <- 0
-     
+
      while(list$size() == fetchsize && (limit == -1 || totalcount < limit)) {
-     
-     	lapply(list, function(item) { 
+
+     	lapply(list, function(item) {
      		item <- .jcast(item, new.class="java/lang/String",check = FALSE, convert.array = FALSE)
      		record <- strsplit(item$toString(),"\t")
      		for(i in seq.int(record[[1]])) {
      		    if(is.numeric(rdata[[i]])) {
-     		    	rdata[[i]] <<- c(rdata[[i]],as.numeric(record[[1]][i]))	
+     		    	rdata[[i]] <<- c(rdata[[i]],as.numeric(record[[1]][i]))
      		    }else {
-     				rdata[[i]] <<- c(rdata[[i]],record[[1]][i])	
+     				rdata[[i]] <<- c(rdata[[i]],record[[1]][i])
      			}
      		}
-     		
+
      		if(length(rdata) > length(record[[1]])) {
      		    gap <- length(rdata) - length(record[[1]])
 	 			for(i in seq.int(length(record[[1]]) + 1,length(rdata))) {
 	 				if(is.numeric(rdata[[i]])) {
 	 					rdata[[i]] <<- c(rdata[[i]],NA)
 	 				}else {
-	 					rdata[[i]] <<- c(rdata[[i]],"")	
+	 					rdata[[i]] <<- c(rdata[[i]],"")
 	 				}
 	 			}
  			}
      	})
-     	     	
-     	totalcount <- totalcount + list$size()     
-     	if(limit == -1 || totalcount < limit) {	
+
+     	totalcount <- totalcount + list$size()
+     	if(limit == -1 || totalcount < limit) {
      		result <- client$fetchN(as.integer(fetchsize))
         	list <- .jcast(result, new.class="java/util/List",check = FALSE, convert.array = FALSE)
         }
      }
-    
+
 	if(limit == -1 || totalcount < limit) {
-	    lapply(list, function(item) { 
+	    lapply(list, function(item) {
 	     		item <- .jcast(item, new.class="java/lang/String",check = FALSE, convert.array = FALSE)
 
 	     		record <- strsplit(item$toString(),"\t")
 	     		for(i in seq.int(record[[1]])) {
 	    		    if(is.numeric(rdata[[i]])) {
-	     		    	rdata[[i]] <<- c(rdata[[i]],as.numeric(record[[1]][i]))	
+	     		    	rdata[[i]] <<- c(rdata[[i]],as.numeric(record[[1]][i]))
 	     		    }else {
-	     				rdata[[i]] <<- c(rdata[[i]],record[[1]][i])	
+	     				rdata[[i]] <<- c(rdata[[i]],record[[1]][i])
 	     			}
 		 		}
 
@@ -361,7 +362,7 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 		 				if(is.numeric(rdata[[i]])) {
 		 					rdata[[i]] <<- c(rdata[[i]],NA)
 		 				}else {
-		 					rdata[[i]] <<- c(rdata[[i]],"")	
+		 					rdata[[i]] <<- c(rdata[[i]],"")
 		 				}
 		 			}
 	 			}
@@ -463,20 +464,20 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 
 
 .rserve.exportAll <- function(exportname, hiveclient, port, pos, envir, limit) {
-    
+
     .checkConnection(hiveclient)
-    
+
     hosts <- hiveclient[[4]]
-    
+
     if(attr(envir,"name") <- 'no attribute' == "package:RHive") {
     	print("can not export 'package:RHive'")
     	return(FALSE)
     }
-    
+
     list <- ls(NULL,pos,envir)
-   
+
     for(rhost in hosts) {
-    
+
         total_size <- 0
 
         result <- try(rcon <- RSconnect(rhost, port), silent = TRUE)
@@ -496,23 +497,23 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 				print("exceed limit object size")
 			}
 	    }
-	    
+
 	    rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
-	    
+
 	    if(is.null(rhive_data) || rhive_data == "") {
-	    	command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")	
+	    	command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")
 			RSeval(rcon,command)
-		
+
 			RSclose(rcon)
 	    }else {
-			command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")	
+			command <- paste("save(list=ls(pattern=\"[^exportname]\")",",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")
 			RSeval(rcon,command)
-		
+
 			RSclose(rcon)
 		}
-	
+
 	}
-	
+
 	return(TRUE)
 }
 
@@ -561,11 +562,11 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 rhive.list.tables <- function(pattern, hiveclient=rhive.defaults('hiveclient')) {
 
 	tablelist <- rhive.query("show tables",hiveclient=hiveclient)
-	
+
 	all.names <- as.character(tablelist[,'tab_name'])
 
     if (!missing(pattern)) {
-        if ((ll <- length(grep("[", pattern, fixed = TRUE))) && 
+        if ((ll <- length(grep("[", pattern, fixed = TRUE))) &&
             ll != length(grep("]", pattern, fixed = TRUE))) {
             if (pattern == "[") {
                 pattern <- "\\["
@@ -580,7 +581,7 @@ rhive.list.tables <- function(pattern, hiveclient=rhive.defaults('hiveclient')) 
     }
 
 	tab_name <- all.names
-	
+
 	return(as.data.frame(tab_name))
 }
 
@@ -606,8 +607,8 @@ rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=r
 
 	length <- rhive.size.table(tablename)
 
-	if(length > memsize) {	
-	
+	if(length > memsize) {
+
 		if (limit > 0) {
 			result <- rhive.query(paste("select * from",tablename,"limit",limit),hiveclient=hiveclient)
 			return(result)
@@ -616,13 +617,13 @@ rhive.load.table <- function(tablename, fetchsize = 40, limit = -1, hiveclient=r
 		    x <- tablename
 			attr(x,"result:size") <- length
 		    return(x)
-		}	
-	
+		}
+
 	} else {
-	
+
 		result <- rhive.query(paste("select * from",tablename),fetchsize = fetchsize, limit = limit,hiveclient=hiveclient)
 		return(result)
-	
+
 	}
 }
 
@@ -632,11 +633,11 @@ rhive.load.table2 <- function(tablename, remote = TRUE, hiveclient=rhive.default
 		stop("argument type is wrong. tablename must be string type.")
 
     dirname <- format(as.POSIXlt(Sys.time()),format="%Y%m%d_%H%M%S")
-    
+
     if(!file.exists("rhive_load")) {
     	dir.create("rhive_load")
     }
-    
+
     dir <- paste(getwd(),"/rhive_load/",dirname,sep="")
 	dir.create(dir)
 
@@ -646,20 +647,20 @@ rhive.load.table2 <- function(tablename, remote = TRUE, hiveclient=rhive.default
 	    if(!rhive.hdfs.exists("/tmp/rhive_load")) {
     		rhive.hdfs.mkdirs("/tmp/rhive_load")
     	}
-    	
+
     	hdfs <- paste("/tmp/rhive_load/",dirname,sep="")
 
 		colnames <- rhive.query(paste("insert overwrite directory '",hdfs,"' select * from ",tablename,sep=""))
-	
+
 		rhive.hdfs.get(hdfs, dir, sourcedelete = TRUE);
 		dir <- paste(dir,"/",dirname,sep="")
-	
+
 	}else {
 		colnames <- rhive.query(paste("insert overwrite local directory '",dir,"' select * from ",tablename,sep=""))
 	}
-	
+
 	fullData <- NULL
-	
+
 	for(filename in list.files(dir,full.names=TRUE)) {
 	      data <- read.csv(file=filename,header=FALSE,sep='\001')
 		  if(is.null(fullData))
@@ -669,7 +670,7 @@ rhive.load.table2 <- function(tablename, remote = TRUE, hiveclient=rhive.default
 	}
 
 	names(fullData) <- names(colnames)
-	
+
 	return(fullData)
 }
 
@@ -680,18 +681,18 @@ rhive.exist.table <- function(tablename, hiveclient=rhive.defaults('hiveclient')
 
     tablelist <- try(rhive.list.tables(), silent = FALSE)
     if(class(tablelist) == "try-error") stop("fail to execute 'rhive.list.tables()'")
- 
+
  	if(length(row.names(tablelist)) == 0)
  		return(FALSE)
- 
+
     loc <- try((tablelist == tolower(tablename)), silent = TRUE)
     if(class(loc) == "try-error") return(FALSE)
-    
+
     if(length(tablelist[loc]) == 0)
     	return(FALSE)
     else
     	return(TRUE)
-    	
+
 }
 
 rhive.napply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
@@ -703,20 +704,20 @@ rhive.napply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhiv
     cols <- ""
 
     for(element in c(...)) {
-         cols <- paste(cols,element,sep="")    
+         cols <- paste(cols,element,sep="")
          if(colindex < length(c(...)) - 1)
          	cols <- paste(cols,",",sep="")
          colindex <- colindex + 1
     }
-    
+
     if(length(c(...)) > 0)
     	cols <- paste(",",cols,sep="")
-    
+
     exportname <- paste(tablename,"_napply",as.integer(Sys.time()),sep="")
 
 	rhive.assign(exportname,FUN)
 	rhive.exportAll(exportname,hiveclient)
-	
+
 	hql <- paste("SELECT ","R('",exportname,"'",cols,",0.0) FROM ",tablename,sep="")
 
 	if(forcedRef)
@@ -736,22 +737,22 @@ rhive.sapply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhiv
     cols <- ""
 
     for(element in c(...)) {
-         cols <- paste(cols,element,sep="")    
+         cols <- paste(cols,element,sep="")
          if(colindex < length(c(...)) - 1)
          	cols <- paste(cols,",",sep="")
          colindex <- colindex + 1
     }
-    
+
     if(length(c(...)) > 0)
     	cols <- paste(",",cols,sep="")
-    
+
     exportname <- paste(tablename,"_sapply",as.integer(Sys.time()),sep="")
 
 	rhive.assign(exportname,FUN)
 	rhive.exportAll(exportname,hiveclient)
-	
+
 	hql <- paste("SELECT ","R('",exportname,"'",cols,",'') FROM ",tablename,sep="")
-	
+
 	if(forcedRef)
 		result <- rhive.big.query(hql,memlimit=-1,hiveclient=hiveclient)
 	else
@@ -761,22 +762,22 @@ rhive.sapply <- function(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhiv
 }
 
 rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient')) {
-    
+
 	if(!is.character(tablename))
-		stop("argument type is wrong. tablename must be string type.")    
+		stop("argument type is wrong. tablename must be string type.")
 
     colindex <- 0
     cols <- ""
 
     for(element in c(...)) {
-         cols <- paste(cols,element,sep="")    
+         cols <- paste(cols,element,sep="")
          if(colindex < length(c(...)) - 1)
          	cols <- paste(cols,",",sep="")
          colindex <- colindex + 1
     }
-    
+
     result <- ""
-    
+
     if(is.null(groups)) {
 		if(forcedRef)
 			result <- rhive.big.query(paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),memlimit=-1,hiveclient=hiveclient)
@@ -784,19 +785,19 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , forcedRef =
 			result <- rhive.big.query(paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename,sep=""),hiveclient=hiveclient)
 
 	} else {
-		
+
 		index <- 0
 		gs <- ""
-	
+
 		for(element in groups) {
 			gs <- paste(gs,element,sep="")
-			
+
 			if(index < length(groups) -1)
 				gs <- paste(gs,",",sep="")
-				
+
 			index <- index + 1
 		}
-		
+
 		hql <- paste("SELECT ", hiveFUN ,"(",cols,") FROM ",tablename," GROUP BY ",gs,sep="")
 
 		if(forcedRef)
@@ -804,8 +805,8 @@ rhive.aggregate <- function(tablename, hiveFUN, ..., groups = NULL , forcedRef =
 		else
 			result <- rhive.big.query(hql,hiveclient=hiveclient)
 	}
-	
-	
+
+
 	return(result)
 
 }
@@ -846,7 +847,7 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
  	if(!is.null(mapoutput)) {
  	    mocols <- rhive.as.string(mapoutput)
     }
-    
+
 	ricols <- "*"
 	if(!is.null(reduceinput)) {
 		if(is.null(mapperFUN)) {
@@ -856,45 +857,47 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 	    }
     }
     rocols <- NULL
-    
+
  	if(!is.null(reduceoutput)) {
  	    rocols <- rhive.as.string(reduceoutput)
     }
-  
+
     if(is.null(mapperFUN)) {
-    
+
     	hql <- paste("FROM",tablename,sep=" ")
-    
+
     }else {
-    
-        client$execute(.jnew("java/lang/String",paste("add file hdfs:///rhive/script/",mapScript,sep="")))
-    
+
+        addscript <- sprintf("add file %srhive/script/", hdfsurl)
+        client$execute(.jnew("java/lang/String",paste(addscript,mapScript,sep="")))
+
         if(is.function(mapperFUN)) {
-    
+
 	        hql <- paste("FROM (FROM",tablename,"MAP",micols,"USING",paste("'",mapScript,"'",sep=""),sep=" ")
-	    
+
 	    	if(!is.null(mocols)) {
 	    		hql <- paste(hql,"as",mocols,sep=" ")
 	    	}
-	    	
+
 	    	if(is.null(by)) {
 	    		hql <- paste(hql,") map_output",sep=" ")
 	    	} else {
 	    		hql <- paste(hql,"cluster by",by,") map_output",sep=" ")
 	    	}
-    	
+
     	}else {
     		hql <- paste("FROM (",mapperFUN,") map_output",sep=" ")
     	}
-    
+
     }
-    
+
     isBigQuery <- FALSE
     tmptable <- NULL
-    
+
     if(!is.null(reducerFUN)) {
-        
-	    client$execute(.jnew("java/lang/String",paste("add file hdfs:///rhive/script/",reduceScript,sep="")))
+
+        addscript <- sprintf("add file %srhive/script/", hdfsurl)
+        client$execute(.jnew("java/lang/String",paste(addscript,reduceScript,sep="")))
 		tmptable <- paste("rhive_result_",as.integer(Sys.time()),sep="") 
 		
 		createql <- NULL
