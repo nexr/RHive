@@ -115,7 +115,7 @@ rhive.env <- function(ALL=FALSE) {
 	cat(sprintf("Hadoop Home Directory : %s\n", hadoop_home))
 	cat(sprintf("Hadoop Conf Directory : %s\n", hadoop_conf))
 
-	if(!is.null(slaves)) {
+	if(!is.null(slaves) && rhive.defaults('hdfstransfer')  == FALSE) {
 		cat(sprintf("Default RServe List\n"))
 		cat(sprintf("%s", unlist(slaves)))
 
@@ -143,6 +143,9 @@ rhive.env <- function(ALL=FALSE) {
 	}else {
 		cat(sprintf("No RServe\n"))
 	}
+	if (rhive.defaults('hdfstransfer')  == TRUE) {
+	    cat(sprintf("No Rserve Mode\n"))
+	}
 	
 	if(is.null(rhiveclient)) {
 		cat(sprintf("Disconnected HiveServer and HDFS\n"))
@@ -167,7 +170,7 @@ rhive.env <- function(ALL=FALSE) {
 }
 
 
-rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhive.defaults('slaves')) {
+rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhive.defaults('slaves'), hdfstransfer = FALSE) {
 
 	 filesystem <- NULL
 
@@ -180,6 +183,8 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
      		hdfs <- rhive.hdfs.connect(hdfsurl)
      	}
      }
+
+     assign("hdfstransfer",hdfstransfer,envir=.rhiveEnv)
 
 	 TSocket <- J("org.apache.thrift.transport.TSocket")
      TProtocol <- J("org.apache.thrift.protocol.TProtocol")
@@ -196,10 +201,16 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
  		sprintf("fail to connect RHive [hiveserver = %s:%s, hdfs = %s]\n", host,port,hdfsurl)
  		return(NULL)
      }
-     
+
      client$execute(.jnew("java/lang/String","add jar hdfs:///rhive/lib/rhive_udf.jar"))
-     client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
-     client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF'"))
+      if (rhive.defaults('hdfstransfer')  == FALSE){
+        client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
+        client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF'"))
+     } else {
+         client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF_JRI'"))
+         client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF_JRI'"))
+     }
+
      client$execute(.jnew("java/lang/String","create temporary function unfold as 'com.nexr.rhive.hive.udf.GenericUDTFUnFold'"))
      client$execute(.jnew("java/lang/String","create temporary function expand as 'com.nexr.rhive.hive.udf.GenericUDTFExpand'"))
      client$execute(.jnew("java/lang/String","create temporary function rkey as 'com.nexr.rhive.hive.udf.RangeKeyUDF'"))
@@ -361,8 +372,31 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 
 }
 
-rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
-    
+ rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600) {
+    result <- FALSE
+    if (rhive.defaults('hdfstransfer')  == FALSE){
+        result <- .rserve.export(exportname,hiveclient,port,pos,envir,limit);
+ 	}
+ 	if (rhive.defaults('hdfstransfer')  == TRUE) {
+        result <- .hdfs.export(exportname,hiveclient,pos,envir,limit);
+ 	}
+    return(result)
+ }
+
+ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+    result <- FALSE
+    if (rhive.defaults('hdfstransfer')  == FALSE){
+        result <- .rserve.exportAll(exportname,hiveclient,port,pos,envir,limit);
+ 	}
+ 	if (rhive.defaults('hdfstransfer')  == TRUE) {
+        result <- .hdfs.exportAll(exportname,hiveclient,pos,envir,limit);
+ 	}
+    return(result)
+ }
+
+
+.rserve.export <- function(exportname, hiveclient, port, pos, envir, limit) {
+
     .checkConnection(hiveclient)
 
 	hosts <- hiveclient[[4]]
@@ -382,28 +416,53 @@ rhive.export <- function(exportname, hiveclient=rhive.defaults('hiveclient'), po
 		}else {
 			print("exceed limit object size")
 		}
-		
+
 		rhive_data <- RSeval(rcon,"Sys.getenv('RHIVE_DATA')")
-		
+
 		if(is.null(rhive_data) || rhive_data == "") {
 			command <- paste("save(",exportname,",file=paste('/tmp'",",'/",exportname,".Rdata',sep=''))",sep="")
 			RSeval(rcon,command)
-			
+
 			RSclose(rcon)
 		}else {
-		
+
 			command <- paste("save(",exportname,",file=paste(Sys.getenv('RHIVE_DATA')",",'/",exportname,".Rdata',sep=''))",sep="")
 			RSeval(rcon,command)
-			
+
 			RSclose(rcon)
 		}
 	}
-	
+
 	return(TRUE)
 
 }
 
-rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600) {
+.hdfs.export <- function(exportname, hiveclient, pos, envir, limit) {
+
+    .checkConnection(hiveclient)
+
+    rhive_data <- Sys.getenv('RHIVE_DATA')
+
+    if(is.null(rhive_data) || rhive_data == "") {
+
+        dropfile <- paste('/tmp','/',exportname,'.Rdata',sep='')
+        runstr <-  paste("save(",exportname,", file=dropfile,envir=.rhiveExportEnv)",seq="")
+        eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+
+    }else {
+
+        dropfile <- paste(rhive_data,'/',exportname,'.Rdata',sep='')
+        runstr <-  paste("save(",exportname,", file=dropfile,envir=.rhiveExportEnv)",seq="")
+        eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+    }
+
+    return(TRUE)
+}
+
+
+.rserve.exportAll <- function(exportname, hiveclient, port, pos, envir, limit) {
     
     .checkConnection(hiveclient)
     
@@ -454,6 +513,48 @@ rhive.exportAll <- function(exportname, hiveclient=rhive.defaults('hiveclient'),
 	
 	}
 	
+	return(TRUE)
+}
+
+
+.hdfs.exportAll <- function(exportname, hiveclient, pos, envir, limit) {
+
+    .checkConnection(hiveclient)
+
+    if(attr(envir,"name") <- 'no attribute' == "package:RHive") {
+    	print("can not export 'package:RHive'")
+    	return(FALSE)
+    }
+
+    list <- ls(NULL,pos,envir)
+
+    total_size <- 0
+
+	for(item in list) {
+        value <- get(item,pos,envir)
+        total_size <- total_size + object.size(value)
+        if(total_size >= limit) {
+            print("exceed limit object size")
+        }
+    }
+
+    rhive_data <- Sys.getenv('RHIVE_DATA')
+
+    if(is.null(rhive_data) || rhive_data == "") {
+
+        dropfile <- paste('/tmp','/',exportname,'.Rdata',sep='')
+        runstr <- paste('save(list=ls(pattern="[^',exportname,']",envir=.rhiveExportEnv), file=\'',dropfile,'\',envir=.rhiveExportEnv)',sep='')
+        eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+
+    }else {
+
+        dropfile <- paste(rhive_data,'/',exportname,'.Rdata',sep='')
+        runstr <- paste('save(list=ls(pattern="[^exportname]",envir=.rhiveExportEnv), file=\'',dropfile,'\',envir=.rhiveExportEnv)',sep='')
+               eval(parse(text=runstr))
+        rhive.hdfs.put(dropfile, paste('/rhive/tmp','/',exportname,'.Rdata',sep=''), sourcedelete=FALSE, overwrite=TRUE)
+    }
+
 	return(TRUE)
 }
 

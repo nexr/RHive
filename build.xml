@@ -39,6 +39,7 @@
        <fileset dir="${lib.dir}">
           <include name="REngine.jar"/>
           <include name="RserveEngine.jar"/>
+          <include name="JRI.jar"/>
        </fileset>
     </unjar>
   </target>
