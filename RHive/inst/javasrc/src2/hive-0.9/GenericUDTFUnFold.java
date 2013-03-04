@@ -24,7 +24,7 @@ import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDTF;
-import org.apache.hadoop.hive.serde.serdeConstants;
+import org.apache.hadoop.hive.serde.Constants;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspectorFactory;
@@ -101,22 +101,22 @@ public class GenericUDTFUnFold extends GenericUDTF {
     }
     
     private ObjectInspector getColumnInspector(String typeName) throws IllegalArgumentException {
-        if (typeName.equals(serdeConstants.INT_TYPE_NAME)) {
+        if (typeName.equals(Constants.INT_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
-        } else if (typeName.equals(serdeConstants.DOUBLE_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.DOUBLE_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableDoubleObjectInspector;
-        } else if (typeName.equals(serdeConstants.STRING_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.STRING_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableStringObjectInspector;
         } else
             throw new IllegalArgumentException("can't support this type " + typeName);
     }
     
     private Writable getColumnWritable(String typeName) throws IllegalArgumentException {
-        if (typeName.equals(serdeConstants.INT_TYPE_NAME)) {
+        if (typeName.equals(Constants.INT_TYPE_NAME)) {
             return new IntWritable(0);
-        } else if (typeName.equals(serdeConstants.DOUBLE_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.DOUBLE_TYPE_NAME)) {
             return new DoubleWritable(0.0);
-        } else if (typeName.equals(serdeConstants.STRING_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.STRING_TYPE_NAME)) {
             return new Text();
         } else
             throw new IllegalArgumentException("can't support this type : " + typeName);

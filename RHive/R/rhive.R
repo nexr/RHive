@@ -18,7 +18,7 @@ rhive.init <- function(hive=NULL,libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, 
   if(is.null(hive)) hive <- Sys.getenv("HIVE_HOME")
   if(hive=="")
     stop(sprintf("HIVE_HOME(%s) is missing. Please set it and rerun", Sys.getenv("HIVE_HOME")))
-  if(is.null(libs)) libs <- sprintf("%s/lib",hive)
+  if(is.null(libs)) libs <- sprintf("/%s/lib",hive)
 
   if(verbose) cat(sprintf("Detected hive=%s and libs=%s\n",hive,libs))
 
@@ -26,15 +26,15 @@ rhive.init <- function(hive=NULL,libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, 
 
   if(is.null(hadoop_conf)) hadoop_conf <- Sys.getenv("HADOOP_CONF_DIR")
 
-  if (hadoop_conf=="") hadoop_conf  <- sprintf("%s/conf",hadoop_home)
+  if (hadoop_conf=="") hadoop_conf  <- sprintf("/%s/conf",hadoop_home)
 
   if(hadoop_home=="") {
     print("HADOOP_HOME is missing. HDFS functions doesn't work")
     assign("slaves",c("127.0.0.1"),envir=.rhiveEnv)
   } else {  
-	  if(is.null(hlibs)) hlibs <- sprintf("%s/lib",hadoop_home)
+	  if(is.null(hlibs)) hlibs <- sprintf("/%s/lib",hadoop_home)
 	  
-	  slaves <- try(read.csv(sprintf("%s/slaves",hadoop_conf),header=FALSE)$V1,silent=TRUE)
+	  slaves <- try(read.csv(sprintf("/%s/slaves",hadoop_conf),header=FALSE)$V1,silent=TRUE)
 	  if(class(slaves) != "try-error")
 	  	assign("slaves",as.character(slaves),envir=.rhiveEnv)
 	  else {
@@ -50,9 +50,9 @@ rhive.init <- function(hive=NULL,libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, 
   	rhive.CP <- c(list.files(libs,full.names=TRUE,pattern="jar$",recursive=FALSE)
                ,list.files(paste(system.file(package="RHive"),"java",sep=.Platform$file.sep),pattern="jar$",full.names=T)
                ,list.files(hadoop_home,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,list.files(sprintf("%s/client",hadoop_home),full.names=TRUE,pattern="hdfs",recursive=FALSE)
+               ,list.files(sprintf("/%s/client",hadoop_home),full.names=TRUE,pattern="hdfs",recursive=FALSE)
                ,list.files(hlibs,full.names=TRUE,pattern="jar$",recursive=FALSE)
-               ,sprintf("%s",hadoop_conf))
+               ,sprintf("/%s",hadoop_conf))
   }
   assign("classpath",rhive.CP,envir=.rhiveEnv)
   .jinit(classpath= rhive.CP)
@@ -202,7 +202,7 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
  		return(NULL)
      }
 
-     addjar <- sprintf("add jar %srhive/lib/rhive_udf.jar", hdfsurl)
+     addjar <- sprintf("add jar %s/rhive/lib/rhive_udf.jar", hdfsurl)
      client$execute(.jnew("java/lang/String",addjar))
       if (rhive.defaults('hdfstransfer')  == FALSE){
         client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
