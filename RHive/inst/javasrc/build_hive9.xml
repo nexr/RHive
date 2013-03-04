@@ -1,13 +1,12 @@
 <project name="rhive_udf" basedir="./" default="main">
-    <property name="src.dir" value="RHive/inst/javasrc/src"/>
-    <property name="java.src.dir" value="RHive/inst/javasrc/"/>
-    <property name="lib.dir" value="RHive/inst/javasrc/lib"/>
-    <property name="src.dir.hive-0.9" value="RHive/inst/javasrc/src2/hive-0.9"/>
-    <property name="src.dir.hive-0.10" value="RHive/inst/javasrc/src2/hive-0.10"/>
+    <property name="src.dir" value="src"/>
+    <property name="src.dir.hive-0.9" value="src2/hive-0.9"/>
+    <property name="src.dir.hive-0.10" value="src2/hive-0.10"/>
+    <property name="lib.dir" value="lib"/>
     <property name="build.dir" value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir" value="${build.dir}/jar"/>
-    <property name="R.dir" value="RHive"/>
+    <property name="R.dir" value="../../"/>
     <property name="javac.debug" value="on"/>
     <property name="javac.optimize" value="on"/>
     <property name="javac.deprecation" value="on"/>
@@ -26,23 +25,20 @@
     </target>
 
     <target name="copy.hive10.files">
-        <copy file="${java.src.dir}/build_hive10.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
-        <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
+    <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
             <fileset dir="${src.dir.hive-0.10}"/>
         </copy>
     </target>
 
     <target name="copy.hive.files">
-        <copy file="${java.src.dir}/build_hive9.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
         <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
-            <fileset dir="${src.dir.hive-0.9}">
-                <exclude name="build*.xml"/>
-            </fileset>
+            <fileset dir="${src.dir.hive-0.9}"/>
         </copy>
     </target>
 
     <target name="compile">
         <delete file="${ant.project.name}.jar"/>
+
         <mkdir dir="${classes.dir}"/>
         <javac srcdir="${src.dir}" includes="**/*.java" destdir="${classes.dir}" classpathref="classpath"
                optimize="${javac.optimize}"
@@ -55,9 +51,9 @@
             <compilerarg line="${javac.args.warnings}"/>
         </javac>
         <unjar dest="${classes.dir}">
-            <fileset dir="${lib.dir}">
-                <include name="REngine.jar"/>
-                <include name="RserveEngine.jar"/>
+            <fileset dir=".">
+                <include name="lib/REngine.jar"/>
+                <include name="lib/RserveEngine.jar"/>
                 <include name="JRI.jar"/>
             </fileset>
         </unjar>
@@ -65,7 +61,8 @@
 
     <target name="jar" depends="compile">
         <property name="version.num" value="1"/>
-        <buildnumber file="${R.dir}/inst/javasrc/build.num"/>
+        <buildnumber file="build.num"/>
+
         <jar destfile="${ant.project.name}.jar" basedir="${classes.dir}">
             <manifest>
                 <attribute name="Built-By" value="NexR"/>
@@ -74,32 +71,15 @@
         </jar>
     </target>
 
-    <target name="cran" depends="jar">
+    <target name="cpy" depends="jar">
         <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
         <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/>
-        <copy todir="${build.dir}/CRAN/rhive/inst">
-            <fileset dir="${R.dir}/inst">
-                <exclude name="unitTests/**"/>
-                <exclude name="data/**"/>
-                <exclude name="javasrc/Makevars"/>
-            </fileset>
-        </copy>
-        <copy todir="${build.dir}/CRAN/rhive/man">
-            <fileset dir="${R.dir}/man"/>
-        </copy>
-        <copy todir="${build.dir}/CRAN/rhive/R">
-            <fileset dir="${R.dir}/R">
-                <exclude name="unitTest.R"/>
-            </fileset>
-        </copy>
-        <copy file="${R.dir}/DESCRIPTION" todir="${build.dir}/CRAN/rhive"/>
-        <copy file="${R.dir}/NAMESPACE" todir="${build.dir}/CRAN/rhive"/>
+        <copy file="${ant.project.name}.jar" todir="${env.HIVE_HOME}/lib/"/>
         <delete file="${ant.project.name}.jar"/>
     </target>
 
     <target name="main-clean" depends="clean"/>
-    <target name="main" depends="copy.hive.files,cran"/>
-    <target name="main-hive10" depends="copy.hive10.files,cran"/>
+    <target name="main" depends='copy.hive.files,jar,cpy'/>
 </project>
 
 
