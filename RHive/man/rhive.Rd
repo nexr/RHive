@@ -11,7 +11,7 @@
 \email{rhive@nexr.com}
 }
 \details{
-  The rhive package supplies functions to interact
+  The RHive package supplies functions to interact
   with Hive from within R. 
   There are functions for exporting and connecting
   as well as querying hive.
