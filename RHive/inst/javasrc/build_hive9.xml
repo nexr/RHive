@@ -79,7 +79,7 @@
     </target>
 
     <target name="main-clean" depends="clean"/>
-    <target name="main" depends='copy.hive10.files,jar,cpy'/>
+    <target name="main" depends='copy.hive.files,jar,cpy'/>
 </project>
 
 

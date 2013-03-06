@@ -20,7 +20,7 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFUtils;
-import org.apache.hadoop.hive.serde.serdeConstants;
+import org.apache.hadoop.hive.serde.Constants;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
@@ -65,21 +65,21 @@ public class ScaleUDF extends GenericUDF {
             }
         }
         
-        converters = new Converter[arguments.length];
+        converters = new ObjectInspectorConverters.Converter[arguments.length];
 
         for (int i = 0; i < arguments.length; i++) {
             String typeName = arguments[i].getTypeName();
             
-            if (typeName.equals(serdeConstants.INT_TYPE_NAME)) {
+            if (typeName.equals(Constants.INT_TYPE_NAME)) {
                 converters[i] = ObjectInspectorConverters.getConverter(arguments[i],
                         PrimitiveObjectInspectorFactory.writableIntObjectInspector);
-            } else if (typeName.equals(serdeConstants.DOUBLE_TYPE_NAME)) {
+            } else if (typeName.equals(Constants.DOUBLE_TYPE_NAME)) {
                 converters[i] = ObjectInspectorConverters.getConverter(arguments[i],
                         PrimitiveObjectInspectorFactory.writableDoubleObjectInspector);
-            } else if (typeName.equals(serdeConstants.FLOAT_TYPE_NAME)) {
+            } else if (typeName.equals(Constants.FLOAT_TYPE_NAME)) {
                 converters[i] = ObjectInspectorConverters.getConverter(arguments[i],
                         PrimitiveObjectInspectorFactory.writableFloatObjectInspector);
-            } else if (typeName.equals(serdeConstants.BIGINT_TYPE_NAME)) {
+            } else if (typeName.equals(Constants.BIGINT_TYPE_NAME)) {
                 converters[i] = ObjectInspectorConverters.getConverter(arguments[i],
                         PrimitiveObjectInspectorFactory.writableLongObjectInspector);
             } else

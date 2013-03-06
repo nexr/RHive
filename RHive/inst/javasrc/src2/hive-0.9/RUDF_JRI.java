@@ -1,6 +1,6 @@
 /**
  * Copyright 2011 NexR
- *   
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,18 +16,13 @@
 
 package com.nexr.rhive.hive.udf;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
-import java.util.Hashtable;
-import java.util.Map;
-
 import org.apache.hadoop.hive.ql.exec.Description;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentException;
 import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFUtils;
-import org.apache.hadoop.hive.serde.serdeConstants;
+import org.apache.hadoop.hive.serde.Constants;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
@@ -38,56 +33,60 @@ import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector.Pr
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPDouble;
-import org.rosuda.REngine.REXPInteger;
-import org.rosuda.REngine.REXPString;
-import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.JRI.REXP;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.Hashtable;
+import java.util.Map;
+
+import static com.nexr.rhive.util.DFUtils.getConnection;
+import static com.nexr.rhive.util.DFUtils.loadExportedRScript;
+
 
 /**
- * RUDF
- *
+ * RUDF_JRI
  */
 @Description(name = "R", value = "_FUNC_(export-name,arg1,arg2,...,return-type) - Returns the result of R scalar function")
-public class RUDF extends GenericUDF {
-    
+public class RUDF_JRI extends GenericUDF {
+
     private static Map<String, String> funclist = new Hashtable<String, String>();
-    private static String              NULL     = "";
-    private static int                 STRING_TYPE = 1;
-    private static int                 NUMBER_TYPE = 0;
-    private static RConnection         rconnection;
-    
-    private Converter[]                converters;
-    private int[]                      types;
-    
+    private static String NULL = "";
+    private static int STRING_TYPE = 1;
+    private static int NUMBER_TYPE = 0;
+
+    private Converter[] converters;
+    private int[] types;
+
     @Override
     public Object evaluate(DeferredObject[] arguments) throws HiveException {
 
         String function_name = converters[0].convert(arguments[0].get()).toString();
 
-        loadExportedRScript(function_name);
-        
+        loadExportedRScript(funclist, function_name);
+
         StringBuffer argument = new StringBuffer();
-        
+
         for (int i = 1; i < (arguments.length - 1); i++) {
-            
+
             Object value = converters[i].convert(arguments[i].get());
-            
-            if(value == null) {
+
+            if (value == null) {
                 argument.append("NULL");
-            }else {
+            } else {
                 if (types[i] == STRING_TYPE) {
                     argument.append("\"" + converters[i].convert(arguments[i].get()) + "\"");
                 } else {
                     argument.append(converters[i].convert(arguments[i].get()));
                 }
             }
-            
+
             if (i < (arguments.length - 2))
                 argument.append(",");
         }
-        
+
         REXP rdata = null;
+
         try {
             rdata = getConnection().eval(function_name + "(" + argument.toString() + ")");
         } catch (Exception e) {
@@ -96,17 +95,17 @@ public class RUDF extends GenericUDF {
             throw new HiveException(new String(output.toByteArray()) + " -- fail to eval : " + function_name + "(" + argument.toString()
                     + ")");
         }
-        
+
         if (rdata != null) {
             try {
-                if (rdata instanceof REXPInteger) {
-                    return new IntWritable(rdata.asInteger());
-                } else if (rdata instanceof REXPString) {
+                if (rdata.getType() == REXP.XT_INT || rdata.getType() == REXP.XT_ARRAY_INT) {
+                    return new IntWritable(rdata.asInt());
+                } else if (rdata.getType() == REXP.XT_STR || rdata.getType() == REXP.XT_ARRAY_STR) {
                     return new Text(rdata.asString());
-                } else if (rdata instanceof REXPDouble) {
+                } else if (rdata.getType() == REXP.XT_DOUBLE || rdata.getType() == REXP.XT_ARRAY_DOUBLE) {
                     return new DoubleWritable(rdata.asDouble());
                 } else {
-                    throw new HiveException("only support integer, string and double");
+                    return new DoubleWritable(rdata.asDouble());
                 }
             } catch (Exception e) {
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -114,10 +113,10 @@ public class RUDF extends GenericUDF {
                 throw new HiveException(new String(output.toByteArray()));
             }
         }
-        
+
         return null;
     }
-    
+
     @Override
     public String getDisplayString(String[] children) {
         StringBuilder sb = new StringBuilder();
@@ -131,13 +130,13 @@ public class RUDF extends GenericUDF {
         sb.append(")");
         return sb.toString();
     }
-    
+
     @Override
     public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
-        
+
         GenericUDFUtils.ReturnObjectInspectorResolver returnOIResolver;
         returnOIResolver = new GenericUDFUtils.ReturnObjectInspectorResolver(true);
-        
+
         for (int i = 0; i < arguments.length; i++) {
             if (!returnOIResolver.update(arguments[i])) {
                 throw new UDFArgumentTypeException(i, "Argument type \""
@@ -145,10 +144,10 @@ public class RUDF extends GenericUDF {
                         + "Previous type was \"" + arguments[i - 1].getTypeName() + "\"");
             }
         }
-        
+
         converters = new Converter[arguments.length];
         types = new int[arguments.length];
-        
+
         ObjectInspector returnOI = returnOIResolver.get();
         if (returnOI == null) {
             returnOI = PrimitiveObjectInspectorFactory
@@ -162,66 +161,16 @@ public class RUDF extends GenericUDF {
             else
                 types[i] = NUMBER_TYPE;
         }
-        
+
         String typeName = arguments[arguments.length - 1].getTypeName();
-        
-        if (typeName.equals(serdeConstants.INT_TYPE_NAME)) {
+
+        if (typeName.equals(Constants.INT_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
-        } else if (typeName.equals(serdeConstants.DOUBLE_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.DOUBLE_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableDoubleObjectInspector;
-        } else if (typeName.equals(serdeConstants.STRING_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.STRING_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableStringObjectInspector;
         } else
             throw new IllegalArgumentException("can't support this type : " + typeName);
     }
-    
-    private void loadExportedRScript(String export_name) throws HiveException {
-        if (!funclist.containsKey(export_name)) {
-            
-            try {
-                REXP rhive_data = getConnection().eval("Sys.getenv('RHIVE_DATA')");
-                String srhive_data = null;
-                
-                if(rhive_data != null) {
-                    srhive_data = rhive_data.asString();
-                }
-
-                if(srhive_data == null || srhive_data == "") {
-                    
-                    getConnection().eval(
-                            "load(file=paste('/tmp','/" + export_name
-                                    + ".Rdata',sep=''))");
-                }else {
-                
-                    getConnection().eval(
-                            "load(file=paste(Sys.getenv('RHIVE_DATA'),'/" + export_name
-                                    + ".Rdata',sep=''))");
-                
-                }
-
-            } catch (Exception e) {
-    
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                e.printStackTrace(new PrintStream(output));
-                throw new HiveException(new String(output.toByteArray()));
-            }
-            
-            funclist.put(export_name, NULL);
-        }
-    }
-    
-    private RConnection getConnection() throws UDFArgumentException {
-        if (rconnection == null || !rconnection.isConnected()) {
-            try {
-                rconnection = new RConnection("127.0.0.1");
-            } catch (Exception e) {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                e.printStackTrace(new PrintStream(output));
-                throw new UDFArgumentException(new String(output.toByteArray()));
-            }
-        }
-        
-        return rconnection;
-    }
-    
 }

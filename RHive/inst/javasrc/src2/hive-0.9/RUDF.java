@@ -27,7 +27,7 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentTypeException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDFUtils;
-import org.apache.hadoop.hive.serde.serdeConstants;
+import org.apache.hadoop.hive.serde.Constants;
 import org.apache.hadoop.hive.serde2.io.DoubleWritable;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector.Category;
@@ -152,7 +152,7 @@ public class RUDF extends GenericUDF {
         ObjectInspector returnOI = returnOIResolver.get();
         if (returnOI == null) {
             returnOI = PrimitiveObjectInspectorFactory
-                    .getPrimitiveJavaObjectInspector(PrimitiveCategory.STRING);
+                    .getPrimitiveJavaObjectInspector(PrimitiveObjectInspector.PrimitiveCategory.STRING);
         }
         for (int i = 0; i < arguments.length; i++) {
             converters[i] = ObjectInspectorConverters.getConverter(arguments[i], returnOI);
@@ -165,11 +165,11 @@ public class RUDF extends GenericUDF {
         
         String typeName = arguments[arguments.length - 1].getTypeName();
         
-        if (typeName.equals(serdeConstants.INT_TYPE_NAME)) {
+        if (typeName.equals(Constants.INT_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
-        } else if (typeName.equals(serdeConstants.DOUBLE_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.DOUBLE_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableDoubleObjectInspector;
-        } else if (typeName.equals(serdeConstants.STRING_TYPE_NAME)) {
+        } else if (typeName.equals(Constants.STRING_TYPE_NAME)) {
             return PrimitiveObjectInspectorFactory.writableStringObjectInspector;
         } else
             throw new IllegalArgumentException("can't support this type : " + typeName);

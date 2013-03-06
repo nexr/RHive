@@ -1,85 +1,105 @@
 <project name="rhive_udf" basedir="./" default="main">
-  <property name="src.dir"     value="RHive/inst/javasrc/src"/>
-  <property name="lib.dir"     value="RHive/inst/javasrc/lib"/>
-  <property name="build.dir"   value="build"/>
-  <property name="classes.dir" value="${build.dir}/classes"/>
-  <property name="jar.dir"     value="${build.dir}/jar"/>
-  <property name="R.dir"     value="RHive"/>
-  <property name="javac.debug" value="on"/>
-  <property name="javac.optimize" value="on"/>
-  <property name="javac.deprecation" value="on"/>
-  <property name="javac.version" value="1.6"/>
-  <property name="javac.args" value=""/>
-  <property name="javac.args.warnings" value="-Xlint:unchecked"/>
+    <property name="src.dir" value="RHive/inst/javasrc/src"/>
+    <property name="java.src.dir" value="RHive/inst/javasrc/"/>
+    <property name="lib.dir" value="RHive/inst/javasrc/lib"/>
+    <property name="src.dir.hive-0.9" value="RHive/inst/javasrc/src2/hive-0.9"/>
+    <property name="src.dir.hive-0.10" value="RHive/inst/javasrc/src2/hive-0.10"/>
+    <property name="build.dir" value="build"/>
+    <property name="classes.dir" value="${build.dir}/classes"/>
+    <property name="jar.dir" value="${build.dir}/jar"/>
+    <property name="R.dir" value="RHive"/>
+    <property name="javac.debug" value="on"/>
+    <property name="javac.optimize" value="on"/>
+    <property name="javac.deprecation" value="on"/>
+    <property name="javac.version" value="1.6"/>
+    <property name="javac.args" value=""/>
+    <property name="javac.args.warnings" value="-Xlint:unchecked"/>
 
-  <property environment="env"/>
-  <path id="classpath">
-    <fileset dir="./" includes="**/*.jar"/>
-    <fileset dir="${lib.dir}" includes="*.jar"/>
-    <fileset dir="${env.HIVE_HOME}/lib/" includes="**/*.jar"/>
-  </path>
-  <target name="clean">
-    <delete dir="${build.dir}"/>
-  </target>
+    <property environment="env"/>
+    <path id="classpath">
+        <fileset dir="./" includes="**/*.jar"/>
+        <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${env.HIVE_HOME}/lib/" includes="**/*.jar"/>
+    </path>
+    <target name="clean">
+        <delete dir="${build.dir}"/>
+    </target>
 
-  <target name="compile">
-  	<delete file="${ant.project.name}.jar"/>
-    <mkdir dir="${classes.dir}"/>
-    <javac srcdir="${src.dir}" includes="**/*.java" destdir="${classes.dir}" classpathref="classpath"
-	   optimize="${javac.optimize}"
-	   target="${javac.version}"
-	   source="${javac.version}"
-	   deprecation="${javac.deprecation}"
-	   debug="${javac.debug}"
-	   debuglevel="lines,vars,source"
-       includeantruntime="false">
-      <compilerarg line="${javac.args.warnings}"/>
-    </javac>
-    <unjar dest="${classes.dir}">
-       <fileset dir="${lib.dir}">
-          <include name="REngine.jar"/>
-          <include name="RserveEngine.jar"/>
-       </fileset>
-    </unjar>
-  </target>
+    <target name="copy.hive10.files">
+        <copy file="${java.src.dir}/build_hive10.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
+        <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
+            <fileset dir="${src.dir.hive-0.10}"/>
+        </copy>
+    </target>
 
-  <target name="jar" depends="compile">
-    <property name="version.num" value="1"/>
-    <buildnumber file="${R.dir}/inst/javasrc/build.num"/>
+    <target name="copy.hive.files">
+        <copy file="${java.src.dir}/build_hive9.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
+        <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
+            <fileset dir="${src.dir.hive-0.9}">
+                <exclude name="build*.xml"/>
+            </fileset>
+        </copy>
+    </target>
 
-    <jar destfile="${ant.project.name}.jar" basedir="${classes.dir}"> 
-      <manifest>
-	  <attribute name="Built-By" value="NexR"/>
-        <attribute name="Implementation-Version"   value="${version.num}-b${build.number}"/> 
-      </manifest>
-    </jar>
-  </target>
+    <target name="compile">
+        <delete file="${ant.project.name}.jar"/>
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" includes="**/*.java" destdir="${classes.dir}" classpathref="classpath"
+               optimize="${javac.optimize}"
+               target="${javac.version}"
+               source="${javac.version}"
+               deprecation="${javac.deprecation}"
+               debug="${javac.debug}"
+               debuglevel="lines,vars,source"
+               includeantruntime="false">
+            <compilerarg line="${javac.args.warnings}"/>
+        </javac>
+        <unjar dest="${classes.dir}">
+            <fileset dir="${lib.dir}">
+                <include name="REngine.jar"/>
+                <include name="RserveEngine.jar"/>
+                <include name="JRI.jar"/>
+            </fileset>
+        </unjar>
+    </target>
 
-  <target name="cran" depends="jar">
-    <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
-    <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/> 
-  	<copy todir="${build.dir}/CRAN/rhive/inst">
-  		<fileset dir="${R.dir}/inst">
-  			<exclude name="unitTests/**"/>
-  			<exclude name="data/**"/>
-  			<exclude name="javasrc/Makevars"/>
-  		</fileset>
-    </copy>
-  	<copy todir="${build.dir}/CRAN/rhive/man">
-  		<fileset dir="${R.dir}/man"/>
-    </copy>
-  	<copy todir="${build.dir}/CRAN/rhive/R">
-  		<fileset dir="${R.dir}/R">
-  			<exclude name="unitTest.R"/>
-  		</fileset>
-    </copy>
-  	<copy file="${R.dir}/DESCRIPTION" todir="${build.dir}/CRAN/rhive"/>
-  	<copy file="${R.dir}/NAMESPACE" todir="${build.dir}/CRAN/rhive"/>
-  	<delete file="${ant.project.name}.jar"/> 
-  </target>
+    <target name="jar" depends="compile">
+        <property name="version.num" value="1"/>
+        <buildnumber file="${R.dir}/inst/javasrc/build.num"/>
+        <jar destfile="${ant.project.name}.jar" basedir="${classes.dir}">
+            <manifest>
+                <attribute name="Built-By" value="NexR"/>
+                <attribute name="Implementation-Version" value="${version.num}-b${build.number}"/>
+            </manifest>
+        </jar>
+    </target>
 
-  <target name="main-clean" depends="clean"/>
-  <target name="main" depends="cran"/>
+    <target name="cran" depends="jar">
+        <delete file="${R.dir}/inst/java/${ant.project.name}.jar"/>
+        <copy file="${ant.project.name}.jar" todir="${R.dir}/inst/java/"/>
+        <copy todir="${build.dir}/CRAN/rhive/inst">
+            <fileset dir="${R.dir}/inst">
+                <exclude name="unitTests/**"/>
+                <exclude name="data/**"/>
+                <exclude name="javasrc/Makevars"/>
+            </fileset>
+        </copy>
+        <copy todir="${build.dir}/CRAN/rhive/man">
+            <fileset dir="${R.dir}/man"/>
+        </copy>
+        <copy todir="${build.dir}/CRAN/rhive/R">
+            <fileset dir="${R.dir}/R">
+                <exclude name="unitTest.R"/>
+            </fileset>
+        </copy>
+        <copy file="${R.dir}/DESCRIPTION" todir="${build.dir}/CRAN/rhive"/>
+        <copy file="${R.dir}/NAMESPACE" todir="${build.dir}/CRAN/rhive"/>
+        <delete file="${ant.project.name}.jar"/>
+    </target>
+
+    <target name="main-clean" depends="clean"/>
+    <target name="main" depends="copy.hive.files,cran"/>
+    <target name="main-hive10" depends="copy.hive10.files,cran"/>
 </project>
 
 

@@ -25,14 +25,20 @@ Installation Guide
 		3-1-1. need to install R on all tasktracker nodes
 	3-2. install rJava
 		3-2-1. only install rJava on local machine.
-	3-3. install Rserve
-		3-3-1. need to install Rserve on all tasktracker nodes
-		3-3-2. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
+	3-3-A. Rserve mode - install Rserve
+		3-3-A-1. need to install Rserve on all tasktracker nodes
+		3-3-A-2. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
 			   e.q. >export RHIVE_DATA=/rhive/data
-	    3-3-3. make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
+	    3-3-A-3. make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
 	           edit this file to add 'remote enable' to allow remote connection.
-	    3-3-4. launch all Rserve on all tasktracker nodes.
+	    3-3-A-4. launch all Rserve on all tasktracker nodes.
 	    	   e.q. >R CMD Rserve
+    3-3-B. No Rserve mode - setting tasktracker nodes (Optional)
+		3-3-B-1. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
+			   e.q. >export RHIVE_DATA=/rhive/data
+		3-3-B-2.
+			   add R_HOME path at $HADOOP_HOME/conf/hadoop-env.sh
+			   e.q. >export R_HOME=/usr/lib/R
 	3-4. install RUnit
 	
 4. Install RHive
