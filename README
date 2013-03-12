@@ -5,8 +5,8 @@ NexR RHive 0.0-7
 	It allows easy usage of HQL in R, and allows easy usage of R objects and R functions in Hive.
 
 
-Installation Guide
-==================
+## Installation Guide
+
 1. Install Hadoop
 	1-1. Single Node (http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html)
 	1-2. Cluster Node (http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/ClusterSetup.html)
