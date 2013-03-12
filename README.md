@@ -28,7 +28,7 @@ NexR RHive 0.0-7
     - only install rJava on local machine.
 3. Rserve mode - install Rserve
     - need to install Rserve on all tasktracker nodes
-    - set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes. if RHIVE_DATA is not set then it will be '/tmp' as a default.
+    - set **RHIVE_DATA** as R objects and R functions repository on all tasktracker nodes. if **RHIVE_DATA** is not set then it will be '/tmp' as a default.
         - e.g> <code>export RHIVE_DATA=/rhive/data</code>
     - make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
          edit this file to add 'remote enable' to allow remote connection.
@@ -43,7 +43,7 @@ NexR RHive 0.0-7
 
 ## Install RHive
 1. Requirements
-    - ant (in order to build jars file)
+    - ant (in order to build jar files)
 2. Installing RHive
     1. Compressed package: <code>R CMD INSTALL RHive_0.0-7.tar.gz</code>
     2. Source code: <code>R CMD INSTALL ./RHive</code>
@@ -61,7 +61,6 @@ rhive.connect(hive-server-ip)</code></pre>
 - [RHive user guide](https://github.com/nexr/RHive/wiki/UserGuides)
 
 ## Requirements
-
 - Java 1.6
 - R 2.13.0
 - Rserve 0.6-0
