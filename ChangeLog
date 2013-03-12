@@ -1,5 +1,6 @@
 2013-03-12
 
+    * rhive-0.0-7.1 release
     * added functions
       - rhive.list.databases
       - rhive.show.databases
