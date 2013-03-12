@@ -4,7 +4,11 @@
 \alias{hiveExport}
 \alias{hiveExportAll}
 \alias{hiveClose}
+\alias{hiveListDatabases}
 \alias{hiveListTables}
+\alias{hiveShowDatabases}
+\alias{hiveUseDatabase}
+\alias{hiveShowTables}
 \alias{hiveDescTable}
 \alias{hiveLoadTable}
 \alias{hiveAssign}

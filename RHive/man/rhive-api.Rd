@@ -1,5 +1,9 @@
 \name{rhive-api}
+\alias{rhive.list.databases}
+\alias{rhive.show.databases}
+\alias{rhive.use.database}
 \alias{rhive.list.tables}
+\alias{rhive.show.tables}
 \alias{rhive.desc.table}
 \alias{rhive.load.table}
 \alias{rhive.load.table2}
@@ -8,7 +12,11 @@
 \alias{rhive.drop.table}
 \title{R functions to get informations of table from HIVE}
 \usage{
+rhive.list.databases(pattern, hiveclient=rhive.defaults('hiveclient'))
+rhive.show.databases(pattern, hiveclient=rhive.defaults('hiveclient'))
+rhive.use.database(databasename, hiveclient=rhive.defaults('hiveclient'))
 rhive.list.tables(pattern, hiveclient=rhive.defaults('hiveclient'))
+rhive.show.tables(pattern, hiveclient=rhive.defaults('hiveclient'))
 rhive.desc.table(tablename,detail=FALSE, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table(tablename, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
 rhive.load.table2(tablename, remote = TRUE, hiveclient=rhive.defaults('hiveclient'))
@@ -38,13 +46,19 @@ wildcard patterns to regular expressions.}
 ## try to connect hive server
 \dontrun{rhive.connect("hive-server-ip")}
 
-## get list of tables from hive
+## get list of databases in the Hive
+\dontrun{rhive.list.databases()}
+
+## set current database
+\dontrun{rhive.use.database('default')}
+
+## get list of tables in the Hive
 \dontrun{rhive.list.tables()}
 
-## get table info from hive
+## get table info in the Hive
 \dontrun{rhive.desc.table('emp')}
 
-## get table detail info from hive
+## get detail information of a table in the Hive
 \dontrun{rhive.desc.table('emp',TRUE)}
 
 ## retrieve data from hive

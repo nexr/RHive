@@ -28,7 +28,11 @@ rhive.exportAll
 rhive.script.export
 rhive.script.unexport
 rhive.close
+rhive.list.databases
+rhive.show.databases
+rhive.use.database
 rhive.list.tables
+rhive.show.tables
 rhive.desc.table
 rhive.load.table
 rhive.exist.table
@@ -77,6 +81,7 @@ hiveRm
 hiveExport
 hiveExportAll
 hiveClose
+hiveListDatabases
 hiveListTables
 hiveDescTable
 hiveLoadTable

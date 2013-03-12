@@ -559,6 +559,35 @@ rhive.query <- function(query, fetchsize = 40, limit = -1, hiveclient=rhive.defa
 	return(TRUE)
 }
 
+rhive.list.databases <- function(pattern, hiveclient=rhive.defaults('hiveclient')) {
+  tablelist <- rhive.query("show databases", hiveclient=hiveclient)
+  all.names <- as.character(tablelist[,'database_name'])
+  
+  if (!missing(pattern)) {
+    if ((ll <- length(grep("[", pattern, fixed = TRUE))) &&
+         ll != length(grep("]", pattern, fixed = TRUE))) {
+      if (pattern == "[") {
+        pattern <- "\\["
+        warning("replaced regular expression pattern '[' by  '\\\\['")
+      }
+      else if (length(grep("[^\\\\]\\[<-", pattern))) {
+        pattern <- sub("\\[<-", "\\\\\\[<-", pattern)
+        warning("replaced '[<-' by '\\\\[<-' in regular expression pattern")
+      }
+    }
+    all.names <- grep(pattern, all.names, value = TRUE)
+  }
+  
+  database_name <- all.names
+  return(as.data.frame(database_name))
+}
+
+rhive.show.databases <- rhive.list.databases
+
+rhive.use.database <- function(databaseName, hiveclient=rhive.defaults('hiveclient')) {
+  rhive.query(sprintf("use %s",databaseName), hiveclient=hiveclient)
+}
+
 rhive.list.tables <- function(pattern, hiveclient=rhive.defaults('hiveclient')) {
 
 	tablelist <- rhive.query("show tables",hiveclient=hiveclient)
@@ -584,6 +613,8 @@ rhive.list.tables <- function(pattern, hiveclient=rhive.defaults('hiveclient')) 
 
 	return(as.data.frame(tab_name))
 }
+
+rhive.show.tables <- rhive.list.tables
 
 rhive.desc.table <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('hiveclient')) {
 
@@ -1051,8 +1082,24 @@ hiveExportAll <- function(exportname, hosts = "localhost", port = 6311, pos = 1,
 	rhive.exportAll(exportname, hosts, port, pos, envir, limit)
 }
 
+hiveListDatabases <- function(hiveclient=rhive.defaults('hiveclient')) {
+  rhive.list.databases(hiveclient)
+}
+
+hiveShowDatabases <- function(hiveclient=rhive.defaults('hiveclient')) {
+  rhive.list.databases(hiveclient)
+}
+
+hiveUseDatabases <- function(database_name, hiveclient=rhive.defaults('hiveclient')) {
+  rhive.use.database(database_name, hiveclient)
+}
+
 hiveListTables <- function(hiveclient=rhive.defaults('hiveclient')) {
 	rhive.list.tables(hiveclient)
+}
+
+hiveShowTables <- function(hiveclient=rhive.defaults('hiveclient')) {
+  rhive.list.tables(hiveclient)
 }
 
 hiveDescTable <- function(tablename,detail=FALSE,hiveclient=rhive.defaults('hiveclient')) {
