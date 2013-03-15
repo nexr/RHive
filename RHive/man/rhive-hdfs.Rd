@@ -22,7 +22,7 @@
 \usage{
 rhive.save(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.load(file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.connect(hdfsurl=rhive.hdfs.default.name())
+rhive.hdfs.connect(hdfsurl=rhive.hdfs.default.name() ,update = FALSE)
 rhive.hdfs.ls(path="/", hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.get(source, target, sourcedelete = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
 rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
@@ -86,6 +86,7 @@ rhive.hdfs.chgrp : change group for specified path.
 \item{file}{the full-name of the file where the data will be saved or loaded}
 \item{path}{hdfs's full path.}
 \item{hdfs}{a client for hdfs.}
+\item{update}{update rhive_udf.jar}
 \item{envir}{environment to search for objects to be saved or loaded.}
 \item{sourcedelete}{indicates if the source should be removed.}
 \item{overwrite}{if path exists,this option indicates whether to overwrite.}
