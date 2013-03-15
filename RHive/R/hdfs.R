@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rhive.hdfs.connect <- function(hdfsurl=rhive.hdfs.default.name()) {
+rhive.hdfs.connect <- function(hdfsurl=rhive.hdfs.default.name(), update = FALSE) {
 
 	 if(is.null(hdfsurl))
 	 	stop("missing parameter or HADOOP_HOME must be set")
@@ -28,17 +28,21 @@ rhive.hdfs.connect <- function(hdfsurl=rhive.hdfs.default.name()) {
      
      hdfs <- list(fs,fsshell,dfutils)
      assign('hdfs',hdfs,envir=RHive:::.rhiveEnv)
-   
-   	 if(rhive.hdfs.exists('/rhive/lib/rhive_udf.jar'))
-   	 	rhive.hdfs.rm('/rhive/lib/rhive_udf.jar')
-   	 	
-   	 result <- try(rhive.hdfs.put(paste(system.file(package="RHive"),"java","rhive_udf.jar",sep=.Platform$file.sep),'/rhive/lib/rhive_udf.jar'), silent = FALSE)
-	 if(class(result) == "try-error") {
-	 	sprintf("fail to connect HDFS with %s - %s",hdfsurl,result)
-	 	return(NULL)
-	 }
-	 
-	 return(hdfs)
+
+     rhiveVersion <- installed.packages()["RHive","Version"]
+     jarfilepath <- paste('/rhive/lib/',rhiveVersion, '/rhive_udf.jar',sep='')
+
+
+     if(!rhive.hdfs.exists(jarfilepath) || update == TRUE) {
+         rhive.hdfs.rm(jarfilepath)
+         result <- try(rhive.hdfs.put(paste(system.file(package="RHive"),"java","rhive_udf.jar",sep=.Platform$file.sep),jarfilepath), silent = FALSE)
+         if(class(result) == "try-error") {
+              sprintf("fail to connect HDFS with %s - %s",hdfsurl,result)
+              return(NULL)
+         }
+      }
+
+      return(hdfs)
 }
 
 

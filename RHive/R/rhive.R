@@ -202,8 +202,9 @@ rhive.connect <- function(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhi
  		return(NULL)
      }
 
-     addjar <- sprintf("add jar %s/rhive/lib/rhive_udf.jar", hdfsurl)
-     client$execute(.jnew("java/lang/String",addjar))
+      rhiveVersion <- installed.packages()["RHive","Version"]
+      addjar <-sprintf("add jar %s", paste(hdfsurl,"/rhive/lib/", rhiveVersion,"/rhive_udf.jar", sep = ""))
+      client$execute(.jnew("java/lang/String",addjar))
       if (rhive.defaults('hdfstransfer')  == FALSE){
         client$execute(.jnew("java/lang/String","create temporary function R as 'com.nexr.rhive.hive.udf.RUDF'"))
         client$execute(.jnew("java/lang/String","create temporary function RA as 'com.nexr.rhive.hive.udf.RUDAF'"))
