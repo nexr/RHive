@@ -1,15 +1,15 @@
-NexR RHive 0.0-6
+NexR RHive 0.0-7.1
 ================
 
 	RHive is an R extension facilitating distributed computing via HIVE query.
 	It allows easy usage of HQL in R, and allows easy usage of R objects and R functions in Hive.
 
 
-Installation Guide
-==================
+## Installation Guide
+
 1. Install Hadoop
-	1-1. Single Node (http://hadoop.apache.org/common/docs/r0.20.203.0/single_node_setup.html)
-	1-2. Cluster Node (http://hadoop.apache.org/common/docs/r0.20.203.0/cluster_setup.html)
+	1-1. Single Node (http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html)
+	1-2. Cluster Node (http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/ClusterSetup.html)
 	1-3. set HADOOP_HOME at local machine on which R runs
 	
 2. Install Hive
@@ -17,7 +17,7 @@ Installation Guide
 	2-2. Installation Guide 
 	     (https://cwiki.apache.org/confluence/display/Hive/GettingStarted#GettingStarted-InstallationandConfiguration)
 	2-3. set HIVE_HOME at local machine on which R runs.
-	2-4. launch Hive Server with following command on remote machine.
+	2-4. launch Hive Server with following command on remote machine. it should be as a background process.
 		 e.q. >$HIVE_HOME/bin/hive --service hiveserver
 		
 3. Install R and Packages
@@ -27,7 +27,7 @@ Installation Guide
 		3-2-1. only install rJava on local machine.
 	3-3-A. Rserve mode - install Rserve
 		3-3-A-1. need to install Rserve on all tasktracker nodes
-		3-3-A-2. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
+		3-3-A-2. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes. if RHIVE_DATA is not set then it will be '/tmp' as a default.
 			   e.q. >export RHIVE_DATA=/rhive/data
 	    3-3-A-3. make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
 	           edit this file to add 'remote enable' to allow remote connection.
@@ -43,13 +43,13 @@ Installation Guide
 	
 4. Install RHive
 	4-1. requirement software : ANT.
-	4-2. R CMD INSTALL RHive_0.0-6.tar.gz
+	4-2. R CMD INSTALL RHive_0.0-7.1.tar.gz
 	4-3. If HADOOP_HOME doesn't exist, do following instruction :
 		 4-3-1. copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
 	     		using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'. 
 		 		this jar file exists under $HIVE_HOME/lib. 
 
-5. Launch RHive
+5. Launch and test RHive
 	5-1. launch R
 	5-2. >library(RHive)
 	5-3. >rhive.connect(hive-server-ip)
