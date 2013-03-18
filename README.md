@@ -4,7 +4,7 @@ NexR RHive 0.0-7.1
   RHive is an R extension facilitating distributed computing via HIVE query.
   RHive allows easy usage of HQL(Hive SQL) in R, and allows easy usage of R objects and R functions in Hive.
 
-> Before installing RHive, you has to have installed Hadoop and Hive
+> Before installing RHive, you have to have installed Hadoop and Hive
 
 ## Install Hadoop
 1. Single Node
