@@ -894,13 +894,15 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
  	    rocols <- rhive.as.string(reduceoutput)
     }
 
+    hdfsurl <- hiveclient[[6]]
+
     if(is.null(mapperFUN)) {
 
     	hql <- paste("FROM",tablename,sep=" ")
 
-    }else {
-
-        addscript <- sprintf("add file %srhive/script/", hdfsurl)
+    } else {
+		
+        addscript <- sprintf("add file %s/rhive/script/", hdfsurl)
         client$execute(.jnew("java/lang/String",paste(addscript,mapScript,sep="")))
 
         if(is.function(mapperFUN)) {
@@ -928,7 +930,7 @@ rhive.mrapply <- function(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapou
 
     if(!is.null(reducerFUN)) {
 
-        addscript <- sprintf("add file %srhive/script/", hdfsurl)
+        addscript <- sprintf("add file %s/rhive/script/", hdfsurl)
         client$execute(.jnew("java/lang/String",paste(addscript,reduceScript,sep="")))
 		tmptable <- paste("rhive_result_",as.integer(Sys.time()),sep="") 
 		
