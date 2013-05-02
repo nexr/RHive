@@ -186,7 +186,7 @@ public class RUDF extends GenericUDF {
                     srhive_data = rhive_data.asString();
                 }
 
-                if(srhive_data == null || srhive_data == "") {
+                if(srhive_data == null || srhive_data == "" || srhive_data.length() == 0) {
                     
                     getConnection().eval(
                             "load(file=paste('/tmp','/" + export_name

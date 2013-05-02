@@ -104,7 +104,7 @@ public class DFUtils {
                 }
 
                 // get R Object file from HDFS
-                if(srhive_data == null || srhive_data.compareTo("") == 0) {
+                if(srhive_data == null || srhive_data == "" || srhive_data.length() == 0) {
 
                     p = Runtime.getRuntime().exec("rm " + "/tmp/" + export_name + ".Rdata");
                     p.waitFor();
