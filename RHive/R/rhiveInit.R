@@ -18,19 +18,18 @@ library(utils)
 .rhiveExportEnv <- new.env()
 
 .onLoad <- function(libname, pkgname) {
-#   .jpackage(pkgname, lib.loc = libname)
-	pkdesc <- packageDescription(pkgname, lib.loc = libname, fields = "Version", drop = TRUE)
+  #   .jpackage(pkgname, lib.loc = libname)
+  pkdesc <- packageDescription(pkgname, lib.loc = libname, fields = "Version", drop = TRUE)
+  #   if (Sys.getenv("HIVE_HOME") == "") stop(sprintf("Environment variable HIVE_HOME must be set before loading package %s", pkgname))
 
-#   if (Sys.getenv("HIVE_HOME") == "") stop(sprintf("Environment variable HIVE_HOME must be set before loading package %s", pkgname))
-
-    packageStartupMessage("This is ", pkgname, " ", pkdesc, ". ",
+  packageStartupMessage("This is ", pkgname, " ", pkdesc, ". ",
                         "For overview type ", sQuote(paste("?", pkgname, sep="")), ".",
                         "\nHIVE_HOME=", Sys.getenv("HIVE_HOME"))
 
-    if (Sys.getenv("HIVE_HOME") != "") {
-    	rhive.init()
-    	packageStartupMessage("rhive.init() called automatically because HIVE_HOME is detected")
-    } else {
-    	packageStartupMessage("rhive.init must be called before using functions of rhive.")
-    }
+  if (Sys.getenv("HIVE_HOME") != "") {
+    rhive.init()
+    packageStartupMessage("rhive.init() called automatically because HIVE_HOME is detected")
+  } else {
+    packageStartupMessage("rhive.init must be called before using functions of rhive.")
+  }
 }
