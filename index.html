@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>RHive by nexr</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>RHive</h1>
+        <p>RHive rhive@nexr.com</p>
+
+        <p class="view"><a href="https://github.com/nexr/RHive">View the Project on GitHub <small>nexr/RHive</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/nexr/RHive/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/nexr/RHive/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/nexr/RHive">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>NexR RHive</h1>
+
+<p>RHive is an R extension facilitating distributed computing via HIVE query.</p>
+
+<p>RHive allows easy usage of HQL(Hive SQL) in R, and allows easy usage of R objects and R functions in Hive.</p>
+
+<p>Latest stable version of RHive is 0.0-7.1.</p>
+
+<blockquote>
+<p>Before installing RHive, you have to have installed Hadoop and Hive</p>
+</blockquote>
+
+<h2>Requirements</h2>
+
+<ul>
+<li>Java 1.6</li>
+<li>R 2.13.0</li>
+<li>Rserve 0.6-0</li>
+<li>rJava 0.9-0</li>
+<li>Hadoop 0.20.x (x &gt;= 1)</li>
+<li>Hive 0.8.x (x &gt;= 0)</li>
+</ul><h2>Install Hadoop</h2>
+
+<ol>
+<li>Single Node
+
+<ul>
+<li><a href="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/SingleCluster.html">Single node installation</a></li>
+</ul>
+</li>
+<li>Cluster Node
+
+<ul>
+<li><a href="http://hadoop.apache.org/docs/current/hadoop-project-dist/hadoop-common/ClusterSetup.html">Cluster node installation</a></li>
+</ul>
+</li>
+<li>set <strong>HADOOP_HOME</strong> at local machine on which R runs</li>
+</ol><h2>Install Hive</h2>
+
+<ol>
+<li>install local machine and remote machine on which NameNode runs or Hive-Server runs.</li>
+<li>Installation Guide 
+
+<ul>
+<li><a href="https://cwiki.apache.org/confluence/display/Hive/GettingStarted#GettingStarted-InstallationandConfiguration">Hive installation guide</a></li>
+</ul>
+</li>
+<li>set <strong>HIVE_HOME</strong> at local machine on which R runs.</li>
+<li>launch Hive Server with following command on remote machine. it should be as a background process.
+
+<ul>
+<li><code>$HIVE_HOME/bin/hive --service hiveserver</code></li>
+</ul>
+</li>
+</ol><h2>Install R and Packages</h2>
+
+<ol>
+<li>install R
+
+<ul>
+<li>need to install R on all tasktracker nodes</li>
+</ul>
+</li>
+<li>install rJava
+
+<ul>
+<li>only install rJava on local machine.</li>
+</ul>
+</li>
+<li>Rserve mode - install Rserve
+
+<ul>
+<li>need to install Rserve on all tasktracker nodes</li>
+<li>set <strong>RHIVE_DATA</strong> as R objects and R functions repository on all tasktracker nodes. if <strong>RHIVE_DATA</strong> is not set then it will be '/tmp' as a default.
+
+<ul>
+<li>e.g&gt; <code>export RHIVE_DATA=/rhive/data</code>
+</li>
+</ul>
+</li>
+<li>make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
+ edit this file to add 'remote enable' to allow remote connection.</li>
+<li>launch all Rserve on all tasktracker nodes.
+
+<ul>
+<li>e.q&gt; <code>R CMD Rserve</code>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>No Rserve mode - setting tasktracker nodes (Optional)
+
+<ol>
+<li>set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
+
+<ul>
+<li>e.q&gt; <code>export RHIVE_DATA=/rhive/data</code>
+</li>
+</ul>
+</li>
+<li>add R_HOME path at $HADOOP_HOME/conf/hadoop-env.sh
+
+<ul>
+<li>e.q&gt; <code>export R_HOME=/usr/lib/R</code>
+</li>
+</ul>
+</li>
+</ol>
+</li>
+<li>install RUnit</li>
+</ol><h2>Install RHive</h2>
+
+<ol>
+<li>Requirements
+
+<ul>
+<li>ant (in order to build jar files)</li>
+</ul>
+</li>
+<li>Installing RHive
+
+<ol>
+<li>Compressed package: <code>R CMD INSTALL RHive_0.0-7.1.tar.gz</code>
+</li>
+<li>Source code: <code>R CMD INSTALL ./RHive</code>
+</li>
+</ol>
+</li>
+<li>If <strong>HADOOP_HOME</strong> doesn't exist, do following instruction :
+
+<ol>
+<li>copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
+using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'. 
+this jar file exists under $HIVE_HOME/lib. </li>
+</ol>
+</li>
+</ol><h2>Loading RHive and connecting to Hive</h2>
+
+<ol>
+<li>launch R
+<pre><code>library(RHive)
+rhive.connect(hive-server-ip)</code></pre>
+</li>
+</ol><h2>Tutorials</h2>
+
+<ul>
+<li><a href="https://github.com/nexr/RHive/wiki/UserGuides">RHive user guide</a></li>
+</ul>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/nexr">nexr</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
