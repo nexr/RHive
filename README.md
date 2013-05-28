@@ -1,4 +1,4 @@
-NexR RHive 0.0-7.1
+NexR RHive 1.0-0.1
 ================
 
   RHive is an R extension facilitating distributed computing via HIVE query.
@@ -45,7 +45,7 @@ NexR RHive 0.0-7.1
 1. Requirements
     - ant (in order to build jar files)
 2. Installing RHive
-    1. Compressed package: <code>R CMD INSTALL RHive_0.0-7.1.tar.gz</code>
+    1. Compressed package: <code>R CMD INSTALL RHive_1.0-0.1.tar.gz</code>
     2. Source code: <code>R CMD INSTALL ./RHive</code>
 3. If **HADOOP_HOME** doesn't exist, do following instruction :
     1. copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
