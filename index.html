@@ -1,34 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
+
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>RHive by nexr</title>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="RHive : RHive rhive@nexr.com" />
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>RHive</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>RHive</h1>
-        <p>RHive rhive@nexr.com</p>
 
-        <p class="view"><a href="https://github.com/nexr/RHive">View the Project on GitHub <small>nexr/RHive</small></a></p>
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/nexr/RHive">View on GitHub</a>
 
+          <h1 id="project_title">RHive</h1>
+          <h2 id="project_tagline">RHive rhive@nexr.com</h2>
 
-        <ul>
-          <li><a href="https://github.com/nexr/RHive/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/nexr/RHive/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/nexr/RHive">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h1>Intoroduction</h1>
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/nexr/RHive/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/nexr/RHive/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="intoroduction" class="anchor" href="#intoroduction"><span class="octicon octicon-link"></span></a>Intoroduction</h1>
 
 <p>RHive is an R extension facilitating distributed computing via <a href="http://hive.apache.org/">Apache Hive</a>.</p>
 
@@ -40,9 +44,11 @@
 <p>Before installing RHive, you have to have installed Hadoop and Hive</p>
 </blockquote>
 
-<h1>Installation and Configuration</h1>
+<h1>
+<a name="installation-and-configuration" class="anchor" href="#installation-and-configuration"><span class="octicon octicon-link"></span></a>Installation and Configuration</h1>
 
-<h2>Requirements</h2>
+<h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
 <ul>
 <li>Java 1.6</li>
@@ -51,7 +57,8 @@
 <li>rJava 0.9-0</li>
 <li>Hadoop 0.20.x (x &gt;= 1)</li>
 <li>Hive 0.8.x (x &gt;= 0)</li>
-</ul><h2>Install Hadoop</h2>
+</ul><h2>
+<a name="install-hadoop" class="anchor" href="#install-hadoop"><span class="octicon octicon-link"></span></a>Install Hadoop</h2>
 
 <ol>
 <li>Single Node
@@ -67,7 +74,8 @@
 </ul>
 </li>
 <li>set <strong>HADOOP_HOME</strong> at local machine on which R runs</li>
-</ol><h2>Install Hive</h2>
+</ol><h2>
+<a name="install-hive" class="anchor" href="#install-hive"><span class="octicon octicon-link"></span></a>Install Hive</h2>
 
 <ol>
 <li>install local machine and remote machine on which NameNode runs or Hive-Server runs.</li>
@@ -84,7 +92,8 @@
 <li><code>$HIVE_HOME/bin/hive --service hiveserver</code></li>
 </ul>
 </li>
-</ol><h2>Install R and Packages</h2>
+</ol><h2>
+<a name="install-r-and-packages" class="anchor" href="#install-r-and-packages"><span class="octicon octicon-link"></span></a>Install R and Packages</h2>
 
 <ol>
 <li>install R
@@ -141,7 +150,8 @@
 </ol>
 </li>
 <li>install RUnit</li>
-</ol><h2>Install RHive</h2>
+</ol><h2>
+<a name="install-rhive" class="anchor" href="#install-rhive"><span class="octicon octicon-link"></span></a>Install RHive</h2>
 
 <ol>
 <li>Requirements
@@ -167,27 +177,35 @@ using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'.
 this jar file exists under $HIVE_HOME/lib. </li>
 </ol>
 </li>
-</ol><h2>Loading RHive and connecting to Hive</h2>
+</ol><h2>
+<a name="loading-rhive-and-connecting-to-hive" class="anchor" href="#loading-rhive-and-connecting-to-hive"><span class="octicon octicon-link"></span></a>Loading RHive and connecting to Hive</h2>
 
 <ol>
 <li>launch R
 <pre><code>library(RHive)
 rhive.connect(hive-server-ip)</code></pre>
 </li>
-</ol><h1>Documentation</h1>
+</ol><h1>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h1>
 
-<h2>Tutorials</h2>
+<h2>
+<a name="tutorials" class="anchor" href="#tutorials"><span class="octicon octicon-link"></span></a>Tutorials</h2>
 
 <ul>
 <li><a href="https://github.com/nexr/RHive/wiki/UserGuides">RHive user guide</a></li>
-</ul>
+</ul><hr><p><a href="mailto:rhive@nexr.com">contact</a></p>
       </section>
-      <footer>
-        <p>This project is maintained by <a href="https://github.com/nexr">nexr</a></p>
-        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">RHive maintained by <a href="https://github.com/nexr">nexr</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
+
     
+
   </body>
 </html>
