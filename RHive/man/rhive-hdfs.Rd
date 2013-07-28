@@ -12,6 +12,7 @@
 \alias{rhive.hdfs.cat}
 \alias{rhive.hdfs.tail}
 \alias{rhive.hdfs.du}
+\alias{rhive.hdfs.dus}
 \alias{rhive.hdfs.close}
 \alias{rhive.write.table}
 \alias{rhive.hdfs.info}
@@ -20,25 +21,24 @@
 \alias{rhive.hdfs.chgrp}
 \title{R functions to communicate with HDFS}
 \usage{
-rhive.save(..., file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.load(file, envir = parent.frame(), hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.connect(hdfsurl=rhive.hdfs.default.name() ,update = FALSE)
-rhive.hdfs.ls(path="/", hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.get(source, target, sourcedelete = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.put(source, target, sourcedelete = FALSE, overwrite = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.rm(..., hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.rename(source, target, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.exists(path, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.mkdirs(path, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.cat(path, hdfs = rhive.hdfs.defaults('hdfs')) 
-rhive.hdfs.tail(path, hdfs = rhive.hdfs.defaults('hdfs')) 
-rhive.hdfs.du(path="/", summary = FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.close(hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.write.table(dat, tablename = NULL, sep = ",", nastring = NULL, hdfs = rhive.hdfs.defaults('hdfs'), hiveclient=rhive.hdfs.defaults('hiveclient'))
-rhive.hdfs.info(path, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.chmod(cmd, path, recursive=FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.chown(cmd, path, recursive=FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.hdfs.chgrp(cmd, path, recursive=FALSE, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.save(..., file, envir=parent.frame())
+rhive.load(file, envir=parent.frame())
+rhive.hdfs.ls(path="/")
+rhive.hdfs.get(src, dst, srcDel=FALSE)
+rhive.hdfs.put(src, dst, srcDel=FALSE, overwrite=FALSE)
+rhive.hdfs.rm(...)
+rhive.hdfs.rename(src, dst)
+rhive.hdfs.exists(path)
+rhive.hdfs.mkdirs(path)
+rhive.hdfs.cat(path) 
+rhive.hdfs.tail(path) 
+rhive.hdfs.du(path="/", summary=FALSE)
+rhive.hdfs.dus(path="/")
+rhive.write.table(data, tableName=NULL, sep=",", naString=NULL)
+rhive.hdfs.info(path)
+rhive.hdfs.chmod(option, path, recursive=FALSE)
+rhive.hdfs.chown(option, path, recursive=FALSE)
+rhive.hdfs.chgrp(option, path, recursive=FALSE)
 }
 \description{
 R functions to communicate with HDFS
@@ -80,25 +80,21 @@ rhive.hdfs.chown : change ownership for specified path.
 rhive.hdfs.chgrp : change group for specified path.
 }
 \arguments{
-\item{hdfsurl}{namenode url for connecting to hdfs.}
-\item{source}{full path of source data.}
-\item{target}{full path of target data.}
+\item{src}{full path of source data.}
+\item{dst}{full path of target data.}
 \item{file}{the full-name of the file where the data will be saved or loaded}
 \item{path}{hdfs's full path.}
-\item{hdfs}{a client for hdfs.}
-\item{update}{update rhive_udf.jar}
 \item{envir}{environment to search for objects to be saved or loaded.}
-\item{sourcedelete}{indicates if the source should be removed.}
+\item{srcDel}{indicates if the source should be removed.}
 \item{overwrite}{if path exists,this option indicates whether to overwrite.}
 \item{...}{target path list.}
-\item{dat}{the object to be written, preferably a data frame.}
-\item{tablename}{a character string naming a table}
-\item{sep}{the field separator string.  Values within each row of 'dat'
+\item{data}{the object to be written, preferably a data frame.}
+\item{tableName}{a character string naming a table}
+\item{sep}{the field separator string.  Values within each row of 'data'
           are separated by this string}
-\item{nastring}{default value for NA.}
-\item{hiveclient}{a client for hive.}
+\item{naString}{default value for NA.}
 \item{summary}{summarize result of 'du'.}
-\item{cmd}{specific command. chmod's command is 775 or chown's command is user-id.}
+\item{option}{specific option. chmod's option is 775 or chown's option is user-id.}
 \item{recursive}{apply command recursively}
 } 
 \author{

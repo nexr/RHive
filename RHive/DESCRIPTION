@@ -1,18 +1,18 @@
 Package: RHive
 Type: Package
 Title: R and Hive
-Version: 1.0-0.1
+Version: 2.0-0.0
 Description: RHive is an R extension facilitating
 			distributed computing via HIVE query.
 			It provides an easy to use HQL like SQL 
 			and R objects and functions in HQL.
 Author: NexR
-Maintainer: tim.yang <tim.yang@nexr.com>
+Maintainer: johan <johan.ahn@nexr.com>
 License: Apache License (== 2.0)
 Depends: R (>= 2.13.0), rJava (>= 0.9-0), Rserve (>= 0.6-0)
+Suggests: RUnit
 Enhances: rJava
 SystemRequirements: Hadoop core >= 0.20.3
         (http://hadoop.apache.org/core/), Hive >= 0.8
         (http://hive.apache.org/)
 Repository: CRAN
-Packaged: 2012-11-21 04:35:17 UTC; gigsda

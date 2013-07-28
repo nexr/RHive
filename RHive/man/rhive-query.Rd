@@ -3,18 +3,17 @@
 \alias{rhive.big.query}
 \title{Execute HQL(Hive Query) in R, using functions in Package `RHive'}
 \usage{
-rhive.query(query, fetchsize = 40, limit = -1, hiveclient=rhive.defaults('hiveclient'))
-rhive.big.query(query ,fetchsize = 40, limit = -1, memlimit = 57374182, hiveclient =rhive.defaults('hiveclient'))
+rhive.query(query, fetchSize=50, limit=-1)
+rhive.big.query(query ,fetchSize=50, limit=-1, memLimit=64*1024*1024)
 }
 \description{
 Execute HQL(Hive Query) in R using functions in Package `RHive'
 }
 \arguments{
 \item{query}{hive query.}
-\item{fetchsize}{fetch size for result.}
+\item{fetchSize}{fetch size for result.}
 \item{limit}{total result size.}
-\item{memlimit}{the size of data can be handled in R's memory.}
-\item{hiveclient}{a client for hive.}
+\item{memLimit}{the size of data can be handled in R's memory.}
 } 
 \details{
 The query argument is Hive Query Language. 

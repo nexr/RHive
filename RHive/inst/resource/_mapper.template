@@ -6,7 +6,7 @@ put <- function(k,v) {
 }
 
 con = file("stdin", open="r")
-lines <- readLines(con=con,n=buffersize)
+lines <- readLines(con=con,n=bufferSize)
 
 while(length(lines) > 0) {
    lapply(lines,function(line) {
@@ -17,7 +17,7 @@ while(length(lines) > 0) {
                         map(x[1],NULL)
 
         })
-    lines <- readLines(con=con,n=buffersize)
+    lines <- readLines(con=con,n=bufferSize)
 }
 
 close(con)

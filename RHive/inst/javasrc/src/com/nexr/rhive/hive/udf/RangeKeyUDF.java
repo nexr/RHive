@@ -24,304 +24,327 @@ import org.apache.hadoop.hive.ql.exec.UDFArgumentLengthException;
 import org.apache.hadoop.hive.ql.metadata.HiveException;
 import org.apache.hadoop.hive.ql.session.SessionState;
 import org.apache.hadoop.hive.ql.udf.generic.GenericUDF;
-import org.apache.hadoop.hive.serde.serdeConstants;
 import org.apache.hadoop.hive.serde2.objectinspector.ObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.PrimitiveObjectInspector;
 import org.apache.hadoop.hive.serde2.objectinspector.primitive.PrimitiveObjectInspectorFactory;
 import org.apache.hadoop.io.Writable;
 
+import com.nexr.rhive.hive.HiveVariations;
 import com.nexr.rhive.util.RangeTreeFactory;
 import com.nexr.rhive.util.RangeTreeFactory.RangeTree;
 
 public class RangeKeyUDF extends GenericUDF {
-    
-    private Configuration config;
 
-    private ObjectInspector[] argumentOIs;
+	private Configuration config;
 
-    private RANGEVALUE rangeValue;
+	private ObjectInspector[] argumentOIs;
 
-    private ObjectInspector returnOI;
-    
-    private String breaks = null;
-    private Boolean isRight = null;
-    
-    private static Map<String, RangeTree> TREES = new LinkedHashMap<String, RangeTree>();
-    
-    public static enum RANGEVALUE {
-        INT_TYPE {
-            ObjectInspector inspector() {
-                return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
-            }
+	private RANGEVALUE rangeValue;
 
-            Object search(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).search(((Integer) value).doubleValue());
-            }
+	private ObjectInspector returnOI;
 
-            Writable searchWritable(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).searchWritable(((Integer) value).doubleValue());
-            }
-        },
-        BIGINT_TYPE {
-            ObjectInspector inspector() {
-                return PrimitiveObjectInspectorFactory.writableLongObjectInspector;
-            }
+	private String breaks = null;
+	private Boolean isRight = null;
 
-            Object search(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).search(((Long) value).doubleValue());
-            }
+	private static Map<String, RangeTree> TREES = new LinkedHashMap<String, RangeTree>();
 
-            Writable searchWritable(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).searchWritable(((Long) value).doubleValue());
-            }
-        },
-        DOUBLE_TYPE {
-            ObjectInspector inspector() {
-                return PrimitiveObjectInspectorFactory.writableDoubleObjectInspector;
-            }
+	public static enum RANGEVALUE {
+		INT_TYPE {
+			ObjectInspector inspector() {
+				return PrimitiveObjectInspectorFactory.writableIntObjectInspector;
+			}
 
-            Object search(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).search((Double) value);
-            }
+			Object search(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.search(((Integer) value).doubleValue());
+			}
 
-            Writable searchWritable(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).searchWritable((Double) value);
-            }
-        },
-        FLOAT_TYPE {
-            ObjectInspector inspector() {
-                return PrimitiveObjectInspectorFactory.writableFloatObjectInspector;
-            }
+			Writable searchWritable(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.searchWritable(((Integer) value).doubleValue());
+			}
+		},
+		BIGINT_TYPE {
+			ObjectInspector inspector() {
+				return PrimitiveObjectInspectorFactory.writableLongObjectInspector;
+			}
 
-            Object search(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).search(((Float) value).doubleValue());
-            }
+			Object search(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.search(((Long) value).doubleValue());
+			}
 
-            Writable searchWritable(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.DoubleRangeTree) tree).searchWritable(((Float) value).doubleValue());
-            }
-        },
-        STRING_TYPE {
-            ObjectInspector inspector() {
-                return PrimitiveObjectInspectorFactory.writableStringObjectInspector;
-            }
+			Writable searchWritable(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.searchWritable(((Long) value).doubleValue());
+			}
+		},
+		DOUBLE_TYPE {
+			ObjectInspector inspector() {
+				return PrimitiveObjectInspectorFactory.writableDoubleObjectInspector;
+			}
 
-            RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive) {
-                return RangeTreeFactory.createStringTree(name, minExclusive, maxExclusive, null);
-            }
+			Object search(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.search((Double) value);
+			}
 
-            RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive,
-                    Object defaultValue) {
-                return RangeTreeFactory.createStringTree(name, minExclusive, maxExclusive, defaultValue);
-            }
+			Writable searchWritable(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.searchWritable((Double) value);
+			}
+		},
+		FLOAT_TYPE {
+			ObjectInspector inspector() {
+				return PrimitiveObjectInspectorFactory.writableFloatObjectInspector;
+			}
 
+			Object search(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.search(((Float) value).doubleValue());
+			}
 
-            Object asArray(String minValue, String maxValue) {
-                return new String[] { minValue, maxValue };
-            }
+			Writable searchWritable(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.DoubleRangeTree) tree)
+						.searchWritable(((Float) value).doubleValue());
+			}
+		},
+		STRING_TYPE {
+			ObjectInspector inspector() {
+				return PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+			}
 
-            Object search(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.StringRangeTree) tree).search(String.valueOf(value));
-            }
-            
-            RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
-           
-                throw new RuntimeException("can't split min-max for string type.");
-            }  
-            
-            RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
-                
-                throw new RuntimeException("can't split min-max for string type.");
-            }
+			RangeTree newTree(String name, boolean minExclusive,
+					boolean maxExclusive) {
+				return RangeTreeFactory.createStringTree(name, minExclusive, maxExclusive, null);
+			}
 
-            Writable searchWritable(RangeTree tree, Object value) {
-                return ((RangeTreeFactory.StringRangeTree) tree).searchWritable(String.valueOf(value));
-            }
-        };
-        abstract ObjectInspector inspector();
+			RangeTree newTree(String name, boolean minExclusive,
+					boolean maxExclusive, Object defaultValue) {
+				return RangeTreeFactory.createStringTree(name, minExclusive, maxExclusive, defaultValue);
+			}
 
-        @SuppressWarnings("unchecked")
-        RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
+			Object asArray(String minValue, String maxValue) {
+				return new String[] { minValue, maxValue };
+			}
 
-            String left = "(";
-            String right = "]";
+			Object search(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.StringRangeTree) tree).search(String.valueOf(value));
+			}
 
-            if(!minExclusive) {
-                left = "[";
-                right = ")";
-            }
+			RangeTree init(String minValue, String maxValue, String stepValue, RangeTree tree, boolean minExclusive) {
+				throw new RuntimeException("can't split min-max for string type.");
+			}
 
-            double lstart = parse(minValue).doubleValue();
-            double lend = parse(maxValue).doubleValue();
-            double step = parse(stepValue).doubleValue();
+			RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
+				throw new RuntimeException("can't split min-max for string type.");
+			}
 
-            for(double idx = lstart; idx < lend; idx=idx+step) {
-                double[] irange = {idx,idx+step};
-                tree.put(irange, left + String.format("%f",irange[0]) + "," + String.format("%f",irange[1]) + right);
-            }
+			Writable searchWritable(RangeTree tree, Object value) {
+				return ((RangeTreeFactory.StringRangeTree) tree).searchWritable(String.valueOf(value));
+			}
+		};
+		abstract ObjectInspector inspector();
 
-            return tree;
-        }
+		@SuppressWarnings("unchecked")
+		RangeTree init(String minValue, String maxValue, String stepValue,
+				RangeTree tree, boolean minExclusive) {
 
-        @SuppressWarnings("unchecked")
-        RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
+			String left = "(";
+			String right = "]";
 
-            String left = "(";
-            String right = "]";
+			if (!minExclusive) {
+				left = "[";
+				right = ")";
+			}
 
-            if(!minExclusive) {
-                left = "[";
-                right = ")";
-            }
+			double lstart = parse(minValue).doubleValue();
+			double lend = parse(maxValue).doubleValue();
+			double step = parse(stepValue).doubleValue();
 
-            for(int i = 1; i < breaks.length; i++) {
-                double lstart = parse(breaks[i-1]).doubleValue();
-                double lend = parse(breaks[i]).doubleValue();
+			for (double idx = lstart; idx < lend; idx = idx + step) {
+				double[] irange = { idx, idx + step };
+				tree.put(irange, left + String.format("%f", irange[0]) + ","
+						+ String.format("%f", irange[1]) + right);
+			}
 
-                double[] irange = {lstart,lend};
-                tree.put(irange, left +breaks[i-1] + "," + breaks[i] + right);
-            }
+			return tree;
+		}
 
-            return tree;
-        }
+		@SuppressWarnings("unchecked")
+		RangeTree init(String[] breaks, RangeTree tree, boolean minExclusive) {
 
-        RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive) {
-            return RangeTreeFactory.createDoubleTree(name, minExclusive, maxExclusive, null);
-        }
+			String left = "(";
+			String right = "]";
 
-        RangeTree newTree(String name, boolean minExclusive, boolean maxExclusive,
-                                           Object defaultValue) {
-            return RangeTreeFactory.createDoubleTree(name, minExclusive, maxExclusive, defaultValue);
-        }
+			if (!minExclusive) {
+				left = "[";
+				right = ")";
+			}
 
-        Double parse(String value) {
-            return Double.valueOf(value);
-        }
+			for (int i = 1; i < breaks.length; i++) {
+				double lstart = parse(breaks[i - 1]).doubleValue();
+				double lend = parse(breaks[i]).doubleValue();
 
-        Object asArray(String minValue, String maxValue) {
-            return new double[] { parse(minValue).doubleValue(), parse(maxValue).doubleValue() };
-        }
+				double[] irange = { lstart, lend };
+				tree.put(irange, left + breaks[i - 1] + "," + breaks[i] + right);
+			}
 
-        abstract Object search(RangeTree tree, Object value);
+			return tree;
+		}
 
-        abstract Writable searchWritable(RangeTree tree, Object value);
+		RangeTree newTree(String name, boolean minExclusive,
+				boolean maxExclusive) {
+			return RangeTreeFactory.createDoubleTree(name, minExclusive,
+					maxExclusive, null);
+		}
 
-    }
+		RangeTree newTree(String name, boolean minExclusive,
+				boolean maxExclusive, Object defaultValue) {
+			return RangeTreeFactory.createDoubleTree(name, minExclusive,
+					maxExclusive, defaultValue);
+		}
 
-    private RANGEVALUE valueOf(String typeName) {
-        
-        if (typeName.equals(serdeConstants.INT_TYPE_NAME)) {
-            return RANGEVALUE.INT_TYPE;
-        } else if (typeName.equals(serdeConstants.BIGINT_TYPE_NAME)) {
-            return RANGEVALUE.BIGINT_TYPE;
-        } else if (typeName.equals(serdeConstants.DOUBLE_TYPE_NAME)) {
-            return RANGEVALUE.DOUBLE_TYPE;
-        } else if (typeName.equals(serdeConstants.FLOAT_TYPE_NAME)) {
-            return RANGEVALUE.FLOAT_TYPE;
-        } else if (typeName.equals(serdeConstants.STRING_TYPE_NAME)) {
-            return RANGEVALUE.STRING_TYPE;
-        }
-        throw new IllegalArgumentException("RHive doesn't support this type " + typeName);
-    }
+		Double parse(String value) {
+			return Double.valueOf(value);
+		}
 
-    @Override
-    public ObjectInspector initialize(ObjectInspector[] arguments) throws UDFArgumentException {
-        if (config == null) {
-            SessionState session = SessionState.get();
-            config = session == null ? new Configuration() : session.getConf();
-        }
+		Object asArray(String minValue, String maxValue) {
+			return new double[] { parse(minValue).doubleValue(),
+					parse(maxValue).doubleValue() };
+		}
 
-        if (arguments.length < 3) {
-            throw new UDFArgumentLengthException(
-                    "The function rkey(column, breaks, right) needs at least three arguments.");
-        }
+		abstract Object search(RangeTree tree, Object value);
 
-        String valueType = arguments[0].getTypeName();
+		abstract Writable searchWritable(RangeTree tree, Object value);
 
-        this.argumentOIs = arguments;
-        this.rangeValue = valueOf(valueType);
-        this.returnOI = PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+	}
 
-        return returnOI;
-    }
+	private RANGEVALUE valueOf(String typeName)
+			throws IllegalArgumentException, SecurityException,
+			IllegalAccessException, NoSuchFieldException {
 
-    @Override
-    public Object evaluate(DeferredObject[] records) throws HiveException {
+		if (typeName.equals(HiveVariations.getFieldValue(HiveVariations.serdeConstants, "INT_TYPE_NAME"))) {
+			return RANGEVALUE.INT_TYPE;
+		} else if (typeName.equals(HiveVariations.getFieldValue(HiveVariations.serdeConstants, "BIGINT_TYPE_NAME"))) {
+			return RANGEVALUE.BIGINT_TYPE;
+		} else if (typeName.equals(HiveVariations.getFieldValue(HiveVariations.serdeConstants, "DOUBLE_TYPE_NAME"))) {
+			return RANGEVALUE.DOUBLE_TYPE;
+		} else if (typeName.equals(HiveVariations.getFieldValue(HiveVariations.serdeConstants, "FLOAT_TYPE_NAME"))) {
+			return RANGEVALUE.FLOAT_TYPE;
+		} else if (typeName.equals(HiveVariations.getFieldValue(HiveVariations.serdeConstants, "STRING_TYPE_NAME"))) {
+			return RANGEVALUE.STRING_TYPE;
+		}
+		throw new IllegalArgumentException("RHive doesn't support this type " + typeName);
+	}
 
-        if(breaks == null) {
-            breaks = (String) ((PrimitiveObjectInspector) argumentOIs[1])
-                    .getPrimitiveJavaObject(records[1].get());
-            isRight = new Boolean((String) ((PrimitiveObjectInspector) argumentOIs[1])
-                    .getPrimitiveJavaObject(records[2].get()));
-        }
-        
-        RangeTree tree = TREES.get(breaks);
-        if (tree == null) {
-            TREES.put(breaks, tree = loadTree());
-        }
-        Object value = ((PrimitiveObjectInspector) argumentOIs[0])
-                .getPrimitiveJavaObject(records[0].get());
-        try {
-            return rangeValue.searchWritable(tree, value);
-        } catch (NullPointerException e) {
-            return null;
-        } catch (Exception e) {
-            throw new IllegalArgumentException(
-                    "fail to eval : " + e.getMessage(), e);
-        }
-    }
+	@Override
+	public ObjectInspector initialize(ObjectInspector[] arguments)
+			throws UDFArgumentException {
+		if (config == null) {
+			SessionState session = SessionState.get();
+			config = session == null ? new Configuration() : session.getConf();
+		}
 
-    private RangeTree loadTree() {
-        
-        String start, end, step;
-        String splits;
-        
-        RangeTree tree = rangeValue.newTree(breaks, isRight.booleanValue() ,!isRight.booleanValue());
-        
-        if(breaks.indexOf(":") > 0) {
-        
-            StringTokenizer st = new StringTokenizer(breaks, ":");
-            
-            if (st.countTokens() == 2) {
-                start = st.nextToken();
-                end = st.nextToken();
-                step = "1";
-         
-                tree = rangeValue.init(start, end, step, tree, isRight.booleanValue());
-            }else if(st.countTokens() == 3) { 
-                
-                start = st.nextToken();
-                end = st.nextToken();
-                step = st.nextToken();
-                
-                tree = rangeValue.init(start, end, step, tree, isRight.booleanValue());
-            }else {
-                throw new RuntimeException("fail to parse break syntax : " + breaks);
-            }
-        
-        }else if(breaks.indexOf(",") > 0) {
-            
-            StringTokenizer st = new StringTokenizer(breaks, ",");
-            String[] elements = new String[st.countTokens()];
-            for(int i = 0; i < elements.length; i++) {
-                elements[i] = st.nextToken();
-            }
+		if (arguments.length < 3) {
+			throw new UDFArgumentLengthException(
+					"The function rkey(column, breaks, right) needs at least three arguments.");
+		}
 
-            tree = rangeValue.init(elements, tree, isRight.booleanValue());
-        }else {
-            throw new RuntimeException("fail to parse break syntax : " + breaks);
-        }
-        
-        return tree;
-    }
+		String valueType = arguments[0].getTypeName();
 
-    public String getDisplayString(String[] children) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("rkey (");
-        for (int i = 0; i < children.length - 1; i++) {
-            sb.append(children[i]).append(", ");
-        }
-        sb.append(children[children.length - 1]).append(")");
-        return sb.toString();
-    }
+		this.argumentOIs = arguments;
+		try {
+			this.rangeValue = valueOf(valueType);
+		} catch (Exception e) {
+			throw new UDFArgumentException(e);
+		}
+		this.returnOI = PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+
+		return returnOI;
+	}
+
+	@Override
+	public Object evaluate(DeferredObject[] records) throws HiveException {
+
+		if (breaks == null) {
+			breaks = (String) ((PrimitiveObjectInspector) argumentOIs[1])
+					.getPrimitiveJavaObject(records[1].get());
+			isRight = new Boolean(
+					(String) ((PrimitiveObjectInspector) argumentOIs[1])
+							.getPrimitiveJavaObject(records[2].get()));
+		}
+
+		RangeTree tree = TREES.get(breaks);
+		if (tree == null) {
+			TREES.put(breaks, tree = loadTree());
+		}
+		Object value = ((PrimitiveObjectInspector) argumentOIs[0])
+				.getPrimitiveJavaObject(records[0].get());
+		try {
+			return rangeValue.searchWritable(tree, value);
+		} catch (NullPointerException e) {
+			return null;
+		} catch (Exception e) {
+			throw new IllegalArgumentException("fail to eval : "
+					+ e.getMessage(), e);
+		}
+	}
+
+	private RangeTree loadTree() {
+
+		String start, end, step;
+		String splits;
+
+		RangeTree tree = rangeValue.newTree(breaks, isRight.booleanValue(),
+				!isRight.booleanValue());
+
+		if (breaks.indexOf(":") > 0) {
+
+			StringTokenizer st = new StringTokenizer(breaks, ":");
+
+			if (st.countTokens() == 2) {
+				start = st.nextToken();
+				end = st.nextToken();
+				step = "1";
+
+				tree = rangeValue.init(start, end, step, tree,
+						isRight.booleanValue());
+			} else if (st.countTokens() == 3) {
+
+				start = st.nextToken();
+				end = st.nextToken();
+				step = st.nextToken();
+
+				tree = rangeValue.init(start, end, step, tree,
+						isRight.booleanValue());
+			} else {
+				throw new RuntimeException("fail to parse break syntax : " + breaks);
+			}
+
+		} else if (breaks.indexOf(",") > 0) {
+
+			StringTokenizer st = new StringTokenizer(breaks, ",");
+			String[] elements = new String[st.countTokens()];
+			for (int i = 0; i < elements.length; i++) {
+				elements[i] = st.nextToken();
+			}
+
+			tree = rangeValue.init(elements, tree, isRight.booleanValue());
+		} else {
+			throw new RuntimeException("fail to parse break syntax : " + breaks);
+		}
+
+		return tree;
+	}
+
+	public String getDisplayString(String[] children) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("rkey (");
+		for (int i = 0; i < children.length - 1; i++) {
+			sb.append(children[i]).append(", ");
+		}
+		sb.append(children[children.length - 1]).append(")");
+		return sb.toString();
+	}
 }

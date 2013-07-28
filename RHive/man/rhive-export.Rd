@@ -2,17 +2,29 @@
 \alias{rhive.export}
 \alias{rhive.exportAll}
 \alias{rhive.assign}
+\alias{rhive.assign.export}
 \alias{rhive.rm}
+\alias{rhive.rm.export}
 \alias{rhive.script.export}
 \alias{rhive.script.unexport}
+\alias{rhive.export.script}
+\alias{rhive.unexport.script}
+\alias{rhive.list.udfs}
+\alias{rhive.rm.udf}
 \title{Export R function to Hive using functions in Package `RHive'}
 \usage{
-rhive.export(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = -1, envir = .rhiveExportEnv, limit = 104857600)
-rhive.exportAll(exportname, hiveclient=rhive.defaults('hiveclient'), port = 6311, pos = 1, envir = .rhiveExportEnv, limit = 104857600)
-rhive.assign(name,value)
+rhive.export(exportName, pos=-1, limit=100*1024*1024, ALL=FALSE)
+rhive.exportAll(exportName, pos=1, limit=100*1024*1024)
+rhive.assign(name, value)
+rhive.assign.export(name, value)
 rhive.rm(name)
-rhive.script.export(exportname, mapper = NULL, reducer = NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, hdfs = rhive.hdfs.defaults('hdfs'))
-rhive.script.unexport(exportname, hdfs = rhive.hdfs.defaults('hdfs'))
+rhive.rm.export(name)
+rhive.script.export(exportName, mapper=NULL, reducer=NULL, mapArgs=NULL, reduceArgs=NULL, bufferSize=-1L)
+rhive.script.unexport(exportName)
+rhive.export.script(exportName, mapper=NULL, reducer=NULL, mapArgs=NULL, reduceArgs=NULL, bufferSize=-1L)
+rhive.unexport.script(exportName)
+rhive.list.udfs()
+rhive.rm.udf(exportName)
 }
 \description{
 Export R function to Hive using functions in Package `RHive'
@@ -37,20 +49,17 @@ this 'unfold' function allows user to change one column into many columns.
 this 'expand' function allows user to change one column into many rows.
 }
 \arguments{
-\item{exportname}{function name to be exported.}
+\item{exportName}{function name to be exported.}
 \item{limit}{total exported object size. default is 100MB}
+\item{ALL}{export all objects}
 \item{name}{a variable name, given as a character string.} 
 \item{value}{a value to be assigned to 'name'}
 \item{pos}{where to do the assignment.}
-\item{envir}{the 'environment' to use.}
-\item{port}{port of Rserve.}
-\item{hiveclient}{a client for hive.}
 \item{mapper}{R object as map function or Hive query.}
 \item{reducer}{R object as reducer function.}
-\item{buffersize}{streaming buffer size.}
-\item{hdfs}{a client for hdfs.}
-\item{mapper_args}{mapper custom environment.}
-\item{reducer_args}{reducer custom environment.}
+\item{bufferSize}{streaming buffer size.}
+\item{mapArgs}{mapper custom environment.}
+\item{reduceArgs}{reducer custom environment.}
 } 
 \author{
 \email{rhive@nexr.com}

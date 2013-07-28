@@ -13,49 +13,49 @@
 # limitations under the License.
 
 
-rhive.basic.mode <- function(tablename, col, forcedRef = TRUE) {
-  if (missing(tablename))
-    stop("missing tablename")
+rhive.basic.mode <- function(tableName, col, forcedRef = TRUE) {
+  if (missing(tableName))
+    stop("missing tableName")
   if (missing(col))
     stop("missing colname")
       
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   col <- tolower(col)
-  hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY freq DESC LIMIT 1", col, tablename, col)
+  hql <- sprintf("SELECT %s , COUNT(1) freq FROM %s GROUP BY %s ORDER BY freq DESC LIMIT 1", col, tableName, col)
 
   if (forcedRef)
-    result <- rhive.big.query(hql,memlimit=-1)
+    result <- .rhive.big.query(hql,memLimit=-1)
   else
-    result <- rhive.big.query(hql)
+    result <- .rhive.big.query(hql)
 
   return(result)
 }
 
-rhive.basic.range <- function(tablename, col) {
-  if (missing(tablename))
-    stop("missing tablename")
+rhive.basic.range <- function(tableName, col) {
+  if (missing(tableName))
+    stop("missing tableName")
   if (missing(col))
     stop("missing colname")
       
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   col <- tolower(col)
-  hql <- sprintf("SELECT MIN(%s) min, MAX(%s) max FROM %s", col, col, tablename)
+  hql <- sprintf("SELECT MIN(%s) min, MAX(%s) max FROM %s", col, col, tableName)
   
-  result <- rhive.query(hql)
+  result <- .rhive.query(hql)
   return(c(result[['min']],result[['max']]))
 }
 
 rhive.basic.merge <- function(x, y, by.x, by.y, forcedRef = TRUE) {
   if (missing(x))
-    stop("missing parameter(first tablename)")
+    stop("missing parameter(first tableName)")
   if (missing(y))
-    stop("missing parameter(second tablename)")
+    stop("missing parameter(second tableName)")
       
   x <- tolower(x)
   y <- tolower(y) 
 
-  xcols <- rhive.desc.table(x)[,'col_name']
-  ycols <- rhive.desc.table(y)[,'col_name']
+  xcols <- .rhive.desc.table(x)[,'col_name']
+  ycols <- .rhive.desc.table(y)[,'col_name']
   
   joinkeys <- NULL
   yjoinkeys <- NULL
@@ -99,19 +99,19 @@ rhive.basic.merge <- function(x, y, by.x, by.y, forcedRef = TRUE) {
   }
 
   if (forcedRef)
-    result <- rhive.big.query(hql,memlimit=-1)
+    result <- .rhive.big.query(hql,memLimit=-1)
   else
-    result <- rhive.big.query(hql)
+    result <- .rhive.big.query(hql)
 
   return(result)
 }
 
 
-rhive.basic.xtabs <- function(formula, tablename) {
+rhive.basic.xtabs <- function(formula, tableName) {
   if (missing(formula))
     stop("missing formula")
-  if (missing(tablename))
-    stop("missing tablename")
+  if (missing(tableName))
+    stop("missing tableName")
 
   cformula <- as.character(formula)
   
@@ -121,18 +121,18 @@ rhive.basic.xtabs <- function(formula, tablename) {
   cols <- ifelse(length(cformula)==3,cformula[3],cformula[2])
   cols <- unlist(strsplit(gsub(" ", "", cols),"\\+"))
       
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   cols <- tolower(cols)
 
   gcols <- .generateColumnString(cols)
 
   if (length(cformula)==3) {
-    hql <- sprintf("SELECT %s, SUM(%s) %s FROM %s GROUP BY %s", gcols, x, x, tablename, gcols)
+    hql <- sprintf("SELECT %s, SUM(%s) %s FROM %s GROUP BY %s", gcols, x, x, tableName, gcols)
   } else {
-    hql <- sprintf("SELECT %s, COUNT(1) x_count FROM %s GROUP BY %s", gcols, tablename, gcols)
+    hql <- sprintf("SELECT %s, COUNT(1) x_count FROM %s GROUP BY %s", gcols, tableName, gcols)
   }
   
-  pivotresult <- rhive.query(hql)
+  pivotresult <- .rhive.query(hql)
   fcols <- .generateColumnString(cols,sep="+")
   formula <- ""
   
@@ -146,23 +146,23 @@ rhive.basic.xtabs <- function(formula, tablename) {
 }
 
 
-rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE) {
-  if (missing(tablename))
-    stop("missing tablename")
+rhive.basic.cut <- function(tableName, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE) {
+  if (missing(tableName))
+    stop("missing tableName")
   if (missing(breaks))
     stop("missing breaks")
     
   if (missing(col) || is.null(col)) {
-    x <- unlist(strsplit(tablename,"\\$"))
+    x <- unlist(strsplit(tableName,"\\$"))
     
     if (length(x) != 2)
       stop("missing colname")
     
-    tablename <- x[1]
+    tableName <- x[1]
     col <- x[2] 
   }
     
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   col <- tolower(col) 
     
   if (is.vector(breaks) && !is.character(breaks)) {
@@ -171,7 +171,7 @@ rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE,
         stop("invalid number of intervals")
         
       nb <- as.integer(breaks + 1)
-      range <- rhive.basic.range(tablename, col)
+      range <- rhive.basic.range(tableName, col)
       dx <- diff(range)
       if (dx == 0)
         dx <- abs(range[1L])
@@ -182,36 +182,36 @@ rhive.basic.cut <- function(tablename, col, breaks, right=TRUE, summary = FALSE,
   }
   
   if (summary) {
-    hql <- sprintf("SELECT rkey(%s,'%s','%s'), COUNT(%s) FROM %s GROUP BY rkey(%s,'%s','%s')",col,breaks,right, col,tablename,col,breaks,right)
-    tmp <- rhive.query(hql)
+    hql <- sprintf("SELECT rkey(%s,'%s','%s'), COUNT(%s) FROM %s GROUP BY rkey(%s,'%s','%s')",col,breaks,right, col,tableName,col,breaks,right)
+    tmp <- .rhive.query(hql)
     result <- unlist(tmp['X_c1'])
     names(result) <- unlist(tmp['X_c0'])
 
     return(result)
   } else {
     hql <- ""
-    xcols <- rhive.desc.table(tablename)[,'col_name']
+    xcols <- .rhive.desc.table(tableName)[,'col_name']
     cols <- setdiff(xcols, col)
     
     if (length(cols) > 0) {
-      hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s FROM %s",paste(cols, collapse=","),col,breaks,right,col,tablename)
+      hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s FROM %s",paste(cols, collapse=","),col,breaks,right,col,tableName)
     } else {
-      hql <- sprintf("SELECT rkey(%s,'%s','%s') %s FROM %s", col,breaks,right,col,tablename)
+      hql <- sprintf("SELECT rkey(%s,'%s','%s') %s FROM %s", col,breaks,right,col,tableName)
     }
     
     if (forcedRef)
-      result <- rhive.big.query(hql,memlimit=-1)
+      result <- .rhive.big.query(hql,memLimit=-1)
     else
-      result <- rhive.big.query(hql)
+      result <- .rhive.big.query(hql)
   
     return(result)
   }
 }
 
 
-rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE, keepCol=FALSE, forcedRef=TRUE) {
-  if (missing(tablename))
-    stop("missing tablename")
+rhive.basic.cut2 <- function(tableName, col1, col2, breaks1, breaks2, right=TRUE, keepCol=FALSE, forcedRef=TRUE) {
+  if (missing(tableName))
+    stop("missing tableName")
   if (missing(breaks1))
     stop("missing breaks1")
   if (missing(breaks2))
@@ -224,7 +224,7 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
     stop("missing colname") 
   }
     
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   col1 <- tolower(col1) 
   col2 <- tolower(col2)
     
@@ -234,7 +234,7 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
         stop("invalid number of intervals")
         
       nb <- as.integer(breaks1 + 1)
-      range <- rhive.basic.range(tablename, col1)
+      range <- rhive.basic.range(tableName, col1)
       dx <- diff(range)
       if (dx == 0)
         dx <- abs(range[1L])
@@ -250,7 +250,7 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
         stop("invalid number of intervals")
         
       nb <- as.integer(breaks2 + 1)
-      range <- rhive.basic.range(tablename, col2)
+      range <- rhive.basic.range(tableName, col2)
       dx <- diff(range)
       if (dx == 0)
         dx <- abs(range[1L])
@@ -260,76 +260,76 @@ rhive.basic.cut2 <- function(tablename, col1, col2, breaks1, breaks2, right=TRUE
   }
   
   hql <- ""
-  xcols <- rhive.desc.table(tablename)[,'col_name']
+  xcols <- .rhive.desc.table(tableName)[,'col_name']
   cols <- setdiff(xcols, c(col1,col2))
   
   if (keepCol) {
     if (length(cols) > 0) {
-      hql <- sprintf("SELECT %s, %s, rkey(%s,'%s','%s') %s, %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,col1,breaks1,right,paste(col1,"_cut",sep=""),col2, col2,breaks2,right,paste(col2,"_cut",sep=""), tablename)
+      hql <- sprintf("SELECT %s, %s, rkey(%s,'%s','%s') %s, %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,col1,breaks1,right,paste(col1,"_cut",sep=""),col2, col2,breaks2,right,paste(col2,"_cut",sep=""), tableName)
     } else {
-      hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s , %s, rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1, col1,breaks1,right,paste(col1,"_cut",sep=""),col2, col2,breaks2,right,paste(col2,"_cut",sep=""),tablename)
+      hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s , %s, rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1, col1,breaks1,right,paste(col1,"_cut",sep=""),col2, col2,breaks2,right,paste(col2,"_cut",sep=""),tableName)
     } 
   } else {
     if (length(cols) > 0) {
-      hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,breaks1,right,col1,col2,breaks2,right,col2, tablename)
+      hql <- sprintf("SELECT %s, rkey(%s,'%s','%s') %s, rkey(%s,'%s','%s') %s , 1 as (rep) FROM %s",paste(cols, collapse=","),col1,breaks1,right,col1,col2,breaks2,right,col2, tableName)
     } else {
-      hql <- sprintf("SELECT rkey(%s,'%s','%s') %s , rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1,breaks1,right,col1,col2,breaks2,right,col2,tablename)
+      hql <- sprintf("SELECT rkey(%s,'%s','%s') %s , rkey(%s,'%s','%s') %s 1 as (rep) FROM %s", col1,breaks1,right,col1,col2,breaks2,right,col2,tableName)
     }
   }
   
   if (forcedRef)
-    result <- rhive.big.query(hql,memlimit=-1)
+    result <- .rhive.big.query(hql,memLimit=-1)
   else
-    result <- rhive.big.query(hql)
+    result <- .rhive.big.query(hql)
 
   return(result)
 }
 
-rhive.basic.by <- function(tablename, INDICES, fun, arguments, forcedRef = TRUE) {
+rhive.basic.by <- function(tableName, INDICES, fun, arguments, forcedRef = TRUE) {
   if (missing(arguments))
     stop("missing arguments")
-  if (missing(tablename))
-    stop("missing tablename")
+  if (missing(tableName))
+    stop("missing tableName")
   if (missing(INDICES))
     stop("missing INDICES")
   if (missing(fun))
     stop("missing fun")
       
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   arguments <- paste(arguments,collapse=",")
   colnames <- paste(fun, "(", arguments, ") ",fun, sep="", collapse=",")
   groups <- paste(INDICES, collapse=",")
 
-  hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",groups,colnames,tablename,groups)
+  hql <- sprintf("SELECT %s, %s FROM %s GROUP BY %s",groups,colnames,tableName,groups)
   
   if (forcedRef)
-    result <- rhive.big.query(hql,memlimit=-1)
+    result <- .rhive.big.query(hql,memLimit=-1)
   else
-    result <- rhive.big.query(hql)
+    result <- .rhive.big.query(hql)
 
   return(result)
 }
 
 
-rhive.basic.scale <- function(tablename, col) {
-  if (missing(tablename))
-    stop("tablename name is not set.")
+rhive.basic.scale <- function(tableName, col) {
+  if (missing(tableName))
+    stop("tableName name is not set.")
       
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
   col <- tolower(col)
-  hql <- sprintf("SELECT AVG(%s) avg, STD(%s) std FROM %s",col,col,tablename)
-  summary <- rhive.query(hql)
+  hql <- sprintf("SELECT AVG(%s) avg, STD(%s) std FROM %s",col,col,tableName)
+  summary <- .rhive.query(hql)
   
   avg <- summary[['avg']]
   std <- summary[['std']]
   
   postfix <- format(as.POSIXlt(Sys.time()),format="%Y%m%d%H%M%S")
-  tmpTable <- paste("cut_", tablename,postfix,sep="")
-  xcols <- rhive.desc.table(tablename)[,'col_name']
+  tmpTable <- paste("cut_", tableName,postfix,sep="")
+  xcols <- .rhive.desc.table(tableName)[,'col_name']
   cols <- setdiff(xcols, col)
 
-  hql <- sprintf("CREATE TABLE %s AS SELECT %s, %s, scale(%s,%s,%s) %s FROM %s",tmpTable,paste(cols, collapse=","),col, col,avg,std,paste("sacled_",col,sep=""),tablename)
-  rhive.query(hql)
+  hql <- sprintf("CREATE TABLE %s AS SELECT %s, %s, scale(%s,%s,%s) %s FROM %s",tmpTable,paste(cols, collapse=","),col, col,avg,std,paste("sacled_",col,sep=""),tableName)
+  .rhive.query(hql)
   
   x <- tmpTable
   attr(x,"scaled:center") <- avg
@@ -341,7 +341,7 @@ rhive.basic.scale <- function(tablename, col) {
 
 rhive.basic.t.test <- function(x,col1,y,col2) {
   if (missing(x) || missing(y))
-    stop("tablename name is not set.")
+    stop("tableName name is not set.")
   if (missing(col1) || missing(col2))
     stop("column name is not set.")
 
@@ -351,8 +351,8 @@ rhive.basic.t.test <- function(x,col1,y,col2) {
   tableY <- y
   colY <- col2  
 
-  resultX <- rhive.query(paste("select variance(",colX,"), avg(",colX,"), count(",colX,") from ",tableX,sep=""))
-  resultY <- rhive.query(paste("select variance(",colY,"), avg(",colY,"), count(",colY,") from ",tableY,sep=""))
+  resultX <- .rhive.query(paste("select variance(",colX,"), avg(",colX,"), count(",colX,") from ",tableX,sep=""))
+  resultY <- .rhive.query(paste("select variance(",colY,"), avg(",colY,"), count(",colY,") from ",tableY,sep=""))
 
   varX <- resultX[[1]]
   varY <- resultY[[1]]
@@ -385,26 +385,26 @@ rhive.basic.t.test <- function(x,col1,y,col2) {
   return(result)
 }
 
-rhive.block.sample <- function(tablename, percent = 0.01, seed = 0, subset) {
-  if (missing(tablename))
-    stop("tablename name is not set.")    
+rhive.block.sample <- function(tableName, percent = 0.01, seed = 0, subset) {
+  if (missing(tableName))
+    stop("tableName name is not set.")    
       
-  tablename <- tolower(tablename)
+  tableName <- tolower(tableName)
 
-  rhive.query(paste("set hive.sample.seednumber=",seed,sep=""))
+  .rhive.set("hive.sample.seednumber", as.character(seed))
    
   tmptable <- paste("rhive_sblk_",as.integer(Sys.time()),sep="")
   if (missing(subset) || is.null(subset)) {
-    hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",tablename,"TABLESAMPLE(",percent,"PERCENT)") 
-    rhive.query(hql)
+    hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",tableName,"TABLESAMPLE(",percent,"PERCENT)") 
+    .rhive.query(hql)
   } else {
     stmptable <- paste("rhive_subset_",as.integer(Sys.time()),sep="")
-    hql <- paste("CREATE TABLE",stmptable,"AS SELECT * FROM",tablename,"WHERE",subset) 
-    rhive.query(hql)
+    hql <- paste("CREATE TABLE",stmptable,"AS SELECT * FROM",tableName,"WHERE",subset) 
+    .rhive.query(hql)
   
     hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",stmptable,"TABLESAMPLE(",percent,"PERCENT)") 
-    rhive.query(hql)
-    rhive.drop.table(stmptable)
+    .rhive.query(hql)
+    .rhive.drop.table(stmptable)
   }
 
   return(tmptable)

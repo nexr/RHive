@@ -6,18 +6,17 @@
 \alias{rhive.reduceapply}
 \title{R Distributed apply function using HQL}
 \usage{
-rhive.napply(tablename, FUN, ...,forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
-rhive.sapply(tablename, FUN, ..., forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
-rhive.mrapply(tablename, mapperFUN, reducerFUN, mapinput=NULL, mapoutput=NULL, by=NULL, reduceinput=NULL,reduceoutput=NULL, mapper_args=NULL, reducer_args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
-rhive.mapapply(tablename, mapperFUN, mapinput=NULL, mapoutput=NULL, by=NULL, args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
-rhive.reduceapply(tablename, reducerFUN, reduceinput=NULL,reduceoutput=NULL, args=NULL, buffersize=-1L, verbose=FALSE, forcedRef = TRUE, hiveclient =rhive.defaults('hiveclient'))
+rhive.napply(tableName, FUN, ...,forcedRef=TRUE)
+rhive.sapply(tableName, FUN, ..., forcedRef=TRUE)
+rhive.mrapply(tableName, mapperFUN, reducerFUN, mapInput=NULL, mapOutput=NULL, by=NULL, reduceInput=NULL,reduceOutput=NULL, mapperArgs=NULL, reducerArgs=NULL, bufferSize=-1L, verbose=FALSE, forcedRef=TRUE)
+rhive.mapapply(tableName, mapperFUN, mapInput=NULL, mapOutput=NULL, by=NULL, args=NULL, bufferSize=-1L, verbose=FALSE, forcedRef=TRUE)
+rhive.reduceapply(tableName, reducerFUN, reduceInput=NULL,reduceOutput=NULL, args=NULL, bufferSize=-1L, verbose=FALSE, forcedRef=TRUE)
 }
 \description{
 R Distributed apply function using HQL
 }
 \arguments{
-\item{hiveclient}{a client for hive.}
-\item{tablename}{hive table name.}
+\item{tableName}{hive table name.}
 \item{FUN}{the function to be applied.}
 \item{...}{optional arguments to 'FUN'.}
 \item{mapperFUN}{a function which is executed on each worker node. 
@@ -26,16 +25,16 @@ R Distributed apply function using HQL
 \item{reducerFUN}{a function which is executed on each worker node. 
 	The so-called reducer reduces a set of intermediate values which share a
     key to a smaller set of values. If no reducer is used leave NULL.}
-\item{mapinput}{map-input column list.}
-\item{mapoutput}{map-output column list.}
+\item{mapInput}{map-input column list.}
+\item{mapOutput}{map-output column list.}
 \item{by}{cluster key column}
-\item{reduceinput}{reduce-input column list.}
-\item{reduceoutput}{reduce-output column list.}
-\item{buffersize}{streaming buffer size.}
+\item{reduceInput}{reduce-input column list.}
+\item{reduceOutput}{reduce-output column list.}
+\item{bufferSize}{streaming buffer size.}
 \item{verbose}{print generated HQL.}
 \item{args}{custom environment.}
-\item{mapper_args}{mapper custom environment.}
-\item{reducer_args}{reducer custom environment.}
+\item{mapperArgs}{mapper custom environment.}
+\item{reducerArgs}{reducer custom environment.}
 \item{forcedRef}{the option which forces to create temp-table for result.}
 } 
 \author{

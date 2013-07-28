@@ -1,3 +1,15 @@
+2013-07-29
+    * rhive-2.0-0.0 release
+      * Thrift client -> jdbc client
+      + HiveServer2 support
+      + rhive.set operation
+      + rhive.unset operation
+      + rhive.list.udfs operation
+      + rhive.rm.udf operation
+      + error handler
+      * bug fixes
+      * code refactoring
+
 2013-03-12
 
     * rhive-0.0-7.1 release

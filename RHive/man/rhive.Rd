@@ -19,12 +19,16 @@
 \seealso{
 rhive.init
 rhive.connect
+rhive.set
+rhive.unset
 rhive.query
 rhive.big.query
 rhive.assign
 rhive.rm
 rhive.export
 rhive.exportAll
+rhive.list.udfs
+rhive.rm.udf
 rhive.script.export
 rhive.script.unexport
 rhive.close
@@ -75,6 +79,7 @@ rhive.basic.t.test
 rhive.block.sample
 rhive.write.table
 hiveConnect
+hiveSet
 hiveQuery
 hiveAssign
 hiveRm

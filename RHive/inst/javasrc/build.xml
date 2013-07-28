@@ -1,7 +1,5 @@
 <project name="rhive_udf" basedir="./" default="main">
     <property name="src.dir" value="src"/>
-    <property name="src.dir.hive-0.9" value="src2/hive-0.9"/>
-    <property name="src.dir.hive-0.10" value="src2/hive-0.10"/>
     <property name="lib.dir" value="lib"/>
     <property name="build.dir" value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
@@ -22,18 +20,6 @@
     </path>
     <target name="clean">
         <delete dir="${build.dir}"/>
-    </target>
-
-    <target name="copy.hive10.files">
-    <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
-            <fileset dir="${src.dir.hive-0.10}"/>
-        </copy>
-    </target>
-
-    <target name="copy.hive.files">
-        <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
-            <fileset dir="${src.dir.hive-0.9}"/>
-        </copy>
     </target>
 
     <target name="compile">
@@ -79,7 +65,5 @@
     </target>
 
     <target name="main-clean" depends="clean"/>
-    <target name="main" depends='copy.hive10.files,jar,cpy'/>
+    <target name="main" depends='jar,cpy'/>
 </project>
-
-

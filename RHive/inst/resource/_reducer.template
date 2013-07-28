@@ -1,18 +1,15 @@
 
 put <- function(k,v) {
-
      writeLines(paste(k,v,sep="\t"))
-
 }
 
 con = file("stdin", open="r")
-lines <- readLines(con=con,n=buffersize)
+lines <- readLines(con=con,n=bufferSize)
 
 currentKey <- NULL
 values <- NULL
 
 while(length(lines) > 0) {
-
     for(line in lines) {
                 x <- strsplit(line,"\t")[[1]]
 
@@ -41,7 +38,7 @@ while(length(lines) > 0) {
                     }
                 }
     }
-    lines <- readLines(con=con,n=buffersize)
+    lines <- readLines(con=con,n=bufferSize)
 }
 reduce(currentKey,values)
 

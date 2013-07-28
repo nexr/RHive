@@ -25,13 +25,6 @@
         <delete dir="${build.dir}"/>
     </target>
 
-    <target name="copy.hive10.files">
-        <copy file="${java.src.dir}/build_hive10.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
-        <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
-            <fileset dir="${src.dir.hive-0.10}"/>
-        </copy>
-    </target>
-
     <target name="copy.hive.files">
         <copy file="${java.src.dir}/build_hive9.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
         <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
@@ -98,8 +91,5 @@
     </target>
 
     <target name="main-clean" depends="clean"/>
-    <target name="main" depends="copy.hive.files,cran"/>
-    <target name="main-hive10" depends="copy.hive10.files,cran"/>
+    <target name="main" depends="cran"/>
 </project>
-
-

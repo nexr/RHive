@@ -5,26 +5,25 @@
 \alias{rhive.close}
 \title{Manage connection to Hive using functions in Package `RHive'}
 \usage{
-rhive.init(hive=NULL, libs=NULL, hadoop_home=NULL, hadoop_conf=NULL, hlibs=NULL, verbose=FALSE)
+rhive.init(hiveHome=NULL, hiveLib=NULL, hadoopHome=NULL, hadoopConf=NULL, hadoopLib=NULL, verbose=FALSE)
 rhive.env(ALL=FALSE)
-rhive.connect(host="127.0.0.1",port=10000, hdfsurl=NULL ,hosts = rhive.defaults('slaves') ,hdfstransfer = FALSE)
-rhive.close(hiveclient=rhive.defaults('hiveclient'))
+rhive.connect(host="127.0.0.1",port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE)
+rhive.close()
 }
 \description{
 Manage connection to Hive using functions in Package `RHive'
 }
 \arguments{
-\item{hive}{path of hive's installation or if HIVE_HOME is set, it is possible to use as NULL.}
-\item{hadoop_home}{path of hadoop's installation or if HADOOP_HOME is set, it is possible to use as NULL.}
-\item{hadoop_conf}{path of hadoop's configuation or if HADOOP_CONF_DIR is set, it is possible to use as NULL.}
-\item{libs}{library path to be added to classpath.}
-\item{hlibs}{hadoop library path to be added to classpath.}
+\item{hiveHome}{path of hive's installation or if HIVE_HOME is set, it is possible to use as NULL.}
+\item{hadoopHome}{path of hadoop's installation or if HADOOP_HOME is set, it is possible to use as NULL.}
+\item{hadoopConf}{path of hadoop's configuation or if HADOOP_CONF_DIR is set, it is possible to use as NULL.}
+\item{hiveLib}{library path to be added to classpath.}
+\item{hadoopLib}{hadoop library path to be added to classpath.}
 \item{host}{hive-server address for connecting to hive.}
-\item{hosts}{list of Rserve's address}
 \item{port}{hive-server listen port.}
-\item{hdfstransfer}{using HDFS transfer mode for RObject. instead of RServe}
-\item{hiveclient}{a client for hive.}
-\item{hdfsurl}{the url of hdfs namenode.}
+\item{hiveServer2}{logicals. TRUE if you are using HiveServer2 and FALSE otherwise.}
+\item{defaultFS}{the url of hdfs namenode.}
+\item{updateJar}{update rhive_udf.jar}
 \item{verbose}{an option on whether to print detail message.}
 \item{ALL}{show all rhive enviroment, such as classpath.}
 } 

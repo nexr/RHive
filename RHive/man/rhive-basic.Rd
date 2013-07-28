@@ -12,22 +12,22 @@
 \alias{rhive.block.sample}
 \title{R Distributed basic statistic function using Hive}
 \usage{
-rhive.basic.mode(tablename, col, forcedRef = TRUE)
-rhive.basic.range(tablename, col)
-rhive.basic.merge(x, y, by.x, by.y, forcedRef = TRUE)
-rhive.basic.xtabs(formula, tablename)
-rhive.basic.cut(tablename, col, breaks, right=TRUE, summary = FALSE, forcedRef = TRUE)
-rhive.basic.cut2(tablename, col1, col2, breaks1, breaks2, right=TRUE, keepCol = FALSE, forcedRef = TRUE)
-rhive.basic.by(tablename, INDICES, fun, arguments, forcedRef = TRUE)
-rhive.basic.scale(tablename, col)
+rhive.basic.mode(tableName, col, forcedRef=TRUE)
+rhive.basic.range(tableName, col)
+rhive.basic.merge(x, y, by.x, by.y, forcedRef=TRUE)
+rhive.basic.xtabs(formula, tableName)
+rhive.basic.cut(tableName, col, breaks, right=TRUE, summary=FALSE, forcedRef=TRUE)
+rhive.basic.cut2(tableName, col1, col2, breaks1, breaks2, right=TRUE, keepCol=FALSE, forcedRef=TRUE)
+rhive.basic.by(tableName, INDICES, fun, arguments, forcedRef=TRUE)
+rhive.basic.scale(tableName, col)
 rhive.basic.t.test(x,col1,y,col2)
-rhive.block.sample(tablename, percent = 0.01, seed = 0, subset) 
+rhive.block.sample(tableName, percent=0.01, seed=0, subset) 
 }
 \description{
 R Distributed basic statistic function using Hive
 }
 \arguments{
-\item{tablename}{hive table name.}
+\item{tableName}{hive table name.}
 \item{x, y}{table-names to be coerced to one or an object which can be coerced.}
 \item{by.x, by.y}{specifications of the common columns.}
 \item{col}{column name}
