@@ -108,17 +108,10 @@
 <li>only install rJava on local machine.</li>
 </ul>
 </li>
-<li>Rserve mode - install Rserve
+<li>install Rserve
 
 <ul>
 <li>need to install Rserve on all tasktracker nodes</li>
-<li>set <strong>RHIVE_DATA</strong> as R objects and R functions repository on all tasktracker nodes. if <strong>RHIVE_DATA</strong> is not set then it will be '/tmp' as a default.
-
-<ul>
-<li>e.g&gt; <code>export RHIVE_DATA=/rhive/data</code>
-</li>
-</ul>
-</li>
 <li>make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
  edit this file to add 'remote enable' to allow remote connection.</li>
 <li>launch all Rserve on all tasktracker nodes.
@@ -130,16 +123,9 @@
 </li>
 </ul>
 </li>
-<li>No Rserve mode - setting tasktracker nodes (Optional)
-
-<ol>
-<li>set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
+<li>setting tasktracker nodes (Optional)
 
 <ul>
-<li>e.q&gt; <code>export RHIVE_DATA=/rhive/data</code>
-</li>
-</ul>
-</li>
 <li>add R_HOME path at $HADOOP_HOME/conf/hadoop-env.sh
 
 <ul>
@@ -147,7 +133,7 @@
 </li>
 </ul>
 </li>
-</ol>
+</ul>
 </li>
 <li>install RUnit</li>
 </ol><h2>
@@ -167,14 +153,6 @@
 </li>
 <li>Source code: <code>R CMD INSTALL ./RHive</code>
 </li>
-</ol>
-</li>
-<li>If <strong>HADOOP_HOME</strong> doesn't exist, do following instruction :
-
-<ol>
-<li>copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
-using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'. 
-this jar file exists under $HIVE_HOME/lib. </li>
 </ol>
 </li>
 </ol><h2>
