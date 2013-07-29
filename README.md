@@ -1,4 +1,4 @@
-NexR RHive 1.0-0.1
+NexR RHive 2.0-0.0
 ================
 
   RHive is an R extension facilitating distributed computing via HIVE query.
@@ -26,18 +26,14 @@ NexR RHive 1.0-0.1
     - need to install R on all tasktracker nodes
 2. install rJava
     - only install rJava on local machine.
-3. Rserve mode - install Rserve
+3. install Rserve
     - need to install Rserve on all tasktracker nodes
-    - set **RHIVE_DATA** as R objects and R functions repository on all tasktracker nodes. if **RHIVE_DATA** is not set then it will be '/tmp' as a default.
-        - e.g> <code>export RHIVE_DATA=/rhive/data</code>
     - make configuration in path (/etc/Rserv.conf) on all tasktracker nodes.
          edit this file to add 'remote enable' to allow remote connection.
     - launch all Rserve on all tasktracker nodes.
         - e.q> <code>R CMD Rserve</code>
-4. No Rserve mode - setting tasktracker nodes (Optional)
-    1. set RHIVE_DATA as R objects and R functions repository on all tasktracker nodes.
-        - e.q> <code>export RHIVE_DATA=/rhive/data</code>
-    2. add R_HOME path at $HADOOP_HOME/conf/hadoop-env.sh
+4. setting tasktracker nodes
+    - add R_HOME path at $HADOOP_HOME/conf/hadoop-env.sh
         - e.q> <code>export R_HOME=/usr/lib/R</code>
 5. install RUnit
 
@@ -45,7 +41,7 @@ NexR RHive 1.0-0.1
 1. Requirements
     - ant (in order to build jar files)
 2. Installing RHive
-    1. Compressed package: <code>R CMD INSTALL RHive_1.0-0.1.tar.gz</code>
+    1. Compressed package: <code>R CMD INSTALL RHive_2.0-0.0.tar.gz</code>
     2. Source code: <code>R CMD INSTALL ./RHive</code>
 3. If **HADOOP_HOME** doesn't exist, do following instruction :
     1. copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
