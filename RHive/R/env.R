@@ -51,18 +51,21 @@
     hiveHome <- .getSysEnv("HIVE_HOME")
   }
 
-  if (is.null(hiveHome)) {
-    stop("Can't find the environment variable 'HIVE_HOME'.\nMake sure it is set correctly.")
-  }
-
   if (is.null(hadoopHome)) {
     hadoopHome <- .getSysEnv("HADOOP_HOME")
   }
 
-  if (is.null(hadoopHome)) {
-    stop("Can't find the environment variable 'HADOOP_HOME'.\nMake sure it is set correctly.")
+  if (is.null(hiveHome) || is.null(hadoopHome)) {
+    warning(
+              paste(
+              "\n\t+------------------------------------------------------------------------+\n",
+                "\t+ / Can't find the environment variable 'HIVE_HOME' or 'HADOOP_HOME'.    +\n",
+                "\t+ / Call rhive.init() with proper arguments.                             +\n",
+                "\t+------------------------------------------------------------------------+\n", sep=""), call.=FALSE, immediate.=TRUE)
+
+    return (FALSE)
   }
-  
+
   if (is.null(hadoopConf)) {
     hadoopConf <- .getSysEnv("HADOOP_CONF_DIR")
   }
@@ -73,10 +76,6 @@
   
   if (is.null(hadoopLib)) {
     hadoopLib <- .getSysEnv("HADOOP_LIB_DIR")
-  }
-
-  if (is.null(hadoopConf)) {
-    hadoopConf <- .getSysEnv("HADOOP_CONF_DIR")
   }
 
  .setEnv("HIVE_HOME", hiveHome)
@@ -120,6 +119,8 @@
   if (verbose) {
     .rhive.env(ALL=TRUE)
   }
+
+  return (TRUE)
 }
 
 .getClasspath <- function(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf) {
@@ -142,12 +143,8 @@
   }
 
   cp <- c(cp, list.files(hadoopHome, full.names=TRUE, pattern="jar$", recursive=TRUE))
-
-  if (substr(hiveLib, start=1, stop=nchar(hiveHome)) != hiveHome) {
-    cp <- c(cp, list.files(hiveLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
-  }
-
-  cp <- c(cp, list.files(hiveHome, full.names=TRUE, pattern="jar$", recursive=TRUE), hadoopConf)
+  cp <- c(cp, list.files(hiveLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
+  cp <- c(cp, hadoopConf)
 
   return (cp)
 }

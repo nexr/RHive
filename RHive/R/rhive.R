@@ -16,8 +16,11 @@
 
 .rhive.init <- function(hiveHome=NULL, hiveLib=NULL, hadoopHome=NULL, hadoopConf=NULL, hadoopLib=NULL, verbose=FALSE) {
 
- .initEnv(hiveHome, hiveLib, hadoopHome, hadoopConf, hadoopLib, verbose)
- .setJavaSystemProperties()
+  initialized <- .initEnv(hiveHome, hiveLib, hadoopHome, hadoopConf, hadoopLib, verbose)
+
+  if (initialized) {
+   .setJavaSystemProperties()
+  }
 
   options(show.error.messages=TRUE)
 }
@@ -28,6 +31,10 @@
 }
 
 .rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE) {
+
+  if (is.null(.getEnv("HIVE_HOME")) || is.null(.getEnv("HADOOP_HOME"))) {
+    stop("Can't find the environment variable 'HIVE_HOME' or 'HADOOP_HOME'. Call rhive.init() with proper arguments.")
+  }
 
   if (is.null(defaultFS)) {
     defaultFS <- .DEFAULT_FS()
@@ -427,9 +434,11 @@
     }
   }
 
-  names(fullData) <- names(colnames)
+  if (!is.null(fullData)) {
+    names(fullData) <- names(colnames)
+    unlink(localDir, recursive=TRUE, force=TRUE)
+  }
 
-  unlink(localDir, recursive=TRUE, force=TRUE)
   return(fullData)
 }
 
