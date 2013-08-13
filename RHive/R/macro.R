@@ -102,6 +102,10 @@
 }
 
 .TMP_FILE <- function(name, sub=FALSE) {
+  if (!file.exists(.TMP_DIR())) {
+    dir.create(.TMP_DIR(), recursive=TRUE)
+  }
+
   if (sub) {
     return (sprintf("%s/%s_%s", .TMP_DIR(), name, .makeRandomKey()))
   } else {

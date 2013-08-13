@@ -56,13 +56,6 @@
   }
 
   if (is.null(hiveHome) || is.null(hadoopHome)) {
-    warning(
-              paste(
-              "\n\t+------------------------------------------------------------------------+\n",
-                "\t+ / Can't find the environment variable 'HIVE_HOME' or 'HADOOP_HOME'.    +\n",
-                "\t+ / Call rhive.init() with proper arguments.                             +\n",
-                "\t+------------------------------------------------------------------------+\n", sep=""), call.=FALSE, immediate.=TRUE)
-
     return (FALSE)
   }
 

@@ -33,29 +33,35 @@
 .rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE) {
 
   if (is.null(.getEnv("HIVE_HOME")) || is.null(.getEnv("HADOOP_HOME"))) {
-    stop("Can't find the environment variable 'HIVE_HOME' or 'HADOOP_HOME'. Call rhive.init() with proper arguments.")
+    warning(
+              paste(
+              "\n\t+-------------------------------------------------------------------------------+\n",
+                "\t+ / Can't find the environment variable 'HIVE_HOME' or 'HADOOP_HOME'.           +\n",
+                "\t+ / Retry rhive.connect() after calling rhive.init() with proper arguments.     +\n",
+                "\t+-------------------------------------------------------------------------------+\n", sep=""), call.=FALSE, immediate.=TRUE)
+  } else {
+
+    if (is.null(defaultFS)) {
+      defaultFS <- .DEFAULT_FS()
+    }
+   .rhive.hdfs.connect(defaultFS)
+   .copyJarsToHdfs(updateJar)
+
+    if (is.na(hiveServer2)) {
+      hiveServer2 <- .isForVersion2()
+    }
+
+    hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
+    hiveClient$connect(host, as.integer(port)) 
+    hiveClient$addJar(.FS_JAR_PATH())
+
+   .registerUDFs(hiveClient)
+   .setSessionConfigurations(hiveClient)
+
+   .setEnv("hiveClient", hiveClient)
+
+   .makeBaseDirs()
   }
-
-  if (is.null(defaultFS)) {
-    defaultFS <- .DEFAULT_FS()
-  }
- .rhive.hdfs.connect(defaultFS)
- .copyJarsToHdfs(updateJar)
-
-  if (is.na(hiveServer2)) {
-    hiveServer2 <- .isForVersion2()
-  }
-
-  hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
-  hiveClient$connect(host, as.integer(port)) 
-  hiveClient$addJar(.FS_JAR_PATH())
-
- .registerUDFs(hiveClient)
- .setSessionConfigurations(hiveClient)
-
- .setEnv("hiveClient", hiveClient)
-
- .makeBaseDirs()
 }
 
 .copyJarsToHdfs <- function(updateJar) {
@@ -267,10 +273,6 @@
     if (total_size >= limit) {
       print("Object size limit exceeded")
     }
-  }
-
-  if (!file.exists(.TMP_DIR())) {
-    dir.create(.TMP_DIR(), recursive=TRUE)
   }
 
   dataPath <- .TMP_FILE(exportName)
