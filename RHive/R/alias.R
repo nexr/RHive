@@ -14,7 +14,7 @@
 
 
 hiveConnect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE) {
-  .rhive.connect(host, port, hiveServer2, defaultFS, updateJar)
+  .rhive.connect(host=host, port=port, hiveServer2=hiveServer2, defaultFS=defaultFS, updateJar=updateJar)
 }
 
 hiveClose <- function() {
@@ -22,35 +22,35 @@ hiveClose <- function() {
 }
 
 hiveQuery <- function(query, fetchSize=50, limit=-1) {
-  .rhive.query(query, fetchSize, limit)
+  .rhive.query(query=query, fetchSize=fetchSize, limit=limit)
 }
 
 hiveExport <- function(exportName, pos=-1, limit=100*1024*1024, ALL=FALSE) {
-  .rhive.export(exportName, pos, limit, ALL)
+  .rhive.export(exportName=exportName, pos=pos, limit=limit, ALL=ALL)
 }
 
 hiveExportAll <- function(exportName, pos=1, limit=100*1024*1024) {
-  .rhive.exportAll(exportName, pos, limit)
+  .rhive.exportAll(exportName=exportName, pos=pos, limit=limit)
 }
 
 hiveListDatabases <- function(pattern) {
-  .rhive.list.databases(pattern)
+  .rhive.list.databases(pattern=pattern)
 }
 
 hiveShowDatabases <- function(pattern) {
-  .rhive.show.databases(pattern)
+  .rhive.show.databases(pattern=pattern)
 }
 
 hiveUseDatabase <- function(databaseName) {
-  .rhive.use.database(databaseName)
+  .rhive.use.database(databaseName=databaseName)
 }
 
 hiveListTables <- function(pattern) {
-  .rhive.list.tables(pattern)
+  .rhive.list.tables(pattern=pattern)
 }
 
 hiveShowTables <- function(pattern) {
-  .rhive.list.tables(pattern)
+  .rhive.list.tables(pattern=pattern)
 }
 
 hiveDescTable <- function(tableName, detail=FALSE) {
@@ -58,13 +58,13 @@ hiveDescTable <- function(tableName, detail=FALSE) {
 }
 
 hiveLoadTable <- function(tableName, fetchSize=50, limit=-1) {
-  .rhive.load.table(tableName, fetchSize, limit) 
+  .rhive.load.table(tableName=tableName, fetchSize=fetchSize, limit=limit) 
 }
 
 hiveAssign <- function(name, value) {
-  .rhive.assign(name, value)
+  .rhive.assign(name=name, value=value)
 }
 
 hiveRm <- function(name) {
-  .rhive.rm(name)
+  .rhive.rm(name=name)
 }

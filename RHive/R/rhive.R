@@ -657,7 +657,7 @@
       stop("Failed to generate create query because no reduce-output column is provided.")
     }
       
-   .rhive.query(q)
+   .rhive.execute(q)
 
     hql <- sprintf("%s INSERT OVERWRITE TABLE %s SELECT TRANSFORM ( %s ) USING \"%s\"", hql, tmpTable, riCols, reducerScript)
     if (!is.null(roCols)) {

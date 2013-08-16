@@ -173,25 +173,16 @@
   return (TRUE)
 }
 
-.rhive.write.table <- function(data, tableName=NULL, sep=",", naString=NULL) {
+.rhive.write.table <- function(data, tableName, sep=",", naString=NULL, rowName=FALSE, rowNameColumn="rowname") {
   hiveClient <- .getHiveClient()
   
   if (!is.data.frame(data)) {
     stop("data should be a data frame")
   }
 
-  if (is.null(tableName)) {
-    if (length(substitute(data)) == 1) {
-      tableName <- as.character(substitute(data))
-    } else {
-      tableName <- as.character(substitute(data)[[2L]])
-    }
-  }
-
-  if (length(intersect(names(data), "rhive_row")) == 0) {
-    rowname <- "rhive_row"
+  if (rowName) {
     data <- cbind(row.names(data), data)
-    names(data)[1L] <- rowname
+    names(data)[1L] <- rowNameColumn
   }
   
   types <- sapply(data, typeof)
@@ -206,6 +197,11 @@
   colSpecs[isLogi] <- "BOOLEAN"
   
   names(colSpecs) <- names(data)
+  if (rowName) {
+    if (length(colSpecs) > length(data)) {
+      colSpecs <- colSpecs[2 : length(colSpecs)]
+    }
+  }
 
   hdfsPath <- .FS_DATA_DIR(sub=TRUE)
   query <- .generateCreateQuery(tableName, colSpecs, hdfsPath=hdfsPath, sep=sep)

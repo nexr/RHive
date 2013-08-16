@@ -55,7 +55,10 @@ rhive.basic.merge <- function(x, y, by.x, by.y, forcedRef = TRUE) {
   y <- tolower(y) 
 
   xcols <- .rhive.desc.table(x)[,'col_name']
+  xcols <- sub(" +$", "", xcols)
+
   ycols <- .rhive.desc.table(y)[,'col_name']
+  ycols <- sub(" +$", "", ycols)
   
   joinkeys <- NULL
   yjoinkeys <- NULL
@@ -191,6 +194,7 @@ rhive.basic.cut <- function(tableName, col, breaks, right=TRUE, summary = FALSE,
   } else {
     hql <- ""
     xcols <- .rhive.desc.table(tableName)[,'col_name']
+    xcols <- sub(" +$", "", xcols)
     cols <- setdiff(xcols, col)
     
     if (length(cols) > 0) {
@@ -261,6 +265,7 @@ rhive.basic.cut2 <- function(tableName, col1, col2, breaks1, breaks2, right=TRUE
   
   hql <- ""
   xcols <- .rhive.desc.table(tableName)[,'col_name']
+  xcols <- sub(" +$", "", xcols)
   cols <- setdiff(xcols, c(col1,col2))
   
   if (keepCol) {
@@ -326,6 +331,7 @@ rhive.basic.scale <- function(tableName, col) {
   postfix <- format(as.POSIXlt(Sys.time()),format="%Y%m%d%H%M%S")
   tmpTable <- paste("cut_", tableName,postfix,sep="")
   xcols <- .rhive.desc.table(tableName)[,'col_name']
+  xcols <- sub(" +$", "", xcols)
   cols <- setdiff(xcols, col)
 
   hql <- sprintf("CREATE TABLE %s AS SELECT %s, %s, scale(%s,%s,%s) %s FROM %s",tmpTable,paste(cols, collapse=","),col, col,avg,std,paste("sacled_",col,sep=""),tableName)

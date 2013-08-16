@@ -13,17 +13,9 @@
 # limitations under the License.
 
 
-.rhive.call <- function() {
-  tryCatch ( {
-      fun <- as.character(sys.calls()[[sys.nframe()-1]])
-      call <- sys.calls()[[sys.nframe()-1]]
-      call[[1]] <- as.name(sprintf(".%s", fun))
-      eval(call)
-    }, error=function(e) {
-     .setErr(e)  
-      stop(e$message)
-    }
-  )
+.handleErr <- function(e) {
+ .setErr(e)  
+  stop(e$message, call.=FALSE)
 }
 
 .setErr <- function(e) {
@@ -37,224 +29,490 @@ lastErr <- function() {
 
 
 rhive.init <- function(hiveHome=NULL, hiveLib=NULL, hadoopHome=NULL, hadoopConf=NULL, hadoopLib=NULL, verbose=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.init(hiveHome=hiveHome, hiveLib=hiveLib, hadoopHome=hadoopHome, hadoopConf=hadoopConf, hadoopLib=hadoopLib, verbose=verbose) 
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.assign <- function(name, value) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.assign(name=name, value=value)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.assign.export <- function(name, value) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.assign.export(name=name, value=value)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.rm <- function(name) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.rm(name=name)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.rm.export <- function(name) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.rm.export(name=name)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.env <- function(ALL=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.env(ALL=ALL)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.connect(host=host, port=port, hiveServer2=hiveServer2, defaultFS=defaultFS, updateJar=updateJar)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.close <- function() {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.close()
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.big.query <- function(query ,fetchSize=50, limit=-1, memLimit=64*1024*1024) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.big.query(query=query ,fetchSize=fetchSize, limit=limit, memLimit=memLimit)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.query <- function(query, fetchSize=50, limit=-1) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.query(query=query, fetchSize=fetchSize, limit=limit)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.execute <- function(query) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.execute(query=query)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.export <- function(exportName, pos=-1, limit=100*1024*1024, ALL=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.export(exportName=exportName, pos=pos, limit=limit, ALL=ALL)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.exportAll <- function(exportName, pos=1, limit=100*1024*1024) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.exportAll(exportName=exportName, pos=pos, limit=limit)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.list.udfs <- function() {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.list.udfs()
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.rm.udf <- function(exportName) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.rm.udf(exportName=exportName)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.list.databases <- function(pattern) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.list.databases(pattern=pattern)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.show.databases <- rhive.list.databases
 
 rhive.use.database <- function(databaseName) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.use.database(databaseName=databaseName)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.list.tables <- function(pattern) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.list.tables(pattern=pattern)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.show.tables <- rhive.list.tables
 
 rhive.desc.table <- function(tableName, detail=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.desc.table(tableName=tableName, detail=detail)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.load.table <- function(tableName, fetchSize=50, limit=-1) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.load.table(tableName=tableName, fetchSize=fetchSize, limit=limit)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.load.table2 <- function(tableName, limit=-1, remote=TRUE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.load.table2(tableName=tableName, limit=limit, remote=remote)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.exist.table <- function(tableName) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.exist.table(tableName=tableName)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.set <- function(key, value) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.set(key=key, value=value)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.unset <- function(key) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.unset(key=key)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.napply <- function(tableName, FUN, ..., forcedRef=TRUE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.napply(tableName=tableName, FUN=FUN, ..., forcedRef=forcedRef)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.sapply <- function(tableName, FUN, ..., forcedRef=TRUE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.sapply(tableName=tableName, FUN=FUN, ..., forcedRef=forcedRef)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
-rhive.aggregate <- function(tableName, hiveFUN, ..., groups=NULL , forcedRef=TRUE) {
-  .rhive.call()
+rhive.aggregate <- function(tableName, hiveFUN, ..., groups=NULL, forcedRef=TRUE) {
+  tryCatch ( {
+     .rhive.aggregate(tableName=tableName, hiveFUN=hiveFUN, ..., groups=groups, forcedRef=forcedRef)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.mapapply <- function(tableName, mapperFUN, mapInput=NULL, mapOutput=NULL, by=NULL, args=NULL, bufferSize=-1L, verbose=FALSE, forcedRef=TRUE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.mapapply(tableName=tableName, mapperFUN=mapperFUN, mapInput=mapInput, mapOutput=mapOutput, by=by, args=args, bufferSize=bufferSize, verbose=verbose, forcedRef=forcedRef)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.reduceapply <- function(tableName, reducerFUN, reduceInput=NULL,reduceOutput=NULL, args=NULL, bufferSize=-1L, verbose=FALSE, forcedRef=TRUE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.reduceapply(tableName=tableName, reducerFUN=reducerFUN, reduceInput=reduceInput, reduceOutput=reduceOutput, args=args, bufferSize=bufferSize, verbose=verbose, forcedRef=forcedRef)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.mrapply <- function(tableName, mapperFUN, reducerFUN, mapInput=NULL, mapOutput=NULL, by=NULL, reduceInput=NULL,reduceOutput=NULL, mapperArgs=NULL, reducerArgs=NULL, bufferSize=-1L, verbose=FALSE, forcedRef=TRUE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.mrapply(tableName=tableName, mapperFUN=mapperFUN, reducerFUN=reducerFUN, mapInput=mapInput, mapOutput=mapOutput, by=by, reduceInput=reduceInput, reduceOutput=reduceOutput, mapperArgs=mapperArgs, reducerArgs=reducerArgs, bufferSize=bufferSize, verbose=verbose, forcedRef=forcedRef)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.drop.table <- function(tableName, list) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.drop.table(tableName=tableName, list=list)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.size.table <- function(tableName) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.size.table(tableName=tableName)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 
 
 
 rhive.hdfs.ls <- function(path="/") {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.ls(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 } 
 
 rhive.hdfs.du <- function(path="/", summary=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.du(path=path, summary=summary)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.dus <- function(path="/") {
-  rhive.hdfs.du(path, summary=TRUE)
+  rhive.hdfs.du(path=path, summary=TRUE)
 }
 
 rhive.save <- function(..., file, envir=parent.frame()) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.save(..., file=file, envir=envir)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
  
 rhive.load <- function(file, envir=parent.frame()) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.load(file=file, envir=envir)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.put <- function(src, dst, srcDel=FALSE, overwrite=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.put(src=src, dst=dst, srcDel=srcDel, overwrite=overwrite)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.get <- function(src, dst, srcDel=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.get(src=src, dst=dst, srcDel=srcDel)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.rm <- function(...) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.rm(...)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.rename <- function(src, dst) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.rename(src=src, dst=dst)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.exists <- function(path) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.exists(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.mkdirs <- function(path) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.mkdirs(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.cat <- function(path) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.cat(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.tail <- function(path) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.tail(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.chmod <- function(option, path, recursive=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.chmod(option=option, path=path, recursive=recursive)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.chown <- function(option, path, recursive=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.chown(option=option, path=path, recursive=recursive)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.chgrp <- function(option, path, recursive=FALSE) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.chgrp(option=option, path=path, recursive=recursive)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
-rhive.write.table <- function(data, tableName=NULL, sep=",", naString=NULL) {
-  .rhive.call()
+
+rhive.write.table <- function(data, tableName, sep=",", naString=NULL, rowName=FALSE, rowNameColumn="rowname") {
+  tryCatch ( {
+     .rhive.write.table(data=data, tableName=tableName, sep=sep, naString=naString, rowName=rowName, rowNameColumn=rowNameColumn)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.export.script <- function(exportName, mapper=NULL, reducer=NULL, mapArgs=NULL, reduceArgs=NULL, bufferSize=-1L) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.export.script(exportName=exportName, mapper=mapper, reducer=reducer, mapArgs=mapArgs, reduceArgs=reduceArgs, bufferSize=bufferSize)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.unexport.script <- function(exportName) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.unexport.script(exportName=exportName)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.script.export <- function(exportName, mapper=NULL, reducer=NULL, mapArgs=NULL, reduceArgs=NULL, bufferSize=-1L) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.script.export(exportName=exportName, mapper=mapper, reducer=reducer, mapArgs=mapArgs, reduceArgs=reduceArgs, bufferSize=bufferSize)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.script.unexport <- function(exportName) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.script.unexport(exportName=exportName)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
 
 rhive.hdfs.info <- function(path) {
-  .rhive.call()
+  tryCatch ( {
+     .rhive.hdfs.info(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
 }
