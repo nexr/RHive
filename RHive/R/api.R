@@ -82,9 +82,9 @@ rhive.env <- function(ALL=FALSE) {
   )
 }
 
-rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE) {
+rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL) {
   tryCatch ( {
-     .rhive.connect(host=host, port=port, hiveServer2=hiveServer2, defaultFS=defaultFS, updateJar=updateJar)
+     .rhive.connect(host=host, port=port, hiveServer2=hiveServer2, defaultFS=defaultFS, updateJar=updateJar, user=user, password=password)
     }, error=function(e) {
      .handleErr(e)
     }
