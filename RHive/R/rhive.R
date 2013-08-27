@@ -30,7 +30,7 @@
   System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())
 }
 
-.rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE) {
+.rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL) {
 
   if (is.null(.getEnv("HIVE_HOME")) || is.null(.getEnv("HADOOP_HOME"))) {
     warning(
@@ -52,7 +52,7 @@
     }
 
     hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
-    hiveClient$connect(host, as.integer(port)) 
+    hiveClient$connect(host, as.integer(port),"default", user, password) 
     hiveClient$addJar(.FS_JAR_PATH())
 
    .registerUDFs(hiveClient)
@@ -118,22 +118,22 @@
 .makeBaseDirs <- function() {
   if (!.rhive.hdfs.exists(.FS_DATA_DIR())) {
     .dfs.mkdir(.FS_BASE_DATA_DIR())
-    .dfs.chmod("0777", .FS_BASE_DATA_DIR())
+    .dfs.chmod("777", .FS_BASE_DATA_DIR())
   }
 
   if (!.rhive.hdfs.exists(.FS_UDF_DIR())) {
     .dfs.mkdir(.FS_BASE_UDF_DIR())
-    .dfs.chmod("0777", .FS_BASE_UDF_DIR())
+    .dfs.chmod("777", .FS_BASE_UDF_DIR())
   }
 
   if (!.rhive.hdfs.exists(.FS_TMP_DIR())) {
     .dfs.mkdir(.FS_BASE_TMP_DIR())
-    .dfs.chmod("0777", .FS_BASE_TMP_DIR())
+    .dfs.chmod("777", .FS_BASE_TMP_DIR())
   }
 
   if (!.rhive.hdfs.exists(.FS_MR_SCRIPT_DIR())) {
     .dfs.mkdir(.FS_BASE_MR_SCRIPT_DIR())
-    .dfs.chmod("0777", .FS_BASE_MR_SCRIPT_DIR())
+    .dfs.chmod("777", .FS_BASE_MR_SCRIPT_DIR())
   }
 }
 
