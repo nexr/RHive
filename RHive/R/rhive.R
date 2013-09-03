@@ -340,8 +340,8 @@
 .rhive.execute <- function(query) {
   hiveClient <- .getHiveClient()
   hiveClient$execute(query)
+  return (TRUE)
 }
-
 
 .rhive.assign.export <- function(name, value) {
   assign(name, value, envir=.rhiveExportEnv)
