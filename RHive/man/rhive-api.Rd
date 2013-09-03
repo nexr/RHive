@@ -38,10 +38,11 @@ R functions to get informations of table from HIVE
 \item{detail}{a flag on whether to show detail of table info.}
 \item{limit}{total fetch size. -1 means full fetch}
 \item{fetchSize}{the count of record to load at one time}
-\item{pattern}{an optional regular expression. Only names matching 
-'pattern' are returned. 'glob2rx' can be used to convert 
-wildcard patterns to regular expressions.}
-\item{list}{a character vector naming tables to be removed. or rhive.list.tables's result.}          
+\item{pattern}{an optional regular expression. Only names 
+  matching 'pattern' are returned. 'glob2rx' can be used to
+  convert wildcard patterns to regular expressions.}
+\item{list}{a character vector naming tables to be removed.
+  or rhive.list.tables's result.}          
 \item{key}{hive configuration key}
 \item{value}{hive configuration value}
 } 
@@ -65,7 +66,7 @@ wildcard patterns to regular expressions.}
 \dontrun{rhive.desc.table('emp')}
 
 ## get detail information of a table in the Hive
-\dontrun{rhive.desc.table('emp',TRUE)}
+\dontrun{rhive.desc.table('emp', TRUE)}
 
 ## retrieve data from hive
 \dontrun{emp <- rhive.load.table('emp')}

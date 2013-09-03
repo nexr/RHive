@@ -16,22 +16,101 @@
 
 .rhive.init <- function(hiveHome=NULL, hiveLib=NULL, hadoopHome=NULL, hadoopConf=NULL, hadoopLib=NULL, verbose=FALSE) {
 
-  initialized <- .initEnv(hiveHome, hiveLib, hadoopHome, hadoopConf, hadoopLib, verbose)
+  if (is.null(hiveHome)) {
+    hiveHome <- .getSysEnv("HIVE_HOME")
+  }
 
-  if (initialized) {
-   .setJavaSystemProperties()
+  if (is.null(hadoopHome)) {
+    hadoopHome <- .getSysEnv("HADOOP_HOME")
+  }
+
+  if (is.null(hiveHome) || is.null(hadoopHome)) {
+    return (FALSE)
+  }
+
+  if (is.null(hadoopConf)) {
+    hadoopConf <- .getSysEnv("HADOOP_CONF_DIR")
+  }
+
+  if (is.null(hiveLib)) {
+    hiveLib <- .getSysEnv("HIVE_LIB_DIR")
+  }
+  
+  if (is.null(hadoopLib)) {
+    hadoopLib <- .getSysEnv("HADOOP_LIB_DIR")
+  }
+
+ .setEnv("HIVE_HOME", hiveHome)
+ .setEnv("HADOOP_HOME", hadoopHome)
+
+  if (!is.null(hiveLib)) {
+   .setEnv("HIVE_LIB_DIR", hiveLib)
+  }
+
+  if (!is.null(hadoopLib)) {
+   .setEnv("HADOOP_LIB_DIR", hadoopLib)
+  }
+
+  if (!is.null(hadoopConf)) {
+   .setEnv("HADOOP_CONF_DIR", hadoopConf)
+  }
+
+  ver <- .getSysEnv("RHIVE_HIVESERVER_VERSION")
+  if (!is.null(ver)) {
+    .setEnv("HIVESERVER_VERSION", ver)
+  }
+
+  fsHome <- .getSysEnv("RHIVE_FS_HOME")
+  if (!is.null(fsHome)) {
+    .setEnv("FS_HOME", fsHome)
+  }
+  
+  cp <- .getClasspath(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf)
+ .setEnv("CLASSPATH", cp)
+
+ .initJvm(cp)
+ .setEnv("INITIALIZED", TRUE)
+
+  if (verbose) {
+    .rhive.env(ALL=TRUE)
   }
 
   options(show.error.messages=TRUE)
 }
 
-.setJavaSystemProperties <- function() {
-  System <- .j2r.System()
-  System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())
+.getClasspath <- function(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf) {
+  if (is.null(hadoopLib)) {
+    hadoopLib <- .defaultLibDir(hadoopHome)
+  }
+
+  if (is.null(hiveLib)) {
+    hiveLib <- .defaultLibDir(hiveHome)
+  }
+
+  if (is.null(hadoopConf)) {
+    hadoopConf <- .defaultConfDir(hadoopHome)
+  }
+
+  cp <- c(list.files(paste(system.file(package="RHive"), "java", sep=.Platform$file.sep), pattern="jar$", full.names=TRUE))
+
+  if (substr(hadoopLib, start=1, stop=nchar(hadoopHome)) != hadoopHome) {
+    cp <- c(cp, list.files(hadoopLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
+  }
+
+  cp <- c(cp, list.files(hadoopHome, full.names=TRUE, pattern="jar$", recursive=TRUE))
+  cp <- c(cp, list.files(hiveLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
+  cp <- c(cp, hadoopConf)
+
+  return (cp)
+}
+
+.initJvm <- function(cp) {
+ .jinit(classpath=cp, parameters=getOption("java.parameters"))
 }
 
 .rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL) {
 
+  initialized <- .getEnv("INITIALIZED")
   if (is.null(.getEnv("HIVE_HOME")) || is.null(.getEnv("HADOOP_HOME"))) {
     warning(
               paste(
@@ -39,7 +118,26 @@
                 "\t+ / Can't find the environment variable 'HIVE_HOME' or 'HADOOP_HOME'.           +\n",
                 "\t+ / Retry rhive.connect() after calling rhive.init() with proper arguments.     +\n",
                 "\t+-------------------------------------------------------------------------------+\n", sep=""), call.=FALSE, immediate.=TRUE)
+  } else if (is.null(initialized) || !initialized) {
+    warning(
+              paste(
+              "\n\t+-------------------------------------------------------------------------------+\n",
+                "\t+ / RHive not initialized properly.                                             +\n",
+                "\t+ / Retry rhive.connect() after calling rhive.init() with proper arguments.     +\n",
+                "\t+-------------------------------------------------------------------------------+\n", sep=""), call.=FALSE, immediate.=TRUE)
+
   } else {
+    EnvUtils <- .j2r.EnvUtils()
+    userName <- EnvUtils$getUserName()
+    userHome <- EnvUtils$getUserHome()
+    tmpDir <- EnvUtils$getTempDirectory()
+
+   .setEnv("USERNAME", userName)
+   .setEnv("HOME", userHome)
+   .setEnv("TMP_DIR", tmpDir)
+
+    System <- .j2r.System()
+    System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())
 
     if (is.null(defaultFS)) {
       defaultFS <- .DEFAULT_FS()
@@ -52,11 +150,11 @@
     }
 
     hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
-    hiveClient$connect(host, as.integer(port),"default", user, password) 
+    hiveClient$connect(host, as.integer(port), user, password) 
     hiveClient$addJar(.FS_JAR_PATH())
 
    .registerUDFs(hiveClient)
-   .setSessionConfigurations(hiveClient)
+   .setConfigurations(hiveClient)
 
    .setEnv("hiveClient", hiveClient)
 
@@ -110,28 +208,28 @@
   hiveClient$execute(sprintf("CREATE TEMPORARY FUNCTION %s AS \"%s\"", "array2String", "com.nexr.rhive.hive.udf.GenericUDFArrayToString"))
 }
 
-.setSessionConfigurations <- function(hiveClient) {
+.setConfigurations <- function(hiveClient) {
  .rhive.set(.HIVE_OUTPUT_COMPRESSION_PROPERTY, "false", hiveClient) 
  .rhive.set(.HADOOP_CHILD_ENV_PROPERTY, sprintf("RHIVE_UDF_DIR=%s", .FS_UDF_DIR()), hiveClient)
 }
 
 .makeBaseDirs <- function() {
-  if (!.rhive.hdfs.exists(.FS_DATA_DIR())) {
+  if (!.rhive.hdfs.exists(.FS_BASE_DATA_DIR())) {
     .dfs.mkdir(.FS_BASE_DATA_DIR())
     .dfs.chmod("777", .FS_BASE_DATA_DIR())
   }
 
-  if (!.rhive.hdfs.exists(.FS_UDF_DIR())) {
+  if (!.rhive.hdfs.exists(.FS_BASE_UDF_DIR())) {
     .dfs.mkdir(.FS_BASE_UDF_DIR())
     .dfs.chmod("777", .FS_BASE_UDF_DIR())
   }
 
-  if (!.rhive.hdfs.exists(.FS_TMP_DIR())) {
+  if (!.rhive.hdfs.exists(.FS_BASE_TMP_DIR())) {
     .dfs.mkdir(.FS_BASE_TMP_DIR())
     .dfs.chmod("777", .FS_BASE_TMP_DIR())
   }
 
-  if (!.rhive.hdfs.exists(.FS_MR_SCRIPT_DIR())) {
+  if (!.rhive.hdfs.exists(.FS_BASE_MR_SCRIPT_DIR())) {
     .dfs.mkdir(.FS_BASE_MR_SCRIPT_DIR())
     .dfs.chmod("777", .FS_BASE_MR_SCRIPT_DIR())
   }
@@ -409,7 +507,7 @@
   if (!file.exists(localDir)) {
     dir.create(localDir, recursive=TRUE)
   }
-  Sys.chmod(localDir, mode="0777", use_umask=FALSE) 
+  Sys.chmod(localDir, mode="777", use_umask=FALSE) 
 
   if (remote) {
     hdfsDir <- .FS_TMP_DIR(sub=TRUE)

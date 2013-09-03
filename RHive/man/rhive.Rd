@@ -4,8 +4,9 @@
 \docType{package}
 \title{rhive: R and Hive}
 \description{
-	RHive is an R extension facilitating distributed computing via HIVE query.
-	It allows easy usage of HQL in R, and allows easy usage of R objects and R functions in Hive.
+  RHive is an R extension facilitating distributed computing via HIVE query.
+  It allows easy usage of HQL in R, and allows easy usage of R objects and 
+  R functions in Hive.
 }
 \author{
 \email{rhive@nexr.com}
@@ -22,6 +23,7 @@ rhive.connect
 rhive.set
 rhive.unset
 rhive.query
+rhive.execute
 rhive.big.query
 rhive.assign
 rhive.rm

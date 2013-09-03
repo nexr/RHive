@@ -34,7 +34,8 @@ rhive.hdfs.cat(path)
 rhive.hdfs.tail(path) 
 rhive.hdfs.du(path="/", summary=FALSE)
 rhive.hdfs.dus(path="/")
-rhive.write.table(data, tableName=NULL, sep=",", naString=NULL)
+rhive.write.table(data, tableName, sep=",", naString=NULL, rowName=FALSE,
+  rowNameColumn="rowname")
 rhive.hdfs.info(path)
 rhive.hdfs.chmod(option, path, recursive=FALSE)
 rhive.hdfs.chown(option, path, recursive=FALSE)
@@ -44,40 +45,43 @@ rhive.hdfs.chgrp(option, path, recursive=FALSE)
 R functions to communicate with HDFS
 }
 \details{
-rhive.hdfs.connect : Connect to HDFS
+  rhive.hdfs.connect : Connect to HDFS
 
-rhive.hdfs.ls : Lists the contents of the directory specified by path, 
-showing the names, permissions, owner, size and modification date for each entry.
+  rhive.hdfs.ls : Lists the contents of the directory specified by path,
+  showing the names, permissions, owner, size and modification date
+  for each entry.
 
-rhive.hdfs.put : Copy the file or directory from the local file system identified 
-by source to target within the HDFS.
+  rhive.hdfs.put : Copy the file or directory from the local file system
+  identified by source to target within the HDFS.
 
-rhive.hdfs.get : Copy the file or directory in HDFS identified by source to 
-the local file system path identified by target.
+  rhive.hdfs.get : Copy the file or directory in HDFS identified
+  by source to the local file system path identified by target.
 
-rhive.hdfs.rm : Removes the file or empty directory identified by path.
+  rhive.hdfs.rm : Removes the file or empty directory identified by path.
 
-rhive.hdfs.rename : Rename the file or directory identified by source to target within the HDFS.
+  rhive.hdfs.rename : Rename the file or directory identified by source
+  to target within the HDFS.
 
-rhive.hdfs.exists : Check whether the file or directory specified by path is or not.
+  rhive.hdfs.exists : Check whether the file or directory specified
+  by path is or not.
 
-rhive.hdfs.mkdirs : Creates a directory named path in HDFS.
+  rhive.hdfs.mkdirs : Creates a directory named path in HDFS.
 
-rhive.hdfs.close : Close hdfs connection
+  rhive.hdfs.close : Close hdfs connection
 
-rhive.save : save R Objects to HDFS as R data format 
+  rhive.save : save R Objects to HDFS as R data format 
 
-rhive.load : load R data format file stored in HDFS
+  rhive.load : load R data format file stored in HDFS
 
-rhive.write.table : create Hive table using R data.frame
+  rhive.write.table : create Hive table using R data.frame
 
-rhive.hdfs.info : report block information of path
+  rhive.hdfs.info : report block information of path
 
-rhive.hdfs.chmod : change mode for specified path. 
+  rhive.hdfs.chmod : change mode for specified path. 
 
-rhive.hdfs.chown : change ownership for specified path.
+  rhive.hdfs.chown : change ownership for specified path.
 
-rhive.hdfs.chgrp : change group for specified path.
+  rhive.hdfs.chgrp : change group for specified path.
 }
 \arguments{
 \item{src}{full path of source data.}
@@ -91,10 +95,15 @@ rhive.hdfs.chgrp : change group for specified path.
 \item{data}{the object to be written, preferably a data frame.}
 \item{tableName}{a character string naming a table}
 \item{sep}{the field separator string.  Values within each row of 'data'
-          are separated by this string}
+  are separated by this string}
 \item{naString}{default value for NA.}
+\item{rowName}{a logical value indicating whether the row names of 'data'
+  are to be written along with data }
+\item{rowNameColumn}{a character string specifying the column which contains
+  the row names of 'data'}
 \item{summary}{summarize result of 'du'.}
-\item{option}{specific option. chmod's option is 775 or chown's option is user-id.}
+\item{option}{specific option. chmod's option is 775 or chown's option is
+  user-id.}
 \item{recursive}{apply command recursively}
 } 
 \author{

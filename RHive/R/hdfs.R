@@ -21,7 +21,7 @@
   FSUtils <- .j2r.FSUtils()
   ok <- FSUtils$checkFileSystem(defaultFS)
   if (!ok) {
-    stop(sprintf("Failed to connect to %s."))
+    stop(sprintf("Failed to connect to %s.", defaultFS))
   }
 
  .setEnv("DEFAULT_FS", defaultFS)

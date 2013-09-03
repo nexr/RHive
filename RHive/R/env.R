@@ -45,107 +45,6 @@
   }
 }
 
-.initEnv <- function(hiveHome=NULL, hiveLib=NULL, hadoopHome=NULL, hadoopConf=NULL, hadoopLib=NULL, verbose=FALSE) {
-
-  if (is.null(hiveHome)) {
-    hiveHome <- .getSysEnv("HIVE_HOME")
-  }
-
-  if (is.null(hadoopHome)) {
-    hadoopHome <- .getSysEnv("HADOOP_HOME")
-  }
-
-  if (is.null(hiveHome) || is.null(hadoopHome)) {
-    return (FALSE)
-  }
-
-  if (is.null(hadoopConf)) {
-    hadoopConf <- .getSysEnv("HADOOP_CONF_DIR")
-  }
-
-  if (is.null(hiveLib)) {
-    hiveLib <- .getSysEnv("HIVE_LIB_DIR")
-  }
-  
-  if (is.null(hadoopLib)) {
-    hadoopLib <- .getSysEnv("HADOOP_LIB_DIR")
-  }
-
- .setEnv("HIVE_HOME", hiveHome)
- .setEnv("HADOOP_HOME", hadoopHome)
-
-  if (!is.null(hiveLib)) {
-   .setEnv("HIVE_LIB_DIR", hiveLib)
-  }
-
-  if (!is.null(hadoopLib)) {
-   .setEnv("HADOOP_LIB_DIR", hadoopLib)
-  }
-
-  if (!is.null(hadoopConf)) {
-   .setEnv("HADOOP_CONF_DIR", hadoopConf)
-  }
-
-  ver <- .getSysEnv("RHIVE_HIVESERVER_VERSION")
-  if (!is.null(ver)) {
-    .setEnv("HIVESERVER_VERSION", ver)
-  }
-
-  fsHome <- .getSysEnv("RHIVE_FS_HOME")
-  if (!is.null(fsHome)) {
-    .setEnv("FS_HOME", fsHome)
-  }
-  
-  cp <- .getClasspath(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf)
- .jinit(classpath=cp, parameters=.getJavaParameters())
-
-  EnvUtils <- .j2r.EnvUtils()
-  userName <- EnvUtils$getUserName()
-  userHome <- EnvUtils$getUserHome()
-  tmpDir <- EnvUtils$getTempDirectory()
-
- .setEnv("CLASSPATH", cp)
- .setEnv("USERNAME", userName)
- .setEnv("HOME", userHome)
- .setEnv("TMP_DIR", tmpDir)
-
-  if (verbose) {
-    .rhive.env(ALL=TRUE)
-  }
-
-  return (TRUE)
-}
-
-.getClasspath <- function(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf) {
-  if (is.null(hadoopLib)) {
-    hadoopLib <- .defaultLibDir(hadoopHome)
-  }
-
-  if (is.null(hiveLib)) {
-    hiveLib <- .defaultLibDir(hiveHome)
-  }
-
-  if (is.null(hadoopConf)) {
-    hadoopConf <- .defaultConfDir(hadoopHome)
-  }
-
-  cp <- c(list.files(paste(system.file(package="RHive"), "java", sep=.Platform$file.sep), pattern="jar$", full.names=TRUE))
-
-  if (substr(hadoopLib, start=1, stop=nchar(hadoopHome)) != hadoopHome) {
-    cp <- c(cp, list.files(hadoopLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
-  }
-
-  cp <- c(cp, list.files(hadoopHome, full.names=TRUE, pattern="jar$", recursive=TRUE))
-  cp <- c(cp, list.files(hiveLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
-  cp <- c(cp, hadoopConf)
-
-  return (cp)
-}
-
-.getJavaParameters <- function() {
-  return (getOption("java.parameters"))
-}
-
 .rhive.env <- function(ALL=FALSE) {
   cat(sprintf("\thadoop home: %s", .getEnv("HADOOP_HOME")))
   cat(sprintf("\n\thadoop conf: %s", .getEnv("HADOOP_CONF_DIR")))
@@ -165,9 +64,15 @@
     cat(sprintf("\n\thiveserver version: %s", .getEnv("HIVESERVER_VERSION")))
   }
 
-  cat(sprintf("\n\tuser name: %s", .getEnv("USERNAME")))
-  cat(sprintf("\n\tuser home: %s", .getEnv("HOME")))
-  cat(sprintf("\n\ttemp dir: %s", .getEnv("TMP_DIR")))
+  if (!is.null(.getEnv("USERNAME"))) {
+    cat(sprintf("\n\tuser name: %s", .getEnv("USERNAME")))
+  }
+  if (!is.null(.getEnv("HOME"))) {
+    cat(sprintf("\n\tuser home: %s", .getEnv("HOME")))
+  }
+  if (!is.null(.getEnv("TMP_DIR"))) {
+    cat(sprintf("\n\ttemp dir: %s", .getEnv("TMP_DIR")))
+  }
  
   if (ALL) {
     classpath <- .getEnv("CLASSPATH")
