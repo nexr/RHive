@@ -433,7 +433,7 @@
 .rhive.show.databases <- .rhive.list.databases
 
 .rhive.use.database <- function(databaseName="default") {
- .rhive.query(sprintf("USE %s", databaseName))
+ .rhive.execute(sprintf("USE %s", databaseName))
 }
 
 .rhive.list.tables <- function(pattern) {
