@@ -173,6 +173,7 @@
   return (TRUE)
 }
 
+
 .rhive.write.table <- function(data, tableName, sep=",", naString=NULL, rowName=FALSE, rowNameColumn="rowname") {
   hiveClient <- .getHiveClient()
   
@@ -203,8 +204,6 @@
     }
   }
 
-  hdfsPath <- .FS_DATA_DIR(sub=TRUE)
-  query <- .generateCreateQuery(tableName, colSpecs, hdfsPath=hdfsPath, sep=sep)
   data[is.na(data)] <- if (is.null(naString)) "NULL" else naString[1L]
   
   if (.rhive.exist.table(tableName)) {
@@ -218,13 +217,13 @@
 
   write.table(data, file=tmpFile, quote=FALSE, row.names=FALSE, col.names=FALSE, sep=sep)
   
-  if (!.rhive.hdfs.exists(hdfsPath)) {
-    .rhive.hdfs.mkdirs(hdfsPath)
-  }
-
- .rhive.hdfs.put(tmpFile, hdfsPath, srcDel=TRUE, overwrite=TRUE)
-  
+  query <- .generateCreateQuery(tableName, colSpecs, sep=sep)
   hiveClient$execute(query)
+
+  query <- .generateLoadDataQuery(tableName, tmpFile) 
+  hiveClient$execute(query)
+
+  unlink(tmpFile)
   return (tableName)
 }
 
@@ -278,21 +277,20 @@
   FSUtils$info(path)
 }
 
-
-.generateCreateQuery <- function (tableName, colSpecs, hdfsPath, sep=",") {
-  q <- paste("CREATE TABLE ", tableName , " (")
+.generateCreateQuery <- function (tableName, colSpecs, sep=",") {
   colnames <- gsub("[^[:alnum:]_]+", "", names(colSpecs))
-    
+
   if (any(duplicated(tolower(colnames))) == TRUE) {
     stop(paste("Hive doesn't support case-sensitive column-name :",paste(colnames,collapse=",")))
   }
 
   entries <- paste(colnames, colSpecs)
-  q <- paste(q, paste(entries, collapse=", "), sep="")
-  q <- paste(q, ") ROW FORMAT DELIMITED FIELDS TERMINATED BY '", sep , "'",sep="")
-  q <- paste(q, " STORED AS TEXTFILE LOCATION '", hdfsPath ,"'", sep="")
-  
-  return(q)
+
+  return (sprintf("CREATE TABLE %s ( %s ) ROW FORMAT DELIMITED FIELDS TERMINATED BY '%s'", tableName, paste(entries, collapse=", "), sep))
+}
+
+.generateLoadDataQuery <- function (tableName, localFile) {
+  return (sprintf("LOAD DATA LOCAL INPATH '%s' OVERWRITE INTO TABLE %s", localFile, tableName)) 
 }
 
 .generateScript <- function(x, output, script, name, args, bufferSize) {
