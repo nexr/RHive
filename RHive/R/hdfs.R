@@ -173,7 +173,6 @@
   return (TRUE)
 }
 
-
 .rhive.write.table <- function(data, tableName, sep=",", naString=NULL, rowName=FALSE, rowNameColumn="rowname") {
   hiveClient <- .getHiveClient()
   
@@ -216,14 +215,16 @@
   }
 
   write.table(data, file=tmpFile, quote=FALSE, row.names=FALSE, col.names=FALSE, sep=sep)
+
+  hdfsPath <- sprintf("%s/%s", .FS_DATA_DIR(), basename(tmpFile))
+ .rhive.hdfs.put(tmpFile, hdfsPath, srcDel=TRUE, overwrite=TRUE)
   
   query <- .generateCreateQuery(tableName, colSpecs, sep=sep)
   hiveClient$execute(query)
 
-  query <- .generateLoadDataQuery(tableName, tmpFile) 
+  query <- .generateLoadDataQuery(tableName, hdfsPath) 
   hiveClient$execute(query)
 
-  unlink(tmpFile)
   return (tableName)
 }
 
@@ -285,12 +286,12 @@
   }
 
   entries <- paste(colnames, colSpecs)
-
+  
   return (sprintf("CREATE TABLE %s ( %s ) ROW FORMAT DELIMITED FIELDS TERMINATED BY '%s'", tableName, paste(entries, collapse=", "), sep))
 }
 
-.generateLoadDataQuery <- function (tableName, localFile) {
-  return (sprintf("LOAD DATA LOCAL INPATH '%s' OVERWRITE INTO TABLE %s", localFile, tableName)) 
+.generateLoadDataQuery <- function (tableName, hdfsPath) {
+  return (sprintf("LOAD DATA INPATH '%s' OVERWRITE INTO TABLE %s", hdfsPath, tableName)) 
 }
 
 .generateScript <- function(x, output, script, name, args, bufferSize) {
