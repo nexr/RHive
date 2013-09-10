@@ -804,7 +804,7 @@
       resultSet <- x
     } else {
       result <- .rhive.query(sprintf("SELECT * FROM %s", tmpTable))
-     .rhive.query(sprintf("DROP TABLE %s", tmpTable))
+     .rhive.drop.table(tmpTable)
       resultSet <- result
     }
   }

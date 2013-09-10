@@ -335,7 +335,7 @@ rhive.basic.scale <- function(tableName, col) {
   cols <- setdiff(xcols, col)
 
   hql <- sprintf("CREATE TABLE %s AS SELECT %s, %s, scale(%s,%s,%s) %s FROM %s",tmpTable,paste(cols, collapse=","),col, col,avg,std,paste("sacled_",col,sep=""),tableName)
-  .rhive.query(hql)
+  .rhive.execute(hql)
   
   x <- tmpTable
   attr(x,"scaled:center") <- avg
@@ -402,14 +402,14 @@ rhive.block.sample <- function(tableName, percent = 0.01, seed = 0, subset) {
   tmptable <- paste("rhive_sblk_",as.integer(Sys.time()),sep="")
   if (missing(subset) || is.null(subset)) {
     hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",tableName,"TABLESAMPLE(",percent,"PERCENT)") 
-    .rhive.query(hql)
+    .rhive.execute(hql)
   } else {
     stmptable <- paste("rhive_subset_",as.integer(Sys.time()),sep="")
     hql <- paste("CREATE TABLE",stmptable,"AS SELECT * FROM",tableName,"WHERE",subset) 
-    .rhive.query(hql)
+    .rhive.execute(hql)
   
     hql <- paste("CREATE TABLE",tmptable,"AS SELECT * FROM",stmptable,"TABLESAMPLE(",percent,"PERCENT)") 
-    .rhive.query(hql)
+    .rhive.execute(hql)
     .rhive.drop.table(stmptable)
   }
 
