@@ -380,24 +380,35 @@
 .rhive.rm <- .rhive.rm.export
 
 .rhive.export <- function(exportName, pos=-1, limit=100*1024*1024, ALL=FALSE) {
-  if (attr(.rhiveExportEnv, "name") <- "no attribute" == "package:RHive") {
-    print("Can't export 'package:RHive'")
-    return(FALSE)
-  }
-
-  list <- ls(NULL, pos, envir=.rhiveExportEnv)
-
-  total_size <- 0
-  for (item in list) {
-    value <- get(item, pos, envir=.rhiveExportEnv)
-    total_size <- total_size + object.size(value)
-    if (total_size >= limit) {
-      print("Object size limit exceeded")
-    }
-  }
-
   dataPath <- .TMP_FILE(exportName)
-  cmd <- sprintf("save(list=ls(pattern=\"[^exportName]\", envir=.rhiveExportEnv), file=\"%s\", envir=.rhiveExportEnv)", dataPath)
+  if (!ALL) {
+    if (object.size(get(exportName, pos, envir=.rhiveExportEnv)) > limit) {
+      print("Object size limit exceeded")
+      return (FALSE)
+    }
+
+    cmd <-  sprintf("save(%s, file=\"%s\", envir=.rhiveExportEnv)", exportName, dataPath)
+  } else {
+    if (attr(.rhiveExportEnv, "name") <- "no attribute" == "package:RHive") {
+      print("Can't export 'package:RHive'")
+      return(FALSE)
+    }
+
+    list <- ls(NULL, pos, envir=.rhiveExportEnv)
+
+    total_size <- 0
+    for (item in list) {
+      value <- get(item, pos, envir=.rhiveExportEnv)
+      total_size <- total_size + object.size(value)
+      if (total_size > limit) {
+        print("Object size limit exceeded")
+        return (FALSE)
+      }
+    }
+
+    cmd <- sprintf("save(list=ls(pattern=\"[^exportName]\", envir=.rhiveExportEnv), file=\"%s\", envir=.rhiveExportEnv)", dataPath)
+  }
+
   eval(parse(text=cmd))
 
   UDFUtils <- .j2r.UDFUtils()
