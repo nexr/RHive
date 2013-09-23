@@ -10,6 +10,7 @@ import java.util.StringTokenizer;
 public class HiveJdbcClient implements HiveOperations {
 	private DatabaseConnection databaseConnection;
 	private int version;
+	private ResultSet columns;
 	
 
 	public HiveJdbcClient(boolean hiveServer2) {
@@ -27,6 +28,10 @@ public class HiveJdbcClient implements HiveOperations {
 
 	public void connect(String host, int port, String db) throws SQLException {
 		connect(host, port, db, null, null);
+	}
+
+	public void connect(String host, int port, String user, String password) throws SQLException {
+		connect(host, port, "default", user, password);
 	}
 	
 	public void connect(String host, int port, String db, String user, String password) throws SQLException {
@@ -80,15 +85,19 @@ public class HiveJdbcClient implements HiveOperations {
 		}
 	}
 	
-	ResultSet getColumns(String table) throws SQLException {
+	/*
+	QueryResult getColumns(String table) throws SQLException {
 		DatabaseMetaData databaseMetaData = getDatabaseConnection().getDatabaseMetaData();
-		return databaseMetaData.getColumns(databaseMetaData.getConnection().getCatalog(), null, table, "%");
+		ResultSet rs = databaseMetaData.getColumns(databaseMetaData.getConnection().getCatalog(), null, table, "%");
+		return new QueryResult(rs);
 	}
-
-	ResultSet getTables() throws SQLException {
+	
+	QueryResult getTables() throws SQLException {
 		DatabaseMetaData databaseMetaData = getDatabaseConnection().getDatabaseMetaData();
-		return databaseMetaData.getTables(databaseMetaData.getConnection().getCatalog(), null, "%", new String[] { "TABLE" });
+		ResultSet rs = databaseMetaData.getTables(databaseMetaData.getConnection().getCatalog(), null, "%", new String[] { "TABLE" });
+		return new QueryResult(rs);
 	}
+	*/
 
 	String dequote(String str) {
 		if (str == null) {
@@ -323,9 +332,9 @@ public class HiveJdbcClient implements HiveOperations {
 				databaseConnection = connection;
 			} catch (Exception e) {
 				if (e instanceof RuntimeException) {
-					throw new RuntimeException(e);
-				} else {
 					throw (RuntimeException) e;
+				} else {
+					throw new RuntimeException(e);
 				}
 			}
 		}

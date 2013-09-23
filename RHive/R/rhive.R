@@ -127,6 +127,10 @@
                 "\t+-------------------------------------------------------------------------------+\n", sep=""), call.=FALSE, immediate.=TRUE)
 
   } else {
+    if (.isConnected()) {
+     .rhive.close()
+    }
+
     EnvUtils <- .j2r.EnvUtils()
     userName <- EnvUtils$getUserName()
     userHome <- EnvUtils$getUserHome()
@@ -150,7 +154,7 @@
     }
 
     hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
-    hiveClient$connect(host, as.integer(port), "default", user, password) 
+    hiveClient$connect(host, as.integer(port), user, password) 
     hiveClient$addJar(.FS_JAR_PATH())
 
    .registerUDFs(hiveClient)
@@ -163,7 +167,7 @@
 }
 
 .copyJarsToHdfs <- function(updateJar) {
-  jar <- paste(system.file(package="RHive"),"java","rhive_udf.jar", sep=.Platform$file.sep)
+  jar <- paste(system.file(package="RHive"), "java", "rhive_udf.jar", sep=.Platform$file.sep)
 
   if (updateJar) {
    .rhive.hdfs.put(jar, .FS_JAR_PATH(), overwrite=TRUE)
@@ -242,20 +246,39 @@
   return (hiveClient)
 }
 
+.isConnected <- function() {
+  hiveClient <- .getEnv("hiveClient")
+  if (!is.null(hiveClient)) {
+    tryCatch ( {
+        hiveClient$checkConnection()  
+      }, error=function(e) { 
+        return (FALSE)
+      }
+    )
+  } else {
+    return (FALSE)
+  }
+
+  return (TRUE)
+}
+
 
 .rhive.close <- function() {
  .rhive.hive.close()
  .rhive.hdfs.close()
-  return(TRUE)
+  return (TRUE)
 }
 
 .rhive.hive.close <- function() {
   hiveClient <- .getHiveClient()
-  hiveClient$close()
- .unsetEnv("hiveClient")
+  if (!is.null(hiveClient)) {
+    hiveClient$close()
+  }
 
+ .unsetEnv("hiveClient")
   return (TRUE)
 }
+
 
 
 .rhive.big.query <- function(query, fetchSize=50, limit=-1, memLimit=64*1024*1024) {
@@ -474,12 +497,19 @@
     stop("tableName must be string type.")
   }
 
+  res <- NULL
   if (detail) {
     tableInfo <- .rhive.query(paste("DESCRIBE EXTENDED",tableName))
-    return(tableInfo[[2]][length(rownames(tableInfo))])
+    res <- tableInfo[[2]][length(rownames(tableInfo))]
   } else {
-   .rhive.query(paste("DESCRIBE", tableName))
+    res <- .rhive.query(paste("DESCRIBE", tableName))
   }
+
+  if (!is.null(res)) {
+    res <- lapply(res, function(v) { gsub("(^ +)|( +$)", "", v) })
+  }
+
+  return (as.data.frame(res))
 }
 
 .rhive.load.table <- function(tableName, fetchSize=50, limit=-1) {
@@ -848,7 +878,7 @@
 
   tableName <- tolower(tableName)
   metaInfo <- .rhive.desc.table(tableName, detail=TRUE)
-  location <- strsplit(strsplit(paste(metaInfo, ""), "location:")[[1]][2],",")[[1]][1]
+  location <- strsplit(strsplit(as.character(metaInfo[[1]]), "location:")[[1]][2],",")[[1]][1]
   dataInfo <- .rhive.hdfs.du(location, summary=TRUE)
 
   return (dataInfo$length)

@@ -1,4 +1,4 @@
-<project name="rhive_udf" basedir="./" default="main">
+<project name="rhive_udf" basedir="./" default="build">
     <property name="src.dir" value="RHive/inst/javasrc/src"/>
     <property name="java.src.dir" value="RHive/inst/javasrc/"/>
     <property name="lib.dir" value="RHive/inst/javasrc/lib"/>
@@ -23,15 +23,6 @@
     </path>
     <target name="clean">
         <delete dir="${build.dir}"/>
-    </target>
-
-    <target name="copy.hive.files">
-        <copy file="${java.src.dir}/build_hive9.xml" tofile="${java.src.dir}/build.xml" overwrite="true"/>
-        <copy todir="${src.dir}/com/nexr/rhive/hive/udf/" overwrite="true">
-            <fileset dir="${src.dir.hive-0.9}">
-                <exclude name="build*.xml"/>
-            </fileset>
-        </copy>
     </target>
 
     <target name="compile">
@@ -90,6 +81,5 @@
         <delete file="${ant.project.name}.jar"/>
     </target>
 
-    <target name="main-clean" depends="clean"/>
-    <target name="main" depends="cran"/>
+    <target name="build" depends="cran"/>
 </project>
