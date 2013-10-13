@@ -1,11 +1,17 @@
 package com.nexr.rhive.hive;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Calendar;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
+
+import com.nexr.rhive.util.EnvUtils;
  
 public class HiveJdbcClient implements HiveOperations {
 	private DatabaseConnection databaseConnection;
@@ -205,6 +211,44 @@ public class HiveJdbcClient implements HiveOperations {
 			throw e;
 		}
 	}
+
+	public void load(String query) throws SQLException, IOException {
+		load(query, 0, 50);
+	}
+
+	public void load(String query, int fetchSize) throws SQLException, IOException {
+		load(query, 0, fetchSize);
+	}
+
+	public void load(String query, int maxRows, int fetchSize) throws SQLException, IOException {
+		load(query, maxRows, fetchSize, false);
+	}
+	
+	protected void load(String query, int maxRows, int fetchSize, boolean reconnect) throws SQLException, IOException {
+		Connection connection = getConnection(reconnect);
+		Statement statement = null;
+		try {
+			statement = connection.createStatement();
+			statement.setMaxRows(maxRows < 0 ? 0 : maxRows);
+			statement.setFetchSize(fetchSize);
+			ResultSet rs = statement.executeQuery(query);
+			
+			String wd = EnvUtils.getUserHome();
+			File tmpFile = File.createTempFile("qryrs", ".RData", new File(wd));
+			String name = tmpFile.getName();
+			RSerializer.serialize(name.substring(0, name.length() - 6), tmpFile, rs);
+
+		} catch (SQLException e) {
+			if (!reconnect) {
+				if (isThriftTransportException(e)) {
+					load(query, maxRows, fetchSize);
+					return;
+				}
+			}
+			
+			throw e;
+		}
+	}
 	
 	protected QueryResult requery(String query, int maxRows, int fetchSize) throws SQLException {
 		return query(query, maxRows, fetchSize, true);
@@ -373,5 +417,13 @@ public class HiveJdbcClient implements HiveOperations {
 				return null;
 			}
 		}
+	}
+	
+	
+	public static void main(String[] args) throws SQLException, IOException {
+//		HiveJdbcClient client = new HiveJdbcClient(true);
+//		client.connect("localhost", 10000, "alephomega", null);
+//		client.load("select * from xxx", 100000);
+		System.out.println(Calendar.getInstance(TimeZone.getTimeZone("KST")).getTime().getTime());
 	}
 }

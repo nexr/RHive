@@ -41,7 +41,7 @@
   if (missing(name)) {
     as.list(.rhiveEnv)
   } else {
-    RHive:::.rhiveEnv[[name]]
+    .rhiveEnv[[name]]
   }
 }
 

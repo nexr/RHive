@@ -1,5 +1,6 @@
 package com.nexr.rhive.hive;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
 
@@ -16,6 +17,10 @@ public interface HiveOperations {
 	QueryResult query(String query) throws SQLException;
 	QueryResult query(String query, int fetchSize) throws SQLException;
 	QueryResult query(String query, int maxRows, int fetchSize) throws SQLException;
+
+	void load(String query) throws SQLException, IOException;
+	void load(String query, int fetchSize) throws SQLException, IOException;
+	void load(String query, int maxRows, int fetchSize) throws SQLException, IOException;
 
 	boolean set(String key, String value) throws SQLException;
 	QueryResult listConfigs(boolean all) throws SQLException;
