@@ -36,9 +36,9 @@
 		4-3-2. export HADOOP_HOME=/path/to/your/hadoop/directory
 	4-4. Build java files using ant
 		4-4-1. ant build
-	4-5. Build RHive package
+	4-5. Build RHive
 		4-5-1. R CMD build RHive
-	4-6. Install RHive package
+	4-6. Install RHive
 		4-6-1. R CMD INSTALL RHive_<VERSION>.tar.gz
 
 5. Launch RHive
