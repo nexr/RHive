@@ -39,22 +39,22 @@ NexR RHive 2.0-0.0
 
 ## Install RHive
 1. Requirements
-    - ant (in order to build jar files)
+    - ant (in order to build java files)
 2. Installing RHive
-    1. Compressed package: <code>R CMD INSTALL RHive_2.0-0.0.tar.gz</code>
-    2. Source code: <code>R CMD INSTALL ./RHive</code>
-3. If **HADOOP_HOME** doesn't exist, do following instruction :
-    1. copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
-      using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'. 
-    this jar file exists under $HIVE_HOME/lib. 
+    1. Download source code: <code>git clone https://github.com/nexr/RHive.git</code>
+    2. Change your working directory: <code>cd RHive</code> 
+    3. Set the environment variables HIVE_HOME and HADOOP_HOME: <code>export HIVE_HOME=/path/to/your/hive/directory</code> <code>export HADOOP_HOME=/path/to/your/hadoop/directory</code>
+    5. Build java files using ant: <code>ant build</code>
+    4. Build RHive package:<code>R CMD build RHive</code>
+    5. Install RHive package:<code>R CMD INSTALL RHive_<VERSION>.tar.gz</code>
 
 ## Loading RHive and connecting to Hive
 1. launch R
 <pre><code>library(RHive)
-rhive.connect(hive-server-ip)</code></pre>
+rhive.connect(host, port, hiveServer2)</code></pre>
   
 ## Tutorials
-- [RHive user guide](https://github.com/nexr/RHive/wiki/UserGuides)
+- [RHive user guide](https://github.com/nexr/RHive/wiki/User-Guide)
 
 ## Requirements
 - Java 1.6

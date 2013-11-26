@@ -27,17 +27,19 @@
 	3-4. install RUnit
 	
 4. Install RHive
-	4-1. requirement software : ANT.
-	4-2. R CMD INSTALL RHive_0.1-0.tar.gz
-	4-3. If HADOOP_HOME doesn't exist, do following instruction :
-		 4-3-1. copy RUDF/RUDAF library(rhive_udf.jar) to '/rhive/lib/' of HDFS path, 
-	     		using this command : 'hadoop fs -put rhive_udf.jar /rhive/lib/rhive_udf.jar'. 
-		 		this jar file exists under $HIVE_HOME/lib. 
-    4-4. put $RHIVE_HOME/inst/data/emp.cvs to HDFS.
-    4-5. create hive table for this data using following query.
-    	>create external table emp (empno int,ename string,position string,col int,fday string,sal double,status string,deptno int)
-    	 row format delimited fields terminated by ' '
-    	 location '/rhive/data'
+	4-1. Download source code
+		4-1-1. git clone https://github.com/nexr/RHive.git
+	4-2. Change your working directory
+		4-2-1. cd RHive 
+	4-3. Set the environment variables HIVE_HOME and HADOOP_HOME
+		4-3-1. export HIVE_HOME=/path/to/your/hive/directory
+		4-3-2. export HADOOP_HOME=/path/to/your/hadoop/directory
+	4-4. Build java files using ant
+		4-4-1. ant build
+	4-5. Build RHive package
+		4-5-1. R CMD build RHive
+	4-6. Install RHive package
+		4-6-1. R CMD INSTALL RHive_<VERSION>.tar.gz
 
 5. Launch RHive
 	5-1. launch R
