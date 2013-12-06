@@ -2,8 +2,6 @@
     <property name="src.dir" value="RHive/inst/javasrc/src"/>
     <property name="java.src.dir" value="RHive/inst/javasrc/"/>
     <property name="lib.dir" value="RHive/inst/javasrc/lib"/>
-    <property name="src.dir.hive-0.9" value="RHive/inst/javasrc/src2/hive-0.9"/>
-    <property name="src.dir.hive-0.10" value="RHive/inst/javasrc/src2/hive-0.10"/>
     <property name="build.dir" value="build"/>
     <property name="classes.dir" value="${build.dir}/classes"/>
     <property name="jar.dir" value="${build.dir}/jar"/>
@@ -19,6 +17,7 @@
     <path id="classpath">
         <fileset dir="./" includes="**/*.jar"/>
         <fileset dir="${lib.dir}" includes="*.jar"/>
+        <fileset dir="${env.HADOOP_HOME}" includes="**/hadoop-core-*.jar"/>
         <fileset dir="${env.HIVE_HOME}/lib/" includes="**/*.jar"/>
     </path>
     <target name="clean">
