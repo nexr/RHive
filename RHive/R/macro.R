@@ -27,7 +27,7 @@
 
 .RDATA_FILE_EXT <- ".RData"
 
-.DEFAULT_FS_HOME <- "/rhive"
+.DEFAULT_FS_HOME <- "/tmp/rhive"
 
 
 
