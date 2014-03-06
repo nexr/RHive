@@ -835,7 +835,7 @@
       resultSet <- .rhive.big.query(hql)
     }
   } else {
-   .rhive.query(hql)
+    .rhive.execute(hql)
     length <- .rhive.size.table(tmpTable)
 
     memSize <- 64*1024*1024
