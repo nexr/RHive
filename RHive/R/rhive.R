@@ -215,6 +215,9 @@
 .setConfigurations <- function(hiveClient) {
  .rhive.set(.HIVE_OUTPUT_COMPRESSION_PROPERTY, "false", hiveClient) 
  .rhive.set(.HADOOP_CHILD_ENV_PROPERTY, sprintf("RHIVE_UDF_DIR=%s", .FS_UDF_DIR()), hiveClient)
+ 
+ .rhive.set("query.invoker", "RHIVE", hiveClient)
+ .rhive.set("ndap.user", Sys.info()[["user"]], hiveClient) 
 }
 
 .makeBaseDirs <- function() {
