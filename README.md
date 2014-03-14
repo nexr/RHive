@@ -1,4 +1,4 @@
-NexR RHive 2.0-0.0
+NexR RHive 2.0
 ================
 
   RHive is an R extension facilitating distributed computing via HIVE query.
