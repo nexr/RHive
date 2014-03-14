@@ -32,32 +32,16 @@
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
         <h1>
-<a name="intoroduction" class="anchor" href="#intoroduction"><span class="octicon octicon-link"></span></a>Intoroduction</h1>
+<a name="nexr-rhive-20" class="anchor" href="#nexr-rhive-20"><span class="octicon octicon-link"></span></a>NexR RHive 2.0</h1>
 
-<p>RHive is an R extension facilitating distributed computing via <a href="http://hive.apache.org/">Apache Hive</a>.</p>
-
-<p>RHive allows easy usage of HQL(Hive SQL) in R, and allows easy usage of R objects and R functions in Hive.</p>
-
-<p>Latest stable version of RHive is 2.0-0.0, <a href="http://cran.r-project.org/web/packages/RHive/">CRAN</a></p>
+<p>RHive is an R extension facilitating distributed computing via HIVE query.
+  RHive allows easy usage of HQL(Hive SQL) in R, and allows easy usage of R objects and R functions in Hive.</p>
 
 <blockquote>
 <p>Before installing RHive, you have to have installed Hadoop and Hive</p>
 </blockquote>
 
-<h1>
-<a name="installation-and-configuration" class="anchor" href="#installation-and-configuration"><span class="octicon octicon-link"></span></a>Installation and Configuration</h1>
-
 <h2>
-<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
-
-<ul>
-<li>Java 1.6</li>
-<li>R 2.13.0</li>
-<li>Rserve 0.6-0</li>
-<li>rJava 0.9-0</li>
-<li>Hadoop 0.20.x (x &gt;= 1)</li>
-<li>Hive 0.8.x (x &gt;= 0)</li>
-</ul><h2>
 <a name="install-hadoop" class="anchor" href="#install-hadoop"><span class="octicon octicon-link"></span></a>Install Hadoop</h2>
 
 <ol>
@@ -123,7 +107,7 @@
 </li>
 </ul>
 </li>
-<li>setting tasktracker nodes (Optional)
+<li>setting tasktracker nodes
 
 <ul>
 <li>add R_HOME path at $HADOOP_HOME/conf/hadoop-env.sh
@@ -143,15 +127,22 @@
 <li>Requirements
 
 <ul>
-<li>ant (in order to build jar files)</li>
+<li>ant (in order to build java files)</li>
 </ul>
 </li>
 <li>Installing RHive
 
 <ol>
-<li>Compressed package: <code>R CMD INSTALL RHive_2.0-0.0.tar.gz</code>
+<li>Download source code: <code>git clone <a href="https://github.com/nexr/RHive.git">https://github.com/nexr/RHive.git</a></code>
 </li>
-<li>Source code: <code>R CMD INSTALL ./RHive</code>
+<li>Change your working directory: <code>cd RHive</code> </li>
+<li>Set the environment variables HIVE_HOME and HADOOP_HOME: <code>export HIVE_HOME=/path/to/your/hive/directory</code> <code>export HADOOP_HOME=/path/to/your/hadoop/directory</code>
+</li>
+<li>Build java files using ant: <code>ant build</code>
+</li>
+<li>Build RHive: <code>R CMD build RHive</code>
+</li>
+<li>Install RHive: <code>R CMD INSTALL RHive_.tar.gz</code>
 </li>
 </ol>
 </li>
@@ -161,16 +152,23 @@
 <ol>
 <li>launch R
 <pre><code>library(RHive)
-rhive.connect(hive-server-ip)</code></pre>
+rhive.connect(host, port, hiveServer2)</code></pre>
 </li>
-</ol><h1>
-<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h1>
-
-<h2>
+</ol><h2>
 <a name="tutorials" class="anchor" href="#tutorials"><span class="octicon octicon-link"></span></a>Tutorials</h2>
 
 <ul>
-<li><a href="https://github.com/nexr/RHive/wiki/UserGuides">RHive user guide</a></li>
+<li><a href="https://github.com/nexr/RHive/wiki/User-Guide">RHive user guide</a></li>
+</ul><h2>
+<a name="requirements" class="anchor" href="#requirements"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<ul>
+<li>Java 1.6</li>
+<li>R 2.13.0</li>
+<li>Rserve 0.6-0</li>
+<li>rJava 0.9-0</li>
+<li>Hadoop 0.20.x (x &gt;= 1)</li>
+<li>Hive 0.8.x (x &gt;= 0)</li>
 </ul>
       </section>
     </div>
