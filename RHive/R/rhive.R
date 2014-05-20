@@ -545,45 +545,51 @@
 }
 
 .rhive.load.table2 <- function(tableName, limit=-1, remote=TRUE) {
-  colnames <- NULL
-
-  localDir <- .WORKING_DIR(sub=TRUE)
-  if (!file.exists(localDir)) {
-    dir.create(localDir, recursive=TRUE)
-  }
-  Sys.chmod(localDir, mode="777", use_umask=FALSE) 
-
-  if (remote) {
-    hdfsDir <- .FS_TMP_DIR(sub=TRUE)
-
-    if (!.rhive.hdfs.exists(hdfsDir)) {
-     .dfs.mkdir(hdfsDir)
-    }
-
-    colnames <- .rhive.query(sprintf("INSERT OVERWRITE DIRECTORY \"%s\" SELECT * FROM %s", hdfsDir, tableName))
-
-   .rhive.hdfs.get(hdfsDir, localDir, srcDel=FALSE);
-   .dfs.rm(hdfsDir)
-  } else {
-    colnames <- .rhive.query(sprintf("INSERT OVERWRITE LOCAL DIRECTORY \"%s\" SELECT * FROM %s", localDir, tableName))
-  }
-
-  fullData <- NULL
-  for (filename in list.files(localDir, full.names=TRUE, recursive=TRUE)) {
-    data <- read.csv(file=filename, header=FALSE, sep='\001', nrows=limit)
-    if (is.null(fullData)) {
-      fullData <- data
-    } else {
-      fullData <- rbind(fullData, data)
-    }
-  }
-
-  if (!is.null(fullData)) {
-    names(fullData) <- names(colnames)
-    unlink(localDir, recursive=TRUE, force=TRUE)
-  }
-
-  return(fullData)
+	colnames <- NULL
+	
+	localDir <- .WORKING_DIR(sub=TRUE)
+	if (!file.exists(localDir)) {
+		dir.create(localDir, recursive=TRUE)
+	}
+	Sys.chmod(localDir, mode="777", use_umask=FALSE) 
+	
+	if (remote) {
+		hdfsDir <- .FS_TMP_DIR(sub=TRUE)
+		
+		if (!.rhive.hdfs.exists(hdfsDir)) {
+			.dfs.mkdir(hdfsDir)
+		}
+		
+		.rhive.execute(sprintf("INSERT OVERWRITE DIRECTORY \"%s\" SELECT * FROM %s", hdfsDir, tableName))
+		
+		.rhive.hdfs.get(hdfsDir, localDir, srcDel=FALSE);
+		.dfs.rm(hdfsDir)
+	} else {
+		.rhive.execute(sprintf("INSERT OVERWRITE LOCAL DIRECTORY \"%s\" SELECT * FROM %s", localDir, tableName))
+	}
+	
+	fullData <- NULL
+	for (filename in list.files(localDir, full.names=TRUE, recursive=TRUE)) {
+		
+		if(file.info(filename)$size == 0) next()
+		
+		data <- read.csv(file=filename, header=FALSE, sep='\001', nrows=limit)
+		if (is.null(fullData)) {
+			fullData <- data
+		} else {
+			fullData <- rbind(fullData, data)
+		}
+	}
+	
+	if (!is.null(fullData)) {
+		
+		colnames <- as.character(.rhive.desc.table(tableName)$col_name)
+		
+		names(fullData) <- names(colnames)
+		unlink(localDir, recursive=TRUE, force=TRUE)
+	}
+	
+	return(fullData)
 }
 
 .rhive.exist.table <- function(tableName) {
