@@ -570,7 +570,7 @@
 		
 		if(file.info(filename)$size == 0) next()
 		
-		data <- read.csv(file=filename, header=FALSE, sep='\001', nrows=limit)
+		data <- read.csv(file=filename, header=FALSE, sep='\001', quote="", nrows=limit)
 		if (is.null(fullData)) {
 			fullData <- data
 		} else {
