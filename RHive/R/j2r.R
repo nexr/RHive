@@ -15,7 +15,8 @@
 
 
 .j2r.Configuration <- function() {
- .jnew("org/apache/hadoop/conf/Configuration")
+	FSUtils <- .j2r.FSUtils()
+	FSUtils$getConf()
 }
 
 .j2r.EnvUtils <- function() {

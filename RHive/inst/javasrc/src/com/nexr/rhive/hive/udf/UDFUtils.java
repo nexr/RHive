@@ -8,18 +8,23 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 
+import java.net.URL;
+import java.io.File;
+import java.io.FilenameFilter;
+
+import com.nexr.rhive.hadoop.FSUtils;
 
 public class UDFUtils {
 	private static final String DEFAULT_UDF_DIR = "/rhive/udf";
 	private static final String RDATA_FILE_EXT = ".RData";
-	
-	private static final Configuration conf = new Configuration();
 
 	public static Path getPath(String name) {
 		return new Path(getBaseDirectory(), getFileName(name));
 	}
 	
-	public static void export(String name, String src) throws IOException {
+	public static void export(String name, String src, String defaultFS) throws IOException {
+		Configuration conf = FSUtils.getConf(defaultFS); 
+				
 		FileSystem fs = FileSystem.get(conf);
 		
 		boolean delSrc = true;
@@ -27,7 +32,7 @@ public class UDFUtils {
 		Path dst = getPath(name);
 		fs.copyFromLocalFile(delSrc, overwrite, new Path(src), dst);
 	}
-
+	
 	public static String getBaseDirectory() {
 		String base = System.getProperty("RHIVE_UDF_DIR");
 		if (base != null) {
@@ -46,7 +51,8 @@ public class UDFUtils {
 		return name + getRDataFileExtension();
 	}
 	
-	public static String[] list() throws IOException {
+	public static String[] list(String defaultFS) throws IOException {
+		Configuration conf = FSUtils.getConf(defaultFS);
 		FileSystem fs = FileSystem.get(conf);
 		FileStatus[] listStatus = fs.listStatus(new Path(getBaseDirectory()), RDataPathFilter.instance);
 		
@@ -62,7 +68,8 @@ public class UDFUtils {
 		return names;
 	}
 	
-	public static boolean delete(String name) throws IOException {
+	public static boolean delete(String name, String defaultFS) throws IOException {
+		Configuration conf = FSUtils.getConf(defaultFS);
 		FileSystem fs = FileSystem.get(conf);
 		FileStatus[] listStatus = fs.listStatus(new Path(getBaseDirectory()), RDataPathFilter.instance);
 

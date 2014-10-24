@@ -128,7 +128,7 @@
   }
 
   config <- .j2r.Configuration()
-  return (config$get(.HADOOP_DEFAULT_FS_PROPERTY))
+  return (config$get(.HADOOP_DEFAULT_FS_PROPERTY))  
 }
 
 .FS_BASE_UDF_DIR <- function() {

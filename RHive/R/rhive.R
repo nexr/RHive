@@ -12,8 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-
 .rhive.init <- function(hiveHome=NULL, hiveLib=NULL, hadoopHome=NULL, hadoopConf=NULL, hadoopLib=NULL, verbose=FALSE) {
 
   if (is.null(hiveHome)) {
@@ -27,34 +25,34 @@
   if (is.null(hiveHome) || is.null(hadoopHome)) {
     return (FALSE)
   }
-
+  
+  .setEnv("HIVE_HOME", hiveHome)
+  .setEnv("HADOOP_HOME", hadoopHome)
+  
   if (is.null(hadoopConf)) {
     hadoopConf <- .getSysEnv("HADOOP_CONF_DIR")
+	if (is.null(hadoopConf)) {
+		hadoopConf <- .defaultConfDir(hadoopHome)
+	}
+	.setEnv("HADOOP_CONF_DIR", hadoopConf)
   }
 
   if (is.null(hiveLib)) {
     hiveLib <- .getSysEnv("HIVE_LIB_DIR")
+	if (is.null(hiveLib)) {
+		hiveLib <- .defaultLibDir(hiveHome)
+	}
+	.setEnv("HIVE_LIB_DIR", hiveLib)
   }
   
   if (is.null(hadoopLib)) {
     hadoopLib <- .getSysEnv("HADOOP_LIB_DIR")
-  }
-
- .setEnv("HIVE_HOME", hiveHome)
- .setEnv("HADOOP_HOME", hadoopHome)
-
-  if (!is.null(hiveLib)) {
-   .setEnv("HIVE_LIB_DIR", hiveLib)
-  }
-
-  if (!is.null(hadoopLib)) {
-   .setEnv("HADOOP_LIB_DIR", hadoopLib)
-  }
-
-  if (!is.null(hadoopConf)) {
-   .setEnv("HADOOP_CONF_DIR", hadoopConf)
-  }
-
+	if (is.null(hadoopLib)) {
+		hadoopLib <- .defaultLibDir(hadoopHome)
+	}
+	.setEnv("HADOOP_LIB_DIR", hadoopLib)	
+  }  
+  
   ver <- .getSysEnv("RHIVE_HIVESERVER_VERSION")
   if (!is.null(ver)) {
     .setEnv("HIVESERVER_VERSION", ver)
@@ -71,26 +69,15 @@
  .initJvm(cp)
  .setEnv("INITIALIZED", TRUE)
 
+  
   if (verbose) {
     .rhive.env(ALL=TRUE)
   }
-
+      
   options(show.error.messages=TRUE)
 }
 
 .getClasspath <- function(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf) {
-  if (is.null(hadoopLib)) {
-    hadoopLib <- .defaultLibDir(hadoopHome)
-  }
-
-  if (is.null(hiveLib)) {
-    hiveLib <- .defaultLibDir(hiveHome)
-  }
-
-  if (is.null(hadoopConf)) {
-    hadoopConf <- .defaultConfDir(hadoopHome)
-  }
-
   cp <- c(list.files(paste(system.file(package="RHive"), "java", sep=.Platform$file.sep), pattern="jar$", full.names=TRUE))
 
   if (substr(hadoopLib, start=1, stop=nchar(hadoopHome)) != hadoopHome) {
@@ -99,7 +86,6 @@
 
   cp <- c(cp, list.files(hadoopHome, full.names=TRUE, pattern="jar$", recursive=TRUE))
   cp <- c(cp, list.files(hiveLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
-  cp <- c(cp, hadoopConf)
 
   return (cp)
 }
@@ -139,15 +125,17 @@
    .setEnv("USERNAME", userName)
    .setEnv("HOME", userHome)
    .setEnv("TMP_DIR", tmpDir)
-
+    
     System <- .j2r.System()
-    System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())
-
+    System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())	
+	System$setProperty("HADOOP_CONF_DIR", .HADOOP_CONF_DIR())
+	
     if (is.null(defaultFS)) {
       defaultFS <- .DEFAULT_FS()
     }
-   .rhive.hdfs.connect(defaultFS)
-   .copyJarsToHdfs(updateJar)
+	
+    .rhive.hdfs.connect(defaultFS)
+    .copyJarsToHdfs(updateJar)
 
     if (is.na(hiveServer2)) {
       hiveServer2 <- .isForVersion2()
@@ -412,7 +400,7 @@
   eval(parse(text=cmd))
 
   UDFUtils <- .j2r.UDFUtils()
-  UDFUtils$export(exportName, dataPath)
+  UDFUtils$export(exportName, dataPath,.DEFAULT_FS())
 
   return(TRUE)
 }
@@ -424,12 +412,12 @@
 
 .rhive.list.udfs <- function() {
   UDFUtils <- .j2r.UDFUtils()
-  return (UDFUtils$list())
+  return (UDFUtils$list(.DEFAULT_FS()))
 }
 
 .rhive.rm.udf <- function(exportName) {
   UDFUtils <- .j2r.UDFUtils()
-  return (UDFUtils$delete(exportName))
+  return (UDFUtils$delete(exportName,.DEFAULT_FS()))
 }
 
 .rhive.list.databases <- function(pattern) {

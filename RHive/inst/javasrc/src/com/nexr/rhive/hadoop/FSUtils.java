@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -14,6 +15,9 @@ import org.apache.hadoop.fs.FsShell;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hdfs.tools.DFSck;
 
+import java.net.URL;
+import java.io.File;
+import java.io.FilenameFilter;
 
 public class FSUtils {
 	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
@@ -348,15 +352,48 @@ public class FSUtils {
 			}
 		} catch (IOException e) { }
 	}
-	
-	
-	private static Configuration getConf(String defaultFS) {
-		Configuration conf = new Configuration();
+			
+	public static Configuration getConf(String defaultFS){
 		
-		if (defaultFS != null) {
+		Configuration conf = getConf();
+		
+		//override defaultFS
+		if (StringUtils.isNotEmpty(defaultFS)) {
 			FileSystem.setDefaultUri(conf, defaultFS);
 		}
 		
+		return conf;
+	}
+	
+	public static Configuration getConf(){
+		
+		Configuration conf = new Configuration();
+				
+		String hadoopConfPath = System.getProperty("HADOOP_CONF_DIR");
+		
+		if(StringUtils.isNotEmpty(hadoopConfPath)){
+			
+			File dir = new File(hadoopConfPath);
+			if(!dir.exists() || !dir.isDirectory()){
+				return conf;
+			}
+			
+			File[] files = dir.listFiles(
+				new FilenameFilter(){
+					public boolean accept(File dir, String name){
+						return name.endsWith("xml");
+					}
+				}
+			);
+			
+			for(File file : files){
+				try{
+					URL url = new URL("file://" + file.getCanonicalPath());
+					conf.addResource(url);
+				}catch(Exception e){}
+			}
+		}
+				
 		return conf;
 	}
 }
