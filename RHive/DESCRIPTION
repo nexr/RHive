@@ -7,7 +7,7 @@ Description: RHive is an R extension facilitating
 			It provides an easy to use HQL like SQL 
 			and R objects and functions in HQL.
 Author: NexR
-Maintainer: Johan Ahn <johan.ahn@nexr.com>
+Maintainer: bruce shin <bruce.shin@nexr.com>
 License: Apache License (== 2.0)
 Depends: R (>= 2.13.0), rJava (>= 0.9-0), Rserve (>= 0.6-0)
 Suggests: RUnit
