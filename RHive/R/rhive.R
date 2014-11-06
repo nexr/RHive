@@ -221,10 +221,18 @@
     .dfs.chmod("777", .FS_BASE_TMP_DIR())
   }
 
+  if(!.rhive.hdfs.exists(.FS_TMP_DIR())){
+	.dfs.mkdir(.FS_TMP_DIR())
+	.dfs.chmod("777", .FS_TMP_DIR())
+  }
+  
   if (!.rhive.hdfs.exists(.FS_BASE_MR_SCRIPT_DIR())) {
     .dfs.mkdir(.FS_BASE_MR_SCRIPT_DIR())
     .dfs.chmod("777", .FS_BASE_MR_SCRIPT_DIR())
   }
+  
+  
+  
 }
 
 .getHiveClient <- function() {
