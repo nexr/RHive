@@ -28,7 +28,30 @@ public class QueryResult {
 		
 		return null;
 	}
-	
+
+    public String makeResultString() throws SQLException {
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+
+        StringBuilder sb = new StringBuilder();
+        while (rs.next()) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+
+            for (int i = 1; i <= columnCount; i++) {
+                if (i > 1) {
+                    sb.append(" ");
+                }
+
+                String value = rs.getString(i);
+                sb.append(value == null ? "" : value);
+            }
+        }
+
+        return sb.toString();
+    }
+
 	public void close() throws SQLException {
 		rs.close();
 	}

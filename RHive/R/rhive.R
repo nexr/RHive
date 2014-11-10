@@ -229,10 +229,7 @@
   if (!.rhive.hdfs.exists(.FS_BASE_MR_SCRIPT_DIR())) {
     .dfs.mkdir(.FS_BASE_MR_SCRIPT_DIR())
     .dfs.chmod("777", .FS_BASE_MR_SCRIPT_DIR())
-  }
-  
-  
-  
+  }  
 }
 
 .getHiveClient <- function() {
@@ -500,23 +497,45 @@
 .rhive.show.tables <- .rhive.list.tables
 
 .rhive.desc.table <- function(tableName, detail=FALSE) {
-  if (!is.character(tableName)) {
-    stop("tableName must be string type.")
-  }
 
-  res <- NULL
-  if (detail) {
-    tableInfo <- .rhive.query(paste("DESCRIBE EXTENDED",tableName))
-    res <- tableInfo[[2]][length(rownames(tableInfo))]
-  } else {
-    res <- .rhive.query(paste("DESCRIBE", tableName))
-  }
+    if (!is.character(tableName)) {
+        stop("tableName must be string type.")
+    }
 
-  if (!is.null(res)) {
-    res <- lapply(res, function(v) { gsub("(^ +)|( +$)", "", v) })
-  }
+    sql <- NULL
+    if (detail) {
+        sql <- paste("DESCRIBE EXTENDED",tableName)
+    } else {
+        sql <- paste("DESCRIBE", tableName)
+    }
 
-  return (as.data.frame(res))
+    hiveClient <- .getHiveClient()
+    res <- hiveClient$query(sql)
+    desc <- res$makeResultString()
+
+    if(detail == TRUE){
+        return(desc)
+    }
+
+    recs <- unlist(strsplit(desc, split = "\n", fixed = TRUE))
+
+    l <- list(colname = character(0), type = character(0), comment = character(0))
+    colname <- character(0)
+    type <- character(0)
+    comment <- character(0)
+    for (i in seq_along(recs)) {
+        v <- unlist(strsplit(recs[i], split = "\\s+"))
+        l$colname[i] <- v[1]
+        l$type[i] <- v[2]
+        ## support hive (>= 0.13.# )
+        if (length(v) >= 3) {
+            l$comment[i] <- v[3]
+        }else{
+            l$comment[i] <- ""
+        }
+    }
+
+    as.data.frame(l, stringsAsFactors = FALSE)
 }
 
 .rhive.load.table <- function(tableName, fetchSize=50, limit=-1) {
@@ -889,12 +908,21 @@
       stop("missing tableName")
   }
 
-  tableName <- tolower(tableName)
-  metaInfo <- .rhive.desc.table(tableName, detail=TRUE)
-  location <- strsplit(strsplit(as.character(metaInfo[[1]]), "location:")[[1]][2],",")[[1]][1]
+  location <- .rhive.table.location(tableName)
   dataInfo <- .rhive.hdfs.du(location, summary=TRUE)
 
   return (dataInfo$length)
+}
+
+.rhive.table.location <- function(tableName) {
+    str <- .rhive.desc.table(tableName, detail=TRUE)
+    i <- regexpr("location\\s*:\\s*[^,]+", str)
+    l <- attr(i, "match.length")
+
+    str <- substr(str, i, i + l - 1)
+    str <- gsub("^location\\s*:\\s*", "", str)
+    str <- gsub("^[[:alpha:]]+://[^:/]*(:[0-9]+)?", "", str)
+    str
 }
 
 .rhive.list.jobs <- function() {

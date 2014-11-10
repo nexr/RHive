@@ -19,7 +19,6 @@ public class HiveJdbcClient implements HiveOperations {
 		} else {
 			this.version = 1;
 		}
-		
 	}
 	
 	public void connect(String host, int port) throws SQLException {
