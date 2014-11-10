@@ -520,9 +520,6 @@
     recs <- unlist(strsplit(desc, split = "\n", fixed = TRUE))
 
     l <- list(colname = character(0), type = character(0), comment = character(0))
-    colname <- character(0)
-    type <- character(0)
-    comment <- character(0)
     for (i in seq_along(recs)) {
         v <- unlist(strsplit(recs[i], split = "\\s+"))
         l$colname[i] <- v[1]
