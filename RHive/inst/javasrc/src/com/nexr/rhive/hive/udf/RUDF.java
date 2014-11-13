@@ -62,8 +62,8 @@ public class RUDF extends GenericUDF {
 	private static int NUMBER_TYPE = 0;
 	private static RConnection rconnection;
 
-	private Converter[] converters;
-	private int[] types;
+	private transient Converter[] converters;
+	private transient int[] types;
 
 	@Override
 	public Object evaluate(DeferredObject[] arguments) throws HiveException {
