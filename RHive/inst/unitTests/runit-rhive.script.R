@@ -20,14 +20,13 @@ stopifnot(require(RUnit, quietly=TRUE))
 test.rhive.mapapply <- function() {
 
     ## Load emp test data and put it into the Hive
-    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
-	empTest <- read.csv2(localData, sep=",")
-	
-	if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
-	
-	rhive.write.table(empTest)
+    data(emp)
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
+
+    rhive.write.table(emp,"emp")
 	
 	map <- function(k,v) {
 	
@@ -40,28 +39,25 @@ test.rhive.mapapply <- function() {
 	
 	}
 
-	queryResult <- rhive.mapapply("empTest",map,c("ename","position"),c("position","one"),by="position",forcedRef=FALSE)
+	queryResult <- rhive.mapapply("emp",map,c("ename","position"),c("position","one"),by="position",forcedRef=FALSE)
 	checkTrue(!is.null(queryResult))
 
-    if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
-
-
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
 }
 
 
 test.rhive.mrapply <- function()
 {
     ## Load emp test data and put it into the Hive
-    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
-	empTest <- read.csv2(localData, sep=",")
-	
-	if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
-	
-	rhive.write.table(empTest)
+    data(emp)
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
+
+    rhive.write.table(emp,"emp")
 	
 	map <- function(k,v) {
 	
@@ -80,12 +76,12 @@ test.rhive.mrapply <- function()
   
 	}
 	
-	queryResult <- rhive.mrapply("empTest",map,reduce,c("ename","position"),c("position","one"),by="position",c("position","one"),c("word","count"),forcedRef=FALSE)
+	queryResult <- rhive.mrapply("emp",map,reduce,c("ename","position"),c("position","one"),by="position",c("position","one"),c("word","count"),forcedRef=FALSE)
 	
     checkTrue(!is.null(queryResult))
     checkTrue(length(row.names(queryResult)) == 5)
 
-    if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
 }

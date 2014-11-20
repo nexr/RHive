@@ -19,20 +19,26 @@ stopifnot(require(RUnit, quietly=TRUE))
 test.rhive.hdfs <- function()
 {
     ## Load emp test data and put it into the Hive
-    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
-	empTest <- read.csv2(localData, sep=",")
-	
-	checkTrue(rhive.save(empTest,file="/rhive/unittest/empTest.RData"))
+
+    #    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
+    #	empTest <- read.csv2(localData, sep=",")
+
+    data(emp)
+
+    localData = file.path(getwd(),"emp.csv")
+    write.csv2(emp,localData)
+
+	checkTrue(rhive.save(emp,file="/rhive/unittest/emp.RData"))
 	
 	listdata <- rhive.hdfs.ls("/rhive/unittest")
 	
-	loc <- (listdata['file'] == "/rhive/unittest/empTest.RData")
+	loc <- (listdata['file'] == "/rhive/unittest/emp.RData")
 	checkTrue(length(listdata['file'][loc]) == 1)
 	
-	rhive.load("/rhive/unittest/empTest.RData")
+	rhive.load("/rhive/unittest/emp.RData")
 	
 	rhive.hdfs.put(localData,"/rhive/unittest/emp.csv")
-	
+
 	listdata <- rhive.hdfs.ls("/rhive/unittest")
 	
 	loc <- (listdata['file'] == "/rhive/unittest/emp.csv")
@@ -64,7 +70,7 @@ test.rhive.hdfs <- function()
 	loc <- (listdata['file'] == "/rhive/unittest/emp1.csv")
 	checkTrue(length(listdata['file'][loc]) == 0)
 	
-	rhive.hdfs.rm("/rhive/unittest/empTest.RData")
+	rhive.hdfs.rm("/rhive/unittest/emp.RData")
 	
 	queryResult <- rhive.hdfs.du("/rhive")
 	checkTrue(!is.null(queryResult))

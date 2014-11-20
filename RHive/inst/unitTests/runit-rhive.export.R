@@ -19,29 +19,27 @@ stopifnot(require(RUnit, quietly=TRUE))
 test.rhive.export <- function()
 {
     ## Load emp test data and put it into the Hive
-    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
-	empTest <- read.csv2(localData, sep=",")
-	
-	if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
-	
-	rhive.write.table(empTest)
-	
-	checkTrue(rhive.exist.table("empTest"))
-	
-    usercal <- function(sal) {
-		sal * 5
+    data(emp)
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
     }
+
+    rhive.write.table(emp,"emp")
 	
+    checkTrue(rhive.exist.table("emp"))
+
+    usercal <- function(sal) {
+        sal * 5
+    }
+
     checkTrue(rhive.assign('usercal',usercal))
     checkTrue(rhive.export('usercal'))
-	
-    queryResult <- rhive.query("select R('usercal',sal,0.0) from empTest")
-    checkTrue(!is.null(queryResult))
-    
-    if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
 
+    queryResult <- rhive.query("select R('usercal',sal,0.0) from emp")
+    checkTrue(!is.null(queryResult))
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
 }

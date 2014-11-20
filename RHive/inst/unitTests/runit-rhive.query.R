@@ -19,29 +19,28 @@ stopifnot(require(RUnit, quietly=TRUE))
 test.rhive.query <- function()
 {
     ## Load emp test data and put it into the Hive
-    localData <- system.file(file.path("data", "emp.csv"), package="RHive")
-	empTest <- read.csv2(localData, sep=",")
+    data(emp)
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
+
+    rhive.write.table(emp,"emp")
 	
-	if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
-	
-	rhive.write.table(empTest)
-	
-    queryResult <- rhive.query("select * from empTest")
+    queryResult <- rhive.query("select * from emp")
     checkTrue(!is.null(queryResult))
 
-    if(rhive.exist.table("empTest")) {
-		rhive.query("DROP TABLE empTest")
-	}
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
 }
 
 test.rhive.array2String <- function()
 {
 	rhive.drop.table("iris")
-	rhive.write.table(iris)
+	rhive.write.table(iris,"iris")
 	
-	rhive.query("alter table iris replace columns (sepalwidth bigint)")
+#	rhive.query("alter table iris replace columns (sepalwidth bigint)")
 	
 	queryResult <- rhive.query("select array2String(percentile(sepalwidth, array(0,0.2,0.4,0.5,0.99,1))) from iris")
 	checkTrue(!is.null(queryResult))
