@@ -1,7 +1,7 @@
 Package: RHive
 Type: Package
 Title: R and Hive
-Version: 2.0-0.5
+Version: 2.0-0.6
 Description: RHive is an R extension facilitating
 			distributed computing via HIVE query.
 			It provides an easy to use HQL like SQL 

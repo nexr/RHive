@@ -49,15 +49,15 @@ public class GenericUDTFExpand extends GenericUDTF {
 		STRING, DOUBLE, INT, NUMERIC, NULLNAME
 	};
 
-	DATA_TYPE data_type; // mapping from data-type to enum DATA_TYPE
-	Writable[] retRow; // returned row value but only use one.
-	Writable[] row; // object pool of non-null writable, avoid creating
+    transient DATA_TYPE data_type; // mapping from data-type to enum DATA_TYPE
+    transient Writable[] retRow; // returned row value but only use one.
+    transient Writable[] row; // object pool of non-null writable, avoid creating
 					// objects all the time
-	Object[] nullRow; // array of null row value
-	ObjectInspector[] inputOIs; // input ObjectInspectors
-	boolean pathParsed = false;
-	boolean seenErrors = false;
-	String delim = ",";
+    transient Object[] nullRow; // array of null row value
+    transient ObjectInspector[] inputOIs; // input ObjectInspectors
+    transient boolean pathParsed = false;
+    transient boolean seenErrors = false;
+    transient String delim = ",";
 
 	@Override
 	public StructObjectInspector initialize(ObjectInspector[] args) throws UDFArgumentException {

@@ -19,6 +19,10 @@
 	FSUtils$getConf()
 }
 
+.j2r.Properties <- function() {
+    .jnew("java/util/Properties")
+}
+
 .j2r.EnvUtils <- function() {
   J("com/nexr/rhive/util/EnvUtils")
 }
@@ -36,7 +40,12 @@
 }
 
 .j2r.FSUtils <- function() {
+  .rhive.hdfs.login()
   J("com/nexr/rhive/hadoop/FSUtils")
+}
+
+.j2r.AuthUtils <- function() {
+  J("com/nexr/rhive/hadoop/AuthUtils")
 }
 
 .j2r.System <- function() {

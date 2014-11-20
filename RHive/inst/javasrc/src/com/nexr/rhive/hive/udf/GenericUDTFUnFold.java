@@ -49,17 +49,17 @@ public class GenericUDTFUnFold extends GenericUDTF {
 		STRING, DOUBLE, INT, NUMERIC, NULLNAME
 	};
 
-	int numCols; // number of output columns
+    transient int numCols; // number of output columns
 
-	DATA_TYPE[] data_types; // mapping from data-types to enum DATA_TYPE
-	Writable[] retCols; // array of returned column values
-	Writable[] cols; // object pool of non-null writable, avoid creating
+    transient DATA_TYPE[] data_types; // mapping from data-types to enum DATA_TYPE
+    transient Writable[] retCols; // array of returned column values
+    transient Writable[] cols; // object pool of non-null writable, avoid creating
 						// objects all the time
-	Object[] nullCols; // array of null column values
-	ObjectInspector[] inputOIs; // input ObjectInspectors
-	boolean pathParsed = false;
-	boolean seenErrors = false;
-	String delim = ",";
+    transient Object[] nullCols; // array of null column values
+    transient ObjectInspector[] inputOIs; // input ObjectInspectors
+    transient boolean pathParsed = false;
+    transient boolean seenErrors = false;
+    transient String delim = ",";
 
 	@Override
 	public StructObjectInspector initialize(ObjectInspector[] args)

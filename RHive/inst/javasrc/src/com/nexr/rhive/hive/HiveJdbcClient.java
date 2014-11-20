@@ -1,17 +1,17 @@
 package com.nexr.rhive.hive;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.apache.commons.lang.StringUtils;
+import org.apache.hadoop.security.UserGroupInformation;
+
+import java.sql.*;
+import java.util.Enumeration;
+import java.util.Properties;
 import java.util.StringTokenizer;
  
 public class HiveJdbcClient implements HiveOperations {
 	private DatabaseConnection databaseConnection;
 	private int version;
 	private ResultSet columns;
-	
 
 	public HiveJdbcClient(boolean hiveServer2) {
 		if (hiveServer2) {
@@ -20,21 +20,14 @@ public class HiveJdbcClient implements HiveOperations {
 			this.version = 1;
 		}
 	}
-	
-	public void connect(String host, int port) throws SQLException {
-		connect(host, port, "default", null, null);
-	}
 
-	public void connect(String host, int port, String db) throws SQLException {
-		connect(host, port, db, null, null);
-	}
+    public void connect(String host, int port, String db, String user, String password) throws SQLException {
+        connect(host, port, db, user,password, new Properties());
+    }
 
-	public void connect(String host, int port, String user, String password) throws SQLException {
-		connect(host, port, "default", user, password);
-	}
-	
-	public void connect(String host, int port, String db, String user, String password) throws SQLException {
-		HiveJdbcConnector hiveConnector = new HiveJdbcConnector(host, port, db, user, password);
+	public void connect(String host, int port, String db, String user, String password, Properties properties) throws SQLException {
+
+		HiveJdbcConnector hiveConnector = new HiveJdbcConnector(host, port, db, user,password, properties);
 		hiveConnector.setDaemon(false);
 		hiveConnector.start();
 		try {
@@ -44,11 +37,11 @@ public class HiveJdbcClient implements HiveOperations {
 		if (hiveConnector.isAlive()) {
 			int version = getVersion();
 			throw new SQLException(
-					String.format(
-							"Connection to hiveserver has timed out.\n" +
-							"\t--connection-parameters(version: hiveserver%d, host:%s, port:%d, db:%s, user:%s, password:%s)\n\n" + 
-							"Restart R session and retry with correct arguments.",
-							 version, host, port, db, user, password));
+                    String.format(
+                            "Connection to hive server has timed out.\n" +
+                                    "\t--connection-parameters(version: hive server%d, host:%s, port:%d, db:%s, properties:%s)\n\n" +
+                                    "Restart R session and retry with correct arguments.",
+                            version, host, port, db, properties));
 		}
 	}
 
@@ -286,7 +279,6 @@ public class HiveJdbcClient implements HiveOperations {
 		String command = String.format("DELETE ARCHIVES %s", archive);
 		execute(command);
 		return true;
-
 	}
 	
 	@Override
@@ -298,34 +290,38 @@ public class HiveJdbcClient implements HiveOperations {
 		String msg = e.getMessage();
 		return msg.indexOf("TTransportException") != -1;
 	}
-	
-	
+
 	private class HiveJdbcConnector extends Thread {
 		
 		private String host;
 		private int port;
 		private String db;
-		private String user;
-		private String password;
+        private String user;
+        private String password;
+        private Properties properties;
 
-		public HiveJdbcConnector(String host, int port, String db, String user, String password) {
+		public HiveJdbcConnector(String host, int port, String db, String user, String password, Properties properties) {
 			this.host = host;
 			this.port = port;
 			this.db = db;
-			this.user = user;
-			this.password = password;
+            this.user = user;
+            this.password = password;
+            this.properties = properties;
 		}
 		
 		@Override
 		public void run() {
-			connect(host, port, db, user, password);
+            connect(host, port, db, user, password);
 		}
-		
-		public void connect(String host, int port, String db, String user, String password) {
+
+        public void connect(String host, int port, String db, String user, String password) {
 			try {
-				String url = getUrl(host, port, db);
+				String url = getUrl(host, port, db, properties);
 				String driver = getDriver();
-				DatabaseConnection connection = new DatabaseConnection(driver, url, user, password);
+
+                loginUserFromKeytab(properties);
+
+				DatabaseConnection connection = new DatabaseConnection(driver, url, user,password);
 				connection.connect();
 				
 				databaseConnection = connection;
@@ -337,8 +333,18 @@ public class HiveJdbcClient implements HiveOperations {
 				}
 			}
 		}
-		
-		private String getUrl(String host, int port, String db) {
+
+        private void loginUserFromKeytab(Properties p) throws Exception{
+            String principal = p.getProperty("hive.principal");
+            String keytab = p.getProperty("hive.keytab");
+
+            if(StringUtils.isEmpty(principal) || StringUtils.isEmpty(keytab)){
+                return;
+            }
+            UserGroupInformation.loginUserFromKeytab(principal, keytab);
+        }
+
+		private String getUrl(String host, int port, String db, Properties p) {
 			String scheme = getUrlPrefix();
 			StringBuilder sb = new StringBuilder(scheme);
 			sb.append(host);
@@ -347,10 +353,19 @@ public class HiveJdbcClient implements HiveOperations {
 			sb.append("/");
 			sb.append(db);
 
+            Enumeration e = p.propertyNames();
+            while(e.hasMoreElements()) {
+                String key = (String)e.nextElement();
+                if(key.startsWith("hive")){
+                    String val = p.getProperty(key);
+                    key = key.replace("hive.","");
+                    sb.append(";").append(key).append("=").append(val);
+                }
+            }
+
 			return sb.toString();
 		}
 
-		
 		private String getUrlPrefix() {
 			switch (version) {
 			case 1:

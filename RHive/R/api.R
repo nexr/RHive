@@ -82,9 +82,9 @@ rhive.env <- function(ALL=FALSE) {
   )
 }
 
-rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL) {
+rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL, db="default", properties = character(0)) {
   tryCatch ( {
-     .rhive.connect(host=host, port=port, hiveServer2=hiveServer2, defaultFS=defaultFS, updateJar=updateJar, user=user, password=password)
+     .rhive.connect(host=host, port=port, hiveServer2=hiveServer2, defaultFS=defaultFS, updateJar=updateJar, user=user, password=password,db,properties)
     }, error=function(e) {
      .handleErr(e)
     }
@@ -511,6 +511,15 @@ rhive.script.unexport <- function(exportName) {
 rhive.hdfs.info <- function(path) {
   tryCatch ( {
      .rhive.hdfs.info(path=path)
+    }, error=function(e) {
+     .handleErr(e)
+    }
+  )
+}
+
+rhive.login <- function(keytab,principal,hostname) {
+  tryCatch ( {
+     .rhive.login(keytab=keytab,principal=principal,hostname=hostname)
     }, error=function(e) {
      .handleErr(e)
     }

@@ -19,6 +19,10 @@
   }
 
   FSUtils <- .j2r.FSUtils()
+
+  AuthUtils <- .j2r.AuthUtils()
+  AuthUtils$setConfigurationUserGroup(FSUtils$getConf())
+
   ok <- FSUtils$checkFileSystem(defaultFS)
   if (!ok) {
     stop(sprintf("Failed to connect to %s.", defaultFS))
@@ -329,4 +333,10 @@
   if (all(file.exists(files))) {
     unlink(files)
   }
+}
+
+.rhive.hdfs.login <- function(){
+ j.auth.properties <- .getEnv("AUTH_PROPERTIES")
+ AuthUtils <- .j2r.AuthUtils()
+ AuthUtils$loginUserFromKeytab(j.auth.properties,"hdfs")
 }

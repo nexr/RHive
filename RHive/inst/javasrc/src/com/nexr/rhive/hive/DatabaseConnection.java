@@ -5,6 +5,7 @@ import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -16,16 +17,15 @@ class DatabaseConnection {
 	private DatabaseMetaData metaData;
 	private final String url;
 	private final String username;
-	private final String password;
-
+    private final String password;
 	private Schema schema = null;
 
-	public DatabaseConnection(String driver, String url, String username, String password) {
-		this.driver = driver;
-		this.url = url;
-		this.username = username;
-		this.password = password;
-	}
+    public DatabaseConnection(String driver, String url, String username, String password) {
+        this.driver = driver;
+        this.url = url;
+        this.username = username;
+        this.password = password;
+    }
 
 	@Override
 	public String toString() {
@@ -48,7 +48,8 @@ class DatabaseConnection {
 
 		close();
 
-		setConnection(DriverManager.getConnection(getUrl(), username, password));
+//		setConnection(DriverManager.getConnection(getUrl(), properties));
+        setConnection(DriverManager.getConnection(getUrl(), username, password));
 		setDatabaseMetaData(getConnection(false).getMetaData());
 
 		return true;

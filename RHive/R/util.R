@@ -13,3 +13,11 @@
 # limitations under the License.
 
 trim <- function (x) gsub("^\\s+|\\s+$", "", x)
+
+is.empty <- function(val) {
+        if (is.null(val) || is.na(val) || length(val) == 0) {
+                return(TRUE)
+        } else {
+                return(FALSE)
+        }
+}

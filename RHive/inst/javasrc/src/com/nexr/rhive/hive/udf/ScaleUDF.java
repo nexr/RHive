@@ -32,8 +32,8 @@ import com.nexr.rhive.hive.HiveVariations;
 
 public class ScaleUDF extends GenericUDF {
 
-	Converter[] converters;
-	DoubleObjectInspector scaleFieldOI;
+    transient Converter[] converters;
+    transient DoubleObjectInspector scaleFieldOI;
 
 	public Object evaluate(DeferredObject[] arguments) throws HiveException {
 

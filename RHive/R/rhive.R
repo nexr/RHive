@@ -94,7 +94,7 @@
  .jinit(classpath=cp, parameters=getOption("java.parameters"))
 }
 
-.rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL) {
+.rhive.connect <- function(host="127.0.0.1", port=10000, hiveServer2=NA, defaultFS=NULL, updateJar=FALSE, user=NULL, password=NULL, db="default", properties = character(0)) {
 
   initialized <- .getEnv("INITIALIZED")
   if (is.null(.getEnv("HIVE_HOME")) || is.null(.getEnv("HADOOP_HOME"))) {
@@ -121,19 +121,21 @@
     userName <- EnvUtils$getUserName()
     userHome <- EnvUtils$getUserHome()
     tmpDir <- EnvUtils$getTempDirectory()
+    j.properties <- .auth.properties(user, password, properties)
 
    .setEnv("USERNAME", userName)
    .setEnv("HOME", userHome)
    .setEnv("TMP_DIR", tmpDir)
-    
+   .setEnv("AUTH_PROPERTIES", j.properties)
+
     System <- .j2r.System()
-    System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())	
+    System$setProperty("RHIVE_UDF_DIR", .FS_UDF_DIR())
 	System$setProperty("HADOOP_CONF_DIR", .HADOOP_CONF_DIR())
-	
+
     if (is.null(defaultFS)) {
       defaultFS <- .DEFAULT_FS()
     }
-	
+
     .rhive.hdfs.connect(defaultFS)
     .copyJarsToHdfs(updateJar)
 
@@ -142,7 +144,7 @@
     }
 
     hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
-    hiveClient$connect(host, as.integer(port), user, password) 
+    hiveClient$connect(host, as.integer(port), db, user,password, j.properties)
     hiveClient$addJar(.FS_JAR_PATH())
 
    .registerUDFs(hiveClient)
@@ -151,7 +153,29 @@
    .setEnv("hiveClient", hiveClient)
 
    .makeBaseDirs()
+
+    if (db != "default") {
+        .rhive.use.database(db)
+    }
   }
+}
+
+.auth.properties <- function(user, password, properties) {
+#.make.j.properties <- function(properties) {
+    j.properties <- .j2r.Properties()
+    if (!is.empty(user)) {
+        j.properties$setProperty("user", user)
+    }
+
+    if (!is.empty(password)) {
+        j.properties$setProperty("password", password)
+    }
+
+    if (!is.empty(properties)) {
+        l <- lapply(strsplit(properties, split = "="), function(x) { gsub("^\\s+|\\s+$", "", x) })
+        lapply(l, function(p) { if (length(p) == 2) { j.properties$setProperty(p[1], p[2]) } })
+    }
+    return(j.properties)
 }
 
 .copyJarsToHdfs <- function(updateJar) {
@@ -207,28 +231,28 @@
 
 .makeBaseDirs <- function() {
   if (!.rhive.hdfs.exists(.FS_BASE_DATA_DIR())) {
-    .dfs.mkdir(.FS_BASE_DATA_DIR())
-    .dfs.chmod("777", .FS_BASE_DATA_DIR())
+   .rhive.hdfs.mkdirs(.FS_BASE_DATA_DIR())
+   .rhive.hdfs.chmod("777",.FS_BASE_DATA_DIR())
   }
 
   if (!.rhive.hdfs.exists(.FS_BASE_UDF_DIR())) {
-    .dfs.mkdir(.FS_BASE_UDF_DIR())
-    .dfs.chmod("777", .FS_BASE_UDF_DIR())
+   .rhive.hdfs.mkdirs(.FS_BASE_UDF_DIR())
+   .rhive.hdfs.chmod("777",.FS_BASE_UDF_DIR())
   }
 
   if (!.rhive.hdfs.exists(.FS_BASE_TMP_DIR())) {
-    .dfs.mkdir(.FS_BASE_TMP_DIR())
-    .dfs.chmod("777", .FS_BASE_TMP_DIR())
+   .rhive.hdfs.mkdirs(.FS_BASE_TMP_DIR())
+   .rhive.hdfs.chmod("777",.FS_BASE_TMP_DIR())
   }
 
   if(!.rhive.hdfs.exists(.FS_TMP_DIR())){
-	.dfs.mkdir(.FS_TMP_DIR())
-	.dfs.chmod("777", .FS_TMP_DIR())
+   .rhive.hdfs.mkdirs(.FS_TMP_DIR())
+   .rhive.hdfs.chmod("777",.FS_TMP_DIR())
   }
   
   if (!.rhive.hdfs.exists(.FS_BASE_MR_SCRIPT_DIR())) {
-    .dfs.mkdir(.FS_BASE_MR_SCRIPT_DIR())
-    .dfs.chmod("777", .FS_BASE_MR_SCRIPT_DIR())
+   .rhive.hdfs.mkdirs(.FS_BASE_MR_SCRIPT_DIR())
+   .rhive.hdfs.chmod("777",.FS_BASE_MR_SCRIPT_DIR())
   }  
 }
 
@@ -519,11 +543,11 @@
 
     recs <- unlist(strsplit(desc, split = "\n", fixed = TRUE))
 
-    l <- list(colname = character(0), type = character(0), comment = character(0))
+    l <- list(col_name = character(0), data_type = character(0), comment = character(0))
     for (i in seq_along(recs)) {
         v <- unlist(strsplit(recs[i], split = "\\s+"))
-        l$colname[i] <- v[1]
-        l$type[i] <- v[2]
+        l$col_name[i] <- v[1]
+        l$data_type[i] <- v[2]
         ## support hive (>= 0.13.# )
         if (length(v) >= 3) {
             l$comment[i] <- v[3]

@@ -35,18 +35,18 @@ import com.nexr.rhive.util.RangeTreeFactory.RangeTree;
 
 public class RangeKeyUDF extends GenericUDF {
 
-	private Configuration config;
+//	private transient Configuration config;
 
-	private ObjectInspector[] argumentOIs;
+	private transient ObjectInspector[] argumentOIs;
 
-	private RANGEVALUE rangeValue;
+	private transient RANGEVALUE rangeValue;
 
-	private ObjectInspector returnOI;
+//	private transient ObjectInspector returnOI;
 
-	private String breaks = null;
-	private Boolean isRight = null;
+	private transient String breaks = null;
+	private transient Boolean isRight = null;
 
-	private static Map<String, RangeTree> TREES = new LinkedHashMap<String, RangeTree>();
+	private transient static Map<String, RangeTree> TREES = new LinkedHashMap<String, RangeTree>();
 
 	public static enum RANGEVALUE {
 		INT_TYPE {
@@ -241,10 +241,11 @@ public class RangeKeyUDF extends GenericUDF {
 	@Override
 	public ObjectInspector initialize(ObjectInspector[] arguments)
 			throws UDFArgumentException {
-		if (config == null) {
-			SessionState session = SessionState.get();
-			config = session == null ? new Configuration() : session.getConf();
-		}
+
+//		if (config == null) {
+//			SessionState session = SessionState.get();
+//			config = session == null ? new Configuration() : session.getConf();
+//		}
 
 		if (arguments.length < 3) {
 			throw new UDFArgumentLengthException(
@@ -259,7 +260,9 @@ public class RangeKeyUDF extends GenericUDF {
 		} catch (Exception e) {
 			throw new UDFArgumentException(e);
 		}
-		this.returnOI = PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+
+//		this.returnOI = PrimitiveObjectInspectorFactory.writableStringObjectInspector;
+        ObjectInspector returnOI = PrimitiveObjectInspectorFactory.writableStringObjectInspector;
 
 		return returnOI;
 	}
@@ -268,11 +271,9 @@ public class RangeKeyUDF extends GenericUDF {
 	public Object evaluate(DeferredObject[] records) throws HiveException {
 
 		if (breaks == null) {
-			breaks = (String) ((PrimitiveObjectInspector) argumentOIs[1])
-					.getPrimitiveJavaObject(records[1].get());
+			breaks = (String) ((PrimitiveObjectInspector) argumentOIs[1]).getPrimitiveJavaObject(records[1].get());
 			isRight = new Boolean(
-					(String) ((PrimitiveObjectInspector) argumentOIs[1])
-							.getPrimitiveJavaObject(records[2].get()));
+					(String) ((PrimitiveObjectInspector) argumentOIs[1]).getPrimitiveJavaObject(records[2].get()));
 		}
 
 		RangeTree tree = TREES.get(breaks);

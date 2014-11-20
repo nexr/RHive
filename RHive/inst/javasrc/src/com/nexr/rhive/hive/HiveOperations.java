@@ -1,15 +1,15 @@
 package com.nexr.rhive.hive;
 
 import java.sql.SQLException;
-
+import java.util.Properties;
 
 
 public interface HiveOperations {
-	void connect(String host, int port) throws SQLException;
-	void connect(String host, int port, String db) throws SQLException;
-	void connect(String host, int port, String user, String password) throws SQLException;
-	void connect(String host, int port, String db, String user, String password) throws SQLException;
-	void close() throws SQLException;
+
+    void connect(String host, int port, String db, String user, String password) throws SQLException;
+    void connect(String host, int port, String db, String user, String password, Properties properties) throws SQLException;
+
+    void close() throws SQLException;
 	void checkConnection() throws SQLException;
 	
 	boolean execute(String query) throws SQLException;

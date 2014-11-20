@@ -18,7 +18,7 @@ import org.apache.hadoop.io.Text;
         + " or the elements of a map to string. ")
 public class GenericUDFArrayToString extends GenericUDF {
     
-    private ObjectInspector inputOI = null;
+    private transient ObjectInspector inputOI = null;
     
     public Object evaluate(DeferredObject[] o) throws HiveException {
       
