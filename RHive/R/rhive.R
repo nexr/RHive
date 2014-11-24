@@ -80,11 +80,19 @@
 .getClasspath <- function(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf) {
   cp <- c(list.files(paste(system.file(package="RHive"), "java", sep=.Platform$file.sep), pattern="jar$", full.names=TRUE))
 
-  if (substr(hadoopLib, start=1, stop=nchar(hadoopHome)) != hadoopHome) {
-    cp <- c(cp, list.files(hadoopLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
+  hadoop.cmd <- file.path(hadoopHome, "bin", "hadoop")
+  cmd <- sprintf("%s classpath", hadoop.cmd)
+  hcp <- system(cmd, intern=TRUE)
+  if (length(hcp) > 0) {
+    if(.Platform$OS.type == "windows") {
+      hcp <- strsplit(gsub("\\*","", hcp), ";")
+    } else {
+      hcp <- strsplit(gsub("\\*","", hcp), ":")
+    }
+    hcp <- c(cp, unlist(hcp))
   }
 
-  cp <- c(cp, list.files(hadoopHome, full.names=TRUE, pattern="jar$", recursive=TRUE))
+  cp <- c(cp, list.files(hcp, pattern = "*\\.jar$", full.names = TRUE, recursive = FALSE))
   cp <- c(cp, list.files(hiveLib, full.names=TRUE, pattern="jar$", recursive=TRUE))
 
   return (cp)
@@ -161,7 +169,6 @@
 }
 
 .auth.properties <- function(user, password, properties) {
-#.make.j.properties <- function(properties) {
     j.properties <- .j2r.Properties()
     if (!is.empty(user)) {
         j.properties$setProperty("user", user)
