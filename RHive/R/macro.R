@@ -29,8 +29,6 @@
 
 .DEFAULT_FS_HOME <- "/rhive"
 
-
-
 .USERNAME <- function() {
   .getEnv("USERNAME")
 }
@@ -222,7 +220,6 @@
 .REDUCER_SCRIPT_NAME <- function(mrapply) {
   sprintf("%s.reducer", mrapply)
 }
-
 
 .defaultLibDir <- function(home) {
   return (sprintf("%s/lib", home))

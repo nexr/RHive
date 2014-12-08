@@ -232,7 +232,7 @@
 }
 
 .setConfigurations <- function(hiveClient) {
- .rhive.set(.HIVE_OUTPUT_COMPRESSION_PROPERTY, "false", hiveClient) 
+ .rhive.set(.HIVE_OUTPUT_COMPRESSION_PROPERTY, "false", hiveClient)
  .rhive.set(.HADOOP_CHILD_ENV_PROPERTY, sprintf("RHIVE_UDF_DIR=%s", .FS_UDF_DIR()), hiveClient)
 }
 
@@ -331,7 +331,6 @@
   query <- sprintf("CREATE TABLE %s AS %s", table, query)
  .rhive.execute(query)
 }
-
 
 .rhive.query <- function(query, fetchSize=50, limit=-1) {
   hiveClient <- .getHiveClient()
@@ -613,7 +612,7 @@
 		
 		if(file.info(filename)$size == 0) next()
 		
-		data <- read.csv(file=filename, header=FALSE, sep='\001', quote="", nrows=limit)
+		data <- read.csv(file=filename, header=FALSE, sep='\001', quote="", nrows=limit, stringsAsFactors = FALSE)
 		if (is.null(fullData)) {
 			fullData <- data
 		} else {
@@ -624,8 +623,7 @@
 	if (!is.null(fullData)) {
 		
 		colnames <- as.character(.rhive.desc.table(tableName)$col_name)
-		
-		names(fullData) <- names(colnames)
+		names(fullData) <- colnames
 		unlink(localDir, recursive=TRUE, force=TRUE)
 	}
 	
