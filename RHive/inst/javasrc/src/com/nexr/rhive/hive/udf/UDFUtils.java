@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 
 import com.nexr.rhive.hadoop.FSUtils;
+import org.apache.hadoop.hive.ql.session.SessionState;
 
 public class UDFUtils {
 	private static final String DEFAULT_UDF_DIR = "/rhive/udf";
@@ -32,9 +33,9 @@ public class UDFUtils {
 		Path dst = getPath(name);
 		fs.copyFromLocalFile(delSrc, overwrite, new Path(src), dst);
 	}
-	
+
 	public static String getBaseDirectory() {
-		String base = System.getProperty("RHIVE_UDF_DIR");
+        String base = System.getProperty("RHIVE_UDF_DIR");
 		if (base != null) {
 			return base;
 		}
@@ -43,7 +44,12 @@ public class UDFUtils {
 		if (base != null) {
 			return base;
 		}
-		
+
+        base = SessionState.get().getConf().get("RHIVE_UDF_DIR");
+        if (base != null) {
+            return base;
+        }
+
 		return DEFAULT_UDF_DIR;
 	}
 	
