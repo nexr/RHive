@@ -156,7 +156,7 @@
     hiveClient$addJar(.FS_JAR_PATH())
 
    .registerUDFs(hiveClient)
-   .setConfigurations(hiveClient,defaultFS)
+   .setConfigurations(hiveClient)
 
    .setEnv("hiveClient", hiveClient)
 
@@ -231,7 +231,7 @@
   hiveClient$execute(sprintf("CREATE TEMPORARY FUNCTION %s AS \"%s\"", "array2String", "com.nexr.rhive.hive.udf.GenericUDFArrayToString"))
 }
 
-.setConfigurations <- function(hiveClient,defaultFS) {
+.setConfigurations <- function(hiveClient) {
  .rhive.set(.HIVE_OUTPUT_COMPRESSION_PROPERTY, "false", hiveClient)
 
  .rhive.set(.HADOOP_CHILD_ENV_PROPERTY, sprintf("RHIVE_UDF_DIR=%s", .FS_UDF_DIR()), hiveClient)
