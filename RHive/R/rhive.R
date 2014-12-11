@@ -309,7 +309,7 @@
 
 .rhive.big.query <- function(query, fetchSize=50, limit=-1, memLimit=64*1024*1024) {
   table <- .HIVE_QUERY_RESULT_TABLE_NAME()
- .createTableAs(table, query)
+  .createTableAs(table, query)
   size <- .rhive.size.table(table)
 
   if (size > memLimit) {
@@ -932,15 +932,45 @@
 }
 
 .rhive.size.table <- function(tableName) {
+
   if (missing(tableName)) {
-      stop("missing tableName")
+    stop("missing tableName")
   }
 
   location <- .rhive.table.location(tableName)
-  dataInfo <- .rhive.hdfs.du(location, summary=TRUE)
+    tryCatch ( {
+      dataInfo <- .rhive.hdfs.du(location, summary=TRUE)
+      return (dataInfo$length)
+    }, error=function(e) {
+      #ignore
+    }
+  )
+  # get the table size from 'DESC EXTENDED {table_name}'
+  size = .rhive.get.table.size(tableName)
 
-  return (dataInfo$length)
+  if(size != -1){
+    return (size)
+  }else{
+    # if there is not the size information, execute 'analyze' query and try it again.
+    .rhive.execute(sprintf("analyze table %s compute statistics",tableName))
+    size = .rhive.get.table.size(tableName)
+    return (size)
+  }
 }
+
+.rhive.get.table.size <- function(tableName){
+  str <- .rhive.desc.table(tableName, detail=TRUE)
+  i <- regexpr("totalSize\\s*=\\s*[^,]+", str)
+  l <- attr(i, "match.length")
+
+  if(l == -1)
+    return (-1)
+
+  str <- substr(str, i, i + l - 1)
+  str <- gsub("^totalSize\\s*=\\s*", "", str)
+  as.numeric(str)
+}
+
 
 .rhive.table.location <- function(tableName) {
     str <- .rhive.desc.table(tableName, detail=TRUE)
