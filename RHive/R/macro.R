@@ -37,7 +37,6 @@
   .getEnv("HOME")
 }
 
-
 .CLASSPATH <- function() {
   .getEnv("CLASSPATH")
 }
@@ -63,6 +62,10 @@
   return (fsHome)
 }
 
+.FS_TMP <- function() {
+  return (.getEnv("FS_TMP"))
+}
+
 .HIVE_LIB_DIR <- function() {
   dir <- .getEnv("HIVE_LIB_DIR") 
   if (!is.null(dir)) {
@@ -71,7 +74,6 @@
 
   return (.defaultLibDir(.HIVE_HOME()))
 }
-
 
 .HADOOP_LIB_DIR <- function() {
   dir <- .getEnv("HADOOP_LIB_DIR") 
@@ -91,23 +93,23 @@
   return (.defaultConfDir(.HADOOP_HOME())) 
 }
 
-.TMP_DIR <- function(sub=FALSE) {
+.LOCAL_TMP_DIR <- function(sub=FALSE) {
   if (sub) {
-    return (sprintf("%s/%s", .getEnv("TMP_DIR"), .makeRandomKey()))
+    return (sprintf("%s/%s", .getEnv("LOCAL_TMP_DIR"), .makeRandomKey()))
   } else {
-    return (.getEnv("TMP_DIR"))
+    return (.getEnv("LOCAL_TMP_DIR"))
   }
 }
 
 .TMP_FILE <- function(name, sub=FALSE) {
-  if (!file.exists(.TMP_DIR())) {
-    dir.create(.TMP_DIR(), recursive=TRUE)
+  if (!file.exists(.LOCAL_TMP_DIR())) {
+    dir.create(.LOCAL_TMP_DIR(), recursive=TRUE)
   }
 
   if (sub) {
-    return (sprintf("%s/%s_%s", .TMP_DIR(), name, .makeRandomKey()))
+    return (sprintf("%s/%s_%s", .LOCAL_TMP_DIR(), name, .makeRandomKey()))
   } else {
-    return (sprintf("%s/%s", .TMP_DIR(), name))
+    return (sprintf("%s/%s", .LOCAL_TMP_DIR(), name))
   }
 }
 
@@ -146,7 +148,12 @@
 }
 
 .FS_BASE_TMP_DIR <- function() {
-  return (sprintf("%s/tmp", .FS_HOME()))
+  fsTmp <- .FS_TMP()
+  if (!is.null(fsTmp)) {
+    return (sprintf("%s/%s", fsTmp, .FS_HOME()))
+  }else{
+    return (sprintf("%s/tmp", .FS_HOME()))
+  }
 }
 
 .FS_TMP_DIR <- function(sub=FALSE) {
@@ -158,7 +165,7 @@
 }
 
 .FS_TMP_FILE <- function(name, sub=FALSE) {
-  if (sub) {
+  if (sub) {name
     return (sprintf("%s/%s", .FS_TMP_DIR(sub), name))
   } else {
     return (sprintf("%s/%s_%s", .FS_TMP_DIR(sub), name, .makeRandomKey()))
@@ -166,7 +173,12 @@
 }
 
 .FS_BASE_DATA_DIR <- function() {
-  return (sprintf("%s/data", .FS_HOME()))
+  fsTmp <- .FS_TMP()
+  if (!is.null(fsTmp)) {
+    return (sprintf("%s/%s/data", fsTmp, .FS_HOME()))
+  }else{
+    return (sprintf("%s/data", .FS_HOME()))
+  }
 }
 
 .FS_DATA_DIR <- function(sub=FALSE) {

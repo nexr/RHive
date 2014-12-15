@@ -35,15 +35,34 @@ test.rhive.query <- function()
     }
 }
 
+test.rhive.big.query <- function()
+{
+    ## Load emp test data and put it into the Hive
+    data(emp)
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
+
+    rhive.write.table(emp,"emp")
+
+    queryResult <- rhive.big.query("select * from emp")
+    checkTrue(!is.null(queryResult))
+
+    if(rhive.exist.table("emp")) {
+        rhive.drop.table("emp")
+    }
+}
+
 test.rhive.array2String <- function()
 {
-	rhive.drop.table("iris")
-	rhive.write.table(iris,"iris")
+    rhive.drop.table("iris")
+    rhive.write.table(iris,"iris")
 	
-#	rhive.query("alter table iris replace columns (sepalwidth bigint)")
+    rhive.execute("alter table iris replace columns (sepalwidth bigint)")
 	
-	queryResult <- rhive.query("select array2String(percentile(sepalwidth, array(0,0.2,0.4,0.5,0.99,1))) from iris")
-	checkTrue(!is.null(queryResult))
+    queryResult <- rhive.query("select array2String(percentile(sepalwidth, array(0,0.2,0.4,0.5,0.99,1))) from iris")
+    checkTrue(!is.null(queryResult))
 
-	rhive.drop.table("iris")
+    rhive.drop.table("iris")
 }

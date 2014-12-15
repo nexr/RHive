@@ -62,6 +62,11 @@
   if (!is.null(fsHome)) {
     .setEnv("FS_HOME", fsHome)
   }
+
+  fsTmp <- .getSysEnv("RHIVE_FS_TMP")
+  if (!is.null(fsTmp)) {
+    .setEnv("FS_TMP", fsTmp)
+  }
   
   cp <- .getClasspath(hadoopHome, hadoopLib, hiveHome, hiveLib, hadoopConf)
  .setEnv("CLASSPATH", cp)
@@ -133,7 +138,7 @@
 
    .setEnv("USERNAME", userName)
    .setEnv("HOME", userHome)
-   .setEnv("TMP_DIR", tmpDir)
+   .setEnv("LOCAL_TMP_DIR", tmpDir)
    .setEnv("AUTH_PROPERTIES", j.properties)
 
     System <- .j2r.System()
@@ -258,7 +263,7 @@
    .rhive.hdfs.mkdirs(.FS_TMP_DIR())
    .rhive.hdfs.chmod("777",.FS_TMP_DIR())
   }
-  
+
   if (!.rhive.hdfs.exists(.FS_BASE_MR_SCRIPT_DIR())) {
    .rhive.hdfs.mkdirs(.FS_BASE_MR_SCRIPT_DIR())
    .rhive.hdfs.chmod("777",.FS_BASE_MR_SCRIPT_DIR())
@@ -910,8 +915,6 @@
   v <- sapply(files, FUN=function(file) { sprintf("%s%s/%s#%s", sub("\\/$", "", defaultFS), dir, file, file) })
   return (paste(v, collapse=","))
 }
-
-
 
 .rhive.drop.table <- function(tableName, list) {
   if (!missing(tableName)) {     

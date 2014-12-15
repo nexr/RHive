@@ -29,7 +29,7 @@ test.rhive.hdfs <- function()
     write.csv2(emp,localData)
 
 	checkTrue(rhive.save(emp,file="/rhive/unittest/emp.RData"))
-	
+
 	listdata <- rhive.hdfs.ls("/rhive/unittest")
 	
 	loc <- (listdata['file'] == "/rhive/unittest/emp.RData")
@@ -58,7 +58,7 @@ test.rhive.hdfs <- function()
 	rhive.hdfs.chown("rhive","/rhive/unittest/emp1.csv")
 	listdata <- rhive.hdfs.ls("/rhive/unittest/emp1.csv")
 	checkTrue(listdata[['owner']][1] == "rhive")
-	
+
 	rhive.hdfs.chgrp("grhive","/rhive/unittest/emp1.csv")
 	listdata <- rhive.hdfs.ls("/rhive/unittest/emp1.csv")
 	checkTrue(listdata[['group']][1] == "grhive")

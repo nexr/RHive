@@ -58,6 +58,10 @@
     cat(sprintf("\n\tfs home: %s", .getEnv("FS_HOME")))
   }
 
+  if (!is.null(.getEnv("FS_TMP"))) {
+    cat(sprintf("\n\tfs tmp: %s", .getEnv("FS_TMP")))
+  }
+
   cat(sprintf("\n\thive home: %s", .getEnv("HIVE_HOME")))
   cat(sprintf("\n\thive lib: %s", .getEnv("HIVE_LIB")))
   if (!is.null(.getEnv("HIVESERVER_VERSION"))) {
@@ -70,8 +74,8 @@
   if (!is.null(.getEnv("HOME"))) {
     cat(sprintf("\n\tuser home: %s", .getEnv("HOME")))
   }
-  if (!is.null(.getEnv("TMP_DIR"))) {
-    cat(sprintf("\n\ttemp dir: %s", .getEnv("TMP_DIR")))
+  if (!is.null(.getEnv("LOCAL_TMP_DIR"))) {
+    cat(sprintf("\n\ttemp dir: %s", .getEnv("LOCAL_TMP_DIR")))
   }
  
   if (ALL) {
