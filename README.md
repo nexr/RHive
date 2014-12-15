@@ -43,13 +43,24 @@ NexR RHive 2.0
 2. Installing RHive
     1. Download source code: <code>git clone https://github.com/nexr/RHive.git</code>
     2. Change your working directory: <code>cd RHive</code> 
-    3. Set the environment variables HIVE_HOME and HADOOP_HOME: <code>export HIVE_HOME=/path/to/your/hive/directory</code> <code>export HADOOP_HOME=/path/to/your/hadoop/directory</code>
+    3. Set the environment variables HIVE_HOME and HADOOP_HOME:
+        <code>export HIVE_HOME=/path/to/your/hive/directory</code>
+        <code>export HADOOP_HOME=/path/to/your/hadoop/directory</code>
     5. Build java files using ant: <code>ant build</code>
     4. Build RHive: <code>R CMD build RHive</code>
     5. Install RHive: <code>R CMD INSTALL RHive_<VERSION>.tar.gz</code>
 
 ## Loading RHive and connecting to Hive
-1. launch R
+1. Set the environment variables HIVE_HOME and HADOOP_HOME:
+    - Set the environment variables:
+        <code>export HIVE_HOME=/path/to/your/hive/directory</code>
+        <code>export HADOOP_HOME=/path/to/your/hadoop/directory</code>
+        <code>export HADOOP_CONF_DIR=/path/to/your/hadoop/conf/directory</code>
+    - Or, add environment variables into Renviron
+        <code>HIVE_HOME=/path/to/your/hive/directory</code>
+        <code>HADOOP_HOME=/path/to/your/hadoop/directory</code>
+        <code>HADOOP_CONF_DIR=/path/to/your/hadoop/conf/directory</code>
+2. launch R
 <pre><code>library(RHive)
 rhive.connect(host, port, hiveServer2)</code></pre>
   
