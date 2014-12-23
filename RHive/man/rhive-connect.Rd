@@ -13,15 +13,15 @@ rhive.connect(host="127.0.0.1",port=10000, hiveServer2=NA, defaultFS=NULL,
 rhive.close()
 }
 \description{
-Manage connection to Hive using functions in Package `RHive'
+Create and manage connections to Hive as part of the RHive package.
 }
 \arguments{
-\item{hiveHome}{path of hive's installation or if HIVE_HOME is set,
-  it is possible to use as NULL.}
-\item{hadoopHome}{path of hadoop's installation or if HADOOP_HOME is set,
-  it is possible to use as NULL.}
-\item{hadoopConf}{path of hadoop's configuation or if HADOOP_CONF_DIR is set,
-  it is possible to use as NULL.}
+\item{hiveHome}{path of hive's installation. If HIVE_HOME is set,
+  this does not have to be specified - otherwise, this is a required parameter.}
+\item{hadoopHome}{path of hadoop's installation. If HADOOP_HOME is set,
+  this does not have to be specified - otherwise, this is a required parameter.}
+\item{hadoopConf}{path to hadoop's configuation directory. If HADOOP_CONF_DIR is set,
+  this does not have to be specified - otherwise, this is a required parameter.}
 \item{hiveLib}{library path to be added to classpath.}
 \item{hadoopLib}{hadoop library path to be added to classpath.}
 \item{host}{hive-server address for connecting to hive.}
@@ -31,7 +31,7 @@ Manage connection to Hive using functions in Package `RHive'
 \item{updateJar}{update rhive_udf.jar}
 \item{user}{the username for the query to run as.}
 \item{password}{the user's password}
-\item{verbose}{an option on whether to print detail message.}
+\item{verbose}{Whether to print detailed messages or not.}
 \item{ALL}{show all rhive enviroment, such as classpath.}
 } 
 \author{
