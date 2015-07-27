@@ -352,7 +352,7 @@
     for (i in seq.int(length(colTypes))) {
       colType <- colTypes[i]
       colName <- colNames[i]
-      if (colType == "string") {
+      if (  any(colType %in% c("string","varchar","timestamp","date","char")) )  {
         lst[[i]] <- character()
       } else if (length(grep("^array", colType)) > 0) {
         lst[[i]] <- character()
