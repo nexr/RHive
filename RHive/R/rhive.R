@@ -158,7 +158,6 @@
 
     hiveClient <- .j2r.HiveJdbcClient(hiveServer2)
     hiveClient$connect(host, as.integer(port), db, user,password, j.properties)
-    hiveClient$addJar(.FS_JAR_PATH())
 
    .registerUDFs(hiveClient)
    .setConfigurations(hiveClient)
