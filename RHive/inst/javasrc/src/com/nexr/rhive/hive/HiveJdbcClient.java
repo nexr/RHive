@@ -31,7 +31,7 @@ public class HiveJdbcClient implements HiveOperations {
 		hiveConnector.setDaemon(false);
 		hiveConnector.start();
 		try {
-			hiveConnector.join(5000);
+			hiveConnector.join(30000);
 		} catch (InterruptedException e) { throw new SQLException(e); }
 
 		if (hiveConnector.isAlive()) {
